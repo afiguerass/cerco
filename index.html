@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>CERCO — Prototipo interactivo</title>
 <style>
 __SCREENS_CSS__:root{
@@ -20,7 +20,7 @@ body{display:flex;background:#F8F9FA;color:#212529;}
 /* ---- App shell ---- */
 .shell-nav{
   width:230px;flex-shrink:0;background:white;color:#212529;border-right:1px solid #E9ECEF;
-  height:100vh;position:sticky;top:0;display:flex;flex-direction:column;
+  height:100vh;height:100dvh;position:sticky;top:0;display:flex;flex-direction:column;
   padding:16px 10px;overflow-y:auto;
 }
 .shell-brand{display:block;padding:4px 0 14px;}
@@ -29,6 +29,41 @@ body{display:flex;background:#F8F9FA;color:#212529;}
   margin:16px 8px 4px;font-weight:700;
 }
 .shell-section-divider{height:1px;background:#F3F4F6;margin:10px 8px;}
+/* iOS fa zoom automatic si el camp te menys de 16px: ho evitem al mobil */
+@media (max-width:860px){
+  input[type=text], input[type=email], input[type=password], input[type=tel],
+  input[type=number], input[type=search], input:not([type]), select, textarea{
+    font-size:16px !important;
+  }
+}
+body.solo-real .ejemplo{display:none!important;}
+.badge-ejemplo{display:inline-flex;align-items:center;gap:6px;background:#FFF8EC;color:#92400E;border:1px solid #FDE9C8;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;}
+.cerco-empty{background:white;border:1px dashed #D8DEE9;border-radius:16px;padding:34px 26px;text-align:center;}
+.cerco-empty h3{font-size:16px;font-weight:800;color:#111827;margin:14px 0 6px;}
+.cerco-empty p{font-size:13.5px;color:#6B7280;line-height:1.6;margin:0 auto;max-width:420px;}
+.paso-row{display:flex;align-items:center;gap:14px;padding:15px 18px;border-bottom:1px solid #F3F4F6;}
+.paso-row:last-child{border-bottom:none;}
+.paso-num{width:30px;height:30px;min-width:30px;border-radius:50%;background:#F3F4F6;color:#9CA3AF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;}
+.paso-row.hecho .paso-num{background:#E8F8F1;color:#0E9F6E;}
+.paso-tit{font-size:14px;font-weight:700;color:#111827;}
+.paso-row.hecho .paso-tit{color:#9CA3AF;}
+.paso-sub{font-size:12.5px;color:#6B7280;margin-top:1px;}
+.paso-btn{background:#1A56DB;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.paso-btn.ghost{background:white;color:#374151;border:1px solid #E5E7EB;}
+.miembro-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #F3F4F6;}
+.miembro-row:last-child{border-bottom:none;}
+.mini-disc{width:34px;height:34px;min-width:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:12.5px;font-weight:800;}
+.sw-track{width:38px;height:22px;border-radius:99px;background:#D1D5DB;position:relative;transition:background .15s;flex-shrink:0;}
+.sw-track.on{background:#1A56DB;}
+.sw-knob{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:white;transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+.sw-track.on .sw-knob{left:19px;}
+@media(max-width:820px){
+.paso-row{flex-wrap:wrap;}
+.paso-btn{width:100%;margin-top:8px;}
+.equipo-form{grid-template-columns:1fr!important;}
+.stats-kpis,.inicio-kpis{grid-template-columns:1fr 1fr!important;}
+.stats-cols{grid-template-columns:1fr!important;}
+}
 .shell-nav-item{
   display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;
   font-size:13px;font-weight:500;color:#6B7280;margin-bottom:1px;transition:all .12s ease;position:relative;
@@ -39,10 +74,10 @@ body{display:flex;background:#F8F9FA;color:#212529;}
 .shell-nav-item.active::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:60%;background:#1A56DB;border-radius:0 3px 3px 0;}
 .shell-nav-icon{font-size:15px;flex-shrink:0;width:20px;text-align:center;color:#9CA3AF;transition:color .12s;}
 .shell-nav-item.active .shell-nav-icon{color:#1A56DB;}
-.shell-nav-label{flex:1;}
+.shell-nav-label{flex:1;min-width:0;}
 .shell-nav-badge{font-size:10px;font-weight:800;background:#EF4444;color:white;padding:1px 6px;border-radius:99px;}
 .shell-footer{margin-top:auto;padding:16px 8px 4px;font-size:11px;color:#C1C7D0;line-height:1.5;border-top:1px solid #F3F4F6;}
-.shell-main{flex:1;min-width:0;height:100vh;overflow-y:auto;}
+.shell-main{flex:1;min-width:0;height:100vh;height:100dvh;overflow-y:auto;}
 .app-screen{display:none;}
 .app-screen.active{display:block;}
 
@@ -68,18 +103,18 @@ body{display:flex;background:#F8F9FA;color:#212529;}
   /* Barra superior fija con logo */
   #mobile-topbar{
     display:flex;position:fixed;top:0;left:0;right:0;height:52px;z-index:9000;
-    background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border-bottom:1px solid #EAECF0;align-items:center;justify-content:space-between;padding:0 16px;
   }
 
   /* Barra inferior de pestañas */
   #mobile-tabbar{
     display:flex;position:fixed;bottom:0;left:0;right:0;z-index:9000;
-    background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     border-top:1px solid #EAECF0;padding:6px 4px calc(6px + env(safe-area-inset-bottom));
   }
   .mtab{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;
+    flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;
     cursor:pointer;color:#9CA3AF;border-radius:10px;-webkit-tap-highlight-color:transparent;
   }
   .mtab.active{color:#1A56DB;}
@@ -103,11 +138,11 @@ body{display:flex;background:#F8F9FA;color:#212529;}
 
   /* Rejillas: todo a una columna en móvil */
   #screen-inicio [style*="grid-template-columns:1fr 1fr"],
-  #screen-inicio [style*="grid-template-columns:repeat(4,1fr)"],
   #screen-stats [style*="grid-template-columns:1fr 1fr"]{
     grid-template-columns:1fr !important;
   }
-  #screen-stats [style*="grid-template-columns:repeat(4,1fr)"]{
+  #screen-stats [style*="grid-template-columns:repeat(4,1fr)"],
+  #screen-inicio [style*="grid-template-columns:repeat(4,1fr)"]{
     grid-template-columns:repeat(2,1fr) !important;
   }
   #screen-inicio [style*="grid-template-columns:repeat(4,1fr)"]{
@@ -140,7 +175,7 @@ body{display:flex;background:#F8F9FA;color:#212529;}
   button{min-height:42px;}
 }
 
-@media (max-width:400px){
+@media (max-width:340px){
   .mtab-lbl{font-size:9px;}
   #screen-stats [style*="grid-template-columns:repeat(4,1fr)"],
   #screen-inicio [style*="grid-template-columns:repeat(4,1fr)"]{grid-template-columns:1fr !important;}
@@ -183,10 +218,10 @@ input:focus, select:focus, textarea:focus{
 ::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:99px;}
 ::-webkit-scrollbar-thumb:hover{background:#9CA3AF;}
 
-/* 7. Selecció de text amb el color de marca */
+/* 7. Selección de texto con el color de marca */
 ::selection{background:rgba(26,86,219,.15);color:#111827;}
 
-/* 8. Toast més elegant amb animació */
+/* 8. Toast más elegante con animación */
 @keyframes toastSlideUp{
   from{transform:translate(-50%, 20px);opacity:0;}
   to{transform:translate(-50%, 0);opacity:1;}
@@ -239,7 +274,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-onboarding .brand-name {font-weight:700;font-size:15px;}
 #screen-onboarding /* Stepper */
   .stepper {display:flex;align-items:center;gap:6px;margin-bottom:20px;}
-#screen-onboarding .step-dot {flex:1;height:5px;border-radius:99px;background:#E5E7EB;transition:background .2s ease;}
+#screen-onboarding .step-dot {flex:1;min-width:0;height:5px;border-radius:99px;background:#E5E7EB;transition:background .2s ease;}
 #screen-onboarding .step-dot.done {background:#2F6FED;}
 #screen-onboarding .step-dot.active {background:#2F6FED;}
 #screen-onboarding .card {background:#FFFFFF;border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);border:1px solid #E5E7EB;padding:26px 24px;}
@@ -268,7 +303,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-onboarding .btn:disabled {background:#9CA3AF;cursor:not-allowed;}
 #screen-onboarding .btn-secondary {background:transparent;color:#4B5563;border:1px solid #E5E7EB;}
 #screen-onboarding .nav-row {display:flex;gap:10px;margin-top:6px;}
-#screen-onboarding .nav-row .btn {flex:1;}
+#screen-onboarding .nav-row .btn {flex:1;min-width:0;}
 #screen-onboarding .ai-hint {
     display:flex;gap:10px;align-items:flex-start;background:#EAF0FF;border-radius:10px;
     padding:12px 14px;margin-bottom:18px;font-size:13px;color:#1E4FC0;line-height:1.5;
@@ -309,7 +344,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-onboarding .link-row {
     display:flex;gap:8px;margin-top:10px;
   }
-#screen-onboarding .link-row input {flex:1;background:white;font-size:12.5px;color:#4B5563;}
+#screen-onboarding .link-row input {flex:1;min-width:0;background:white;font-size:12.5px;color:#4B5563;}
 #screen-onboarding .copy-btn {
     background:#2F6FED;color:white;border:none;border-radius:8px;padding:0 14px;font-size:13px;font-weight:600;cursor:pointer;
   }
@@ -451,7 +486,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-testdisc .tag-btn.active:hover {color:white;}
 #screen-testdisc .tag-btn.least.active {background:#DC2626;border-color:#DC2626;color:white;}
 #screen-testdisc .nav-row {display:flex;gap:10px;margin-top:18px;}
-#screen-testdisc .nav-row .btn {flex:1;}
+#screen-testdisc .nav-row .btn {flex:1;min-width:0;}
 #screen-testdisc .err {
     font-size:12.5px;color:#DC2626;margin-top:10px;text-align:center;
     min-height:16px;
@@ -563,7 +598,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
   }
 #screen-aplicar .skill-chip.active {background:#1A1D23;color:white;border-color:#1A1D23;}
 #screen-aplicar .skill-add {display:flex;gap:8px;margin-top:10px;}
-#screen-aplicar .skill-add input {flex:1;}
+#screen-aplicar .skill-add input {flex:1;min-width:0;}
 #screen-aplicar .skill-add button {border:none;background:#F4F6F9;border-radius:8px;padding:0 14px;font-weight:700;cursor:pointer;color:#4B5563;}
 #screen-aplicar /* sidebar */
   .side-company {display:flex;align-items:center;gap:10px;margin-bottom:14px;}
@@ -645,7 +680,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     box-shadow:0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);display:flex;align-items:center;gap:5px;color:#1A1D23;
   }
 #screen-portal .play-btn {
-    width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(2px);
+    width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
     display:flex;align-items:center;justify-content:center;font-size:13px;color:white;border:1px solid rgba(255,255,255,.5);
   }
 #screen-portal .avatar-circle-big {
@@ -658,7 +693,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-portal .cand-name-overlay {color:white;font-size:15.5px;font-weight:800;margin:0 0 6px;text-shadow:0 1px 3px rgba(0,0,0,.4);}
 #screen-portal .hashtags-row {display:flex;flex-wrap:wrap;gap:6px;}
 #screen-portal .hashtag {
-    background:rgba(255,255,255,.16);backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.25);
     color:white;font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;
   }
 #screen-portal .hashtag.disc-tag {border-color:transparent;}
@@ -673,7 +708,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-portal .quick-tags {display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
 #screen-portal .quick-tag {background:#F4F6F9;font-size:10.5px;font-weight:600;color:#4B5563;padding:3px 8px;border-radius:999px;}
 #screen-portal .card-actions {display:flex;gap:8px;}
-#screen-portal .act-btn {flex:1;border:none;border-radius:10px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;}
+#screen-portal .act-btn {flex:1;min-width:0;border:none;border-radius:10px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;}
 #screen-portal .act-pass {background:#F4F6F9;color:#4B5563;}
 #screen-portal .act-pass:hover {background:#E5E7EB;}
 #screen-portal .act-like {background:#1A56DB;color:white;}
@@ -744,7 +779,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-publicat .disc-mini-bars {margin-top:10px;}
 #screen-publicat .mini-row {display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 #screen-publicat .mini-label {width:90px;font-size:12px;color:#4B5563;font-weight:600;}
-#screen-publicat .mini-track {flex:1;height:8px;background:#F4F6F9;border-radius:99px;overflow:hidden;}
+#screen-publicat .mini-track {flex:1;min-width:0;height:8px;background:#F4F6F9;border-radius:99px;overflow:hidden;}
 #screen-publicat .mini-fill {height:100%;border-radius:99px;}
 #screen-publicat .mini-pct {width:34px;text-align:right;font-size:12px;color:#4B5563;}
 #screen-publicat .ai-callout {
@@ -816,7 +851,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-oferta .mini-bars {margin-top:12px;}
 #screen-oferta .mini-row {display:flex;align-items:center;gap:8px;margin-bottom:7px;}
 #screen-oferta .mini-label {width:18px;font-size:11.5px;color:#4B5563;font-weight:700;}
-#screen-oferta .mini-track {flex:1;height:7px;background:#F4F6F9;border-radius:99px;overflow:hidden;}
+#screen-oferta .mini-track {flex:1;min-width:0;height:7px;background:#F4F6F9;border-radius:99px;overflow:hidden;}
 #screen-oferta .mini-fill {height:100%;border-radius:99px;}
 #screen-oferta .sticky-cta {
     position:sticky;bottom:16px;margin-top:8px;
@@ -858,7 +893,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     display:flex;align-items:center;justify-content:center;
   }
 #screen-candidat .play-circle {
-    width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(2px);
+    width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
     border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;
   }
 #screen-candidat .video-info {padding:18px 22px;}
@@ -868,7 +903,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-candidat .cv-card{display:flex;flex-direction:column;}
 #screen-candidat .cv-card-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:0;padding-bottom:0;}
 #screen-candidat .cv-verified-badge{font-size:10.5px;font-weight:700;color:#0E9F6E;background:#E8F8F1;padding:3px 9px;border-radius:999px;white-space:nowrap;}
-#screen-candidat .cv-doc{background:#FAFBFC;border:1px solid #E5E7EB;border-radius:10px;padding:16px;flex:1;margin-bottom:12px;font-family:Georgia,serif;}
+#screen-candidat .cv-doc{background:#FAFBFC;border:1px solid #E5E7EB;border-radius:10px;padding:16px;flex:1;min-width:0;margin-bottom:12px;font-family:Georgia,serif;}
 #screen-candidat .cv-doc-top{border-bottom:2px solid #1A1D23;padding-bottom:8px;margin-bottom:12px;}
 #screen-candidat .cv-doc-name{font-size:15px;font-weight:800;color:#1A1D23;}
 #screen-candidat .cv-doc-role{font-size:11.5px;color:#4B5563;}
@@ -902,7 +937,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-candidat .mini-bars {margin-top:10px;}
 #screen-candidat .mini-row {display:flex;align-items:center;gap:8px;margin-bottom:7px;}
 #screen-candidat .mini-label {width:16px;font-size:11px;color:#4B5563;font-weight:700;}
-#screen-candidat .mini-track {flex:1;height:7px;background:#F4F6F9;border-radius:99px;overflow:hidden;}
+#screen-candidat .mini-track {flex:1;min-width:0;height:7px;background:#F4F6F9;border-radius:99px;overflow:hidden;}
 #screen-candidat .mini-fill {height:100%;border-radius:99px;}
 #screen-candidat .mini-pct {width:30px;text-align:right;font-size:11px;color:#4B5563;}
 #screen-candidat .fit-callout {
@@ -919,8 +954,8 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
 
 /* ===== login ===== */
-#screen-login{min-height:100vh;}
-#screen-login .login-split{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;}
+#screen-login{min-height:100vh;min-height:100dvh;}
+#screen-login .login-split{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;min-height:100dvh;}
 @media (max-width:860px){
   #screen-login .login-split{display:block;min-height:auto;}
   #screen-login .login-left{padding:34px 20px 34px;min-height:auto;align-items:flex-start;}
@@ -948,7 +983,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-login .btn-login{width:100%;background:#2F6FED;color:white;border:none;border-radius:10px;padding:12px;font-size:14.5px;font-weight:700;cursor:pointer;margin-bottom:18px;}
 #screen-login .btn-login:hover{opacity:.92;}
 #screen-login .divider{display:flex;align-items:center;gap:10px;margin:18px 0;font-size:12px;color:#9CA3AF;}
-#screen-login .divider::before, #screen-login .divider::after{content:"";flex:1;height:1px;background:#E5E7EB;}
+#screen-login .divider::before, #screen-login .divider::after{content:"";flex:1;min-width:0;height:1px;background:#E5E7EB;}
 #screen-login .social-row{display:flex;flex-direction:column;gap:10px;}
 #screen-login .btn-social{
   display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
@@ -1047,7 +1082,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
 #screen-stats .funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 #screen-stats .funnel-label{width:130px;font-size:12px;color:#4B5563;font-weight:600;flex-shrink:0;}
-#screen-stats .funnel-track{flex:1;height:22px;background:#F4F6F9;border-radius:6px;overflow:hidden;position:relative;}
+#screen-stats .funnel-track{flex:1;min-width:0;height:22px;background:#F4F6F9;border-radius:6px;overflow:hidden;position:relative;}
 #screen-stats .funnel-fill{height:100%;background:linear-gradient(90deg,#2F6FED,#6E8CF5);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:white;font-size:11px;font-weight:700;border-radius:6px;}
 
 #screen-stats .ai-insight{
@@ -1094,7 +1129,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-entrevista .confirm-box{display:none;background:#E8F8F1;border:1px solid #BCEBD8;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#0E9F6E;}
 #screen-entrevista .confirm-box.show{display:block;}
 #screen-entrevista .link-row{display:flex;gap:8px;margin-top:10px;}
-#screen-entrevista .link-row input{flex:1;background:white;border:1px solid #BCEBD8;border-radius:8px;padding:8px 11px;font-size:12px;color:#0E9F6E;}
+#screen-entrevista .link-row input{flex:1;min-width:0;background:white;border:1px solid #BCEBD8;border-radius:8px;padding:8px 11px;font-size:12px;color:#0E9F6E;}
 #screen-entrevista .copy-btn{background:#0E9F6E;color:white;border:none;border-radius:8px;padding:0 14px;font-size:12.5px;font-weight:700;cursor:pointer;}
 
 #screen-entrevista .ai-q-item{display:flex;gap:10px;align-items:flex-start;border:1px solid #E5E7EB;border-radius:10px;padding:11px 13px;margin-bottom:9px;}
@@ -1194,7 +1229,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-ofertes .offer-cand-count .new-badge{background:#FF5A5F;color:white;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:999px;}
 #screen-ofertes .offer-actions{display:flex;gap:6px;margin-top:10px;}
 #screen-ofertes .oa-btn{
-  flex:1;border:1px solid #E5E7EB;background:#F4F6F9;border-radius:8px;padding:6px;font-size:11px;font-weight:700;
+  flex:1;min-width:0;border:1px solid #E5E7EB;background:#F4F6F9;border-radius:8px;padding:6px;font-size:11px;font-weight:700;
   color:#4B5563;cursor:pointer;text-align:center;
 }
 #screen-ofertes .oa-btn:hover{background:#E5E7EB;}
@@ -1208,7 +1243,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
 
 /* ===== benvinguda ===== */
-#screen-benvinguda.active{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0B1220,#1A2A52 55%,#2F6FED);}
+#screen-benvinguda.active{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0B1220,#1A2A52 55%,#2F6FED);}
 #screen-benvinguda .welcome-card{
   background:white;border-radius:22px;max-width:460px;width:92%;padding:36px 32px 30px;
   box-shadow:0 30px 70px rgba(0,0,0,.35);text-align:center;
@@ -1227,7 +1262,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-benvinguda p{font-size:13.5px;color:#4B5563;line-height:1.6;margin:0 0 4px;}
 #screen-benvinguda .welcome-nav{display:flex;gap:10px;margin-top:26px;}
 #screen-benvinguda .btn-skip{background:none;border:none;color:#9CA3AF;font-size:13px;font-weight:600;cursor:pointer;padding:12px 10px;}
-#screen-benvinguda .btn-next{flex:1;background:#1A56DB;color:white;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;}
+#screen-benvinguda .btn-next{flex:1;min-width:0;background:#1A56DB;color:white;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;}
 #screen-benvinguda .btn-next:hover{opacity:.92;}
 #screen-benvinguda .mini-fact{
   display:inline-flex;align-items:center;gap:6px;background:#F4F6F9;border-radius:999px;padding:6px 12px;
@@ -1326,7 +1361,12 @@ __SCREENS_CSS__/* ===== onboarding ===== */
   display:flex;gap:12px;align-items:center;background:white;border:1.5px solid #2F6FED;border-radius:16px;padding:16px 18px;margin-bottom:24px;
 }
 #screen-herramientas .quick-search-card input{
-  flex:1;border:none;font-size:14px;font-family:inherit;outline:none;color:#1A1D23;
+  flex:1;min-width:0;border:none;font-size:16px;font-family:inherit;outline:none;color:#1A1D23;
+}
+@media (max-width:420px){
+  #screen-herramientas .quick-search-card{flex-wrap:wrap;gap:10px;padding:14px;}
+  #screen-herramientas .quick-search-card input{flex:1 1 100%;min-width:0;}
+  #screen-herramientas .quick-search-btn{flex:1 1 100%;min-width:0;padding:12px;}
 }
 #screen-herramientas .quick-search-btn{background:#2F6FED;color:white;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
 
@@ -1414,7 +1454,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 .st-dclose{background:none;border:1.5px solid #E5E7EB;font-size:16px;color:#6B7280;cursor:pointer;
   width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .st-dclose:hover{background:#F3F4F6;color:#111827;}
-.st-dbody{flex:1;overflow-y:auto;padding:18px 20px;}
+.st-dbody{flex:1;min-width:0;overflow-y:auto;padding:18px 20px;}
 .st-ddesc{font-size:13.5px;color:#374151;line-height:1.65;margin:0 0 18px;}
 .st-dhow{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#9CA3AF;margin-bottom:10px;}
 .st-dstep{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
@@ -1453,6 +1493,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 <div id="mobile-sheet-bg" onclick="closeMobileSheet()"></div>
 <div id="mobile-sheet">
   <div class="msheet-grip"></div>
+  <div class="msheet-item" onclick="mobileGo('equipo')"><span class="msheet-ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Mi equipo</div>
   <div class="msheet-item" onclick="mobileGo('herramientas')"><span class="msheet-ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span> Centro de herramientas</div>
   <div class="msheet-item" onclick="mobileGo('crear-oferta')"><span class="msheet-ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span> Publicar nueva oferta</div>
   <div class="msheet-label">Configuración</div>
@@ -1472,7 +1513,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
       <div id="ws-initial" style="width:28px;height:28px;min-width:28px;border-radius:8px;background:#1A56DB;color:white;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;">C</div>
       <div style="min-width:0;overflow:hidden;">
         <div id="ws-name" style="font-size:12.5px;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">Clínica Dental Madrid Centro</div>
-        <div style="font-size:10.5px;color:#9CA3AF;line-height:1.3;">Plan gratuito</div>
+        <div id="ws-plan" style="font-size:10.5px;color:#9CA3AF;line-height:1.3;">Plan gratuito</div>
       </div>
     </div>
   </div>
@@ -1485,6 +1526,9 @@ __SCREENS_CSS__/* ===== onboarding ===== */
   </div>
   <div class="shell-nav-item" data-screen="portal">
     <span class="shell-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></span><span class="shell-nav-label">Candidatos</span>
+  </div>
+  <div class="shell-nav-item" data-screen="equipo">
+    <span class="shell-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="shell-nav-label">Mi equipo</span>
   </div>
   <div class="shell-nav-item" data-screen="stats">
     <span class="shell-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><span class="shell-nav-label">Estadísticas</span>
@@ -1522,7 +1566,10 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
 
 
-  <div class="shell-footer">Prototipo interactivo de CERCO.<br>Todos los datos son de ejemplo.</div>
+  <div style="margin-top:auto;padding:10px 0 0;border-top:1px solid #F0F2F5;">
+    <div id="demo-switch"></div>
+  </div>
+  <div class="shell-footer" style="padding-top:8px;">Prototipo interactivo de CERCO</div>
 </nav>
 
 <main class="shell-main">
@@ -1553,7 +1600,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     </div>
     <div id="mc-hero-name" style="font-size:22px;font-weight:800;color:white;margin-bottom:4px;">Tu nombre</div>
     <div id="mc-hero-role" style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:6px;">Gerente · Clínica Dental Madrid Centro</div>
-    <div id="mc-disc-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);color:white;font-size:11.5px;font-weight:700;padding:5px 14px;border-radius:999px;margin-bottom:24px;backdrop-filter:blur(4px);">
+    <div id="mc-disc-chip" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);color:white;font-size:11.5px;font-weight:700;padding:5px 14px;border-radius:999px;margin-bottom:24px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);">
       Sin test DISC
     </div>
   </div>
@@ -1561,16 +1608,16 @@ __SCREENS_CSS__/* ===== onboarding ===== */
   <!-- Stats -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,.08);margin-top:0;">
     <div style="padding:14px;text-align:center;border-right:1px solid rgba(255,255,255,.08);">
-      <div style="font-size:20px;font-weight:800;color:white;">3</div>
+      <div id="mc-st-ofertas" style="font-size:20px;font-weight:800;color:white;">3</div>
       <div style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:2px;">Ofertas activas</div>
     </div>
     <div style="padding:14px;text-align:center;border-right:1px solid rgba(255,255,255,.08);">
-      <div style="font-size:20px;font-weight:800;color:white;">45</div>
+      <div id="mc-st-cand" style="font-size:20px;font-weight:800;color:white;">45</div>
       <div style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:2px;">Candidatos totales</div>
     </div>
     <div style="padding:14px;text-align:center;">
-      <div style="font-size:20px;font-weight:800;color:#F5A623;">3</div>
-      <div style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:2px;">Esperan respuesta</div>
+      <div id="mc-st-equipo" style="font-size:20px;font-weight:800;color:#F5A623;">3</div>
+      <div id="mc-st-equipo-lbl" style="font-size:10.5px;color:rgba(255,255,255,.5);margin-top:2px;">Esperan respuesta</div>
     </div>
   </div>
 </div>
@@ -1584,15 +1631,15 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     <div style="padding:0 20px;">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Nombre</div>
-        <input type="text" id="mc-nombre" value="" onchange="updateMcBadge()" style="border:none;text-align:right;font-size:13.5px;color:#6B7280;background:none;font-family:inherit;width:180px;outline:none;">
+        <input type="text" id="mc-nombre" value="" onchange="updateMcBadge()" style="border:none;text-align:right;font-size:13.5px;color:#6B7280;background:none;font-family:inherit;width:180px;outline:none;" placeholder="Tu nombre y apellido">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Email</div>
-        <input type="text" id="mc-email" value="contacto@dentalmadrid.es" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:220px;outline:none;">
+        <input type="text" id="mc-email" value="contacto@dentalmadrid.es" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:220px;outline:none;" placeholder="tu@correo.com">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Teléfono</div>
-        <input type="text" id="mc-telefono" value="+34 600 000 000" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:160px;outline:none;">
+        <input type="text" id="mc-telefono" value="+34 600 000 000" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:160px;outline:none;" placeholder="+34 600 000 000">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Rol</div>
@@ -1679,7 +1726,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
   <div class="quick-search-card">
     <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
-    <input type="text" id="hub-search" placeholder="Busca un candidato, una oferta o una habilidad y pulsa Enter...">
+    <input type="text" id="hub-search" placeholder="Busca un candidato, una oferta o una habilidad">
     <button class="quick-search-btn" onclick="hubSearchGo()">Buscar</button>
   </div>
 
@@ -2003,7 +2050,14 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
 
 <div id="screen-inicio" class="app-screen" style="background:#F8F9FA;">
-<div style="max-width:860px;margin:0 auto;padding:32px 20px 60px;">
+<div id="inicio-real" style="max-width:860px;margin:0 auto;padding:32px 20px 60px;"></div>
+<div id="inicio-demo" class="ejemplo" style="max-width:860px;margin:0 auto;padding:32px 20px 60px;">
+  <div class="aviso-ejemplo" style="background:#FFF8EC;border:1px solid #FDE9C8;border-radius:12px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;">
+    <span class="badge-ejemplo">EJEMPLO</span>
+    <span style="font-size:12.5px;color:#92400E;flex:1;min-width:200px;">Esta es una clínica inventada para enseñar cómo se ve CERCO en marcha. Tus datos reales están en el otro modo.</span>
+    <span onclick="CDB.setDemo(false)" style="font-size:12.5px;font-weight:700;color:#1A56DB;cursor:pointer;white-space:nowrap;">Ver mis datos →</span>
+  </div>
+  
 
   <!-- Saludo -->
   <div style="margin-bottom:26px;">
@@ -2101,14 +2155,15 @@ __SCREENS_CSS__/* ===== onboarding ===== */
   <div class="ofertes-header">
     <div>
       <h1>Mis ofertas</h1>
-      <div class="ofertes-sub">Clínica Dental Madrid Centro — control total, de un solo vistazo</div>
+      <div class="ofertes-sub" id="ofertes-sub">Control total, de un solo vistazo</div>
     </div>
     <button class="btn-new" onclick="showScreen('crear-oferta')">+ Nueva oferta</button>
   </div>
 
   <button class="tour-replay-btn" onclick="startTour_ofertes()"><span style="display:inline-flex;align-items:center;gap:7px;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>Ver tour guiado</span></button>
 
-  <div class="glance-strip">
+  <div id="ofertes-strip-real"></div>
+  <div class="glance-strip ejemplo">
     <div class="glance-pill">
       <div class="gp-icon" style="background:#E8F8F1;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg></div>
       <div><div class="gp-val">3</div><div class="gp-label">Ofertas activas</div></div>
@@ -2132,10 +2187,10 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     <div class="board-col">
       <div class="board-col-header">
         <div class="board-col-title"><span class="board-dot" style="background:#0E9F6E;"></span> Activas</div>
-        <div class="board-count">3</div>
+        <div class="board-count" data-col="activa">0</div>
       </div>
 
-      <div class="offer-card urgent" onclick="showScreen('portal')">
+      <div class="offer-card urgent ejemplo" onclick="showScreen('portal')">
         <span class="sla-tag"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 1 candidato hace &gt;20h</span>
         <div class="offer-title-row">
           <div class="offer-title">Higienista Dental Junior</div>
@@ -2149,7 +2204,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
         </div>
       </div>
 
-      <div class="offer-card" onclick="showScreen('portal')">
+      <div class="offer-card ejemplo" onclick="showScreen('portal')">
         <span class="sla-tag ok"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Al día</span>
         <div class="offer-title-row">
           <div class="offer-title">Dentista Becario · Prácticas</div>
@@ -2163,7 +2218,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
         </div>
       </div>
 
-      <div class="offer-card" onclick="showScreen('portal')">
+      <div class="offer-card ejemplo" onclick="showScreen('portal')">
         <span class="sla-tag ok"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Al día</span>
         <div class="offer-title-row">
           <div class="offer-title">Recepcionista Clínica Dental</div>
@@ -2182,10 +2237,10 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     <div class="board-col">
       <div class="board-col-header">
         <div class="board-col-title"><span class="board-dot" style="background:#F0A800;"></span> Pausadas</div>
-        <div class="board-count">1</div>
+        <div class="board-count" data-col="pausada">0</div>
       </div>
 
-      <div class="offer-card" onclick="showScreen('portal')">
+      <div class="offer-card ejemplo" onclick="showScreen('portal')">
         <div class="offer-title-row">
           <div class="offer-title">Auxiliar Dental (sustitución)</div>
           <span class="offer-disc" style="background:#00B488;">S</span>
@@ -2203,10 +2258,10 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     <div class="board-col">
       <div class="board-col-header">
         <div class="board-col-title"><span class="board-dot" style="background:#9CA3AF;"></span> Cerradas</div>
-        <div class="board-count">1</div>
+        <div class="board-count" data-col="cerrada">0</div>
       </div>
 
-      <div class="offer-card" style="opacity:.7;" onclick="showScreen('portal')">
+      <div class="offer-card ejemplo" style="opacity:.7;" onclick="showScreen('portal')">
         <div class="offer-title-row">
           <div class="offer-title">Odontólogo/a General</div>
           <span class="offer-disc" style="background:#5B5FE0;">C</span>
@@ -2379,9 +2434,19 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 </div>
 </div>
 
-<div id="screen-stats" class="app-screen" style="background:#F8F9FA;">
+<div id="screen-equipo" class="app-screen" style="background:#F8F9FA;">
+<div id="equipo-body" style="max-width:820px;margin:0 auto;padding:28px 20px 60px;"></div>
+</div>
 
-<div style="max-width:900px;margin:0 auto;padding:28px 20px 60px;">
+<div id="screen-stats" class="app-screen" style="background:#F8F9FA;">
+<div id="stats-real" style="max-width:900px;margin:0 auto;padding:28px 20px 60px;"></div>
+<div id="stats-demo" class="ejemplo" style="max-width:900px;margin:0 auto;padding:28px 20px 60px;">
+  <div class="aviso-ejemplo" style="background:#FFF8EC;border:1px solid #FDE9C8;border-radius:12px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;">
+    <span class="badge-ejemplo">EJEMPLO</span>
+    <span style="font-size:12.5px;color:#92400E;flex:1;min-width:200px;">Esta es una clínica inventada para enseñar cómo se ve CERCO en marcha. Tus datos reales están en el otro modo.</span>
+    <span onclick="CDB.setDemo(false)" style="font-size:12.5px;font-weight:700;color:#1A56DB;cursor:pointer;white-space:nowrap;">Ver mis datos →</span>
+  </div>
+  
 
   <!-- CABECERA -->
   <div style="margin-bottom:24px;">
@@ -2580,7 +2645,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
         <div class="row-between">
           <label class="remember"><input type="checkbox"> Recuérdame en este dispositivo</label>
-          <a href="#" style="font-size:12.5px;color:#1A56DB;">¿Olvidaste tu contraseña?</a>
+          <a href="#" onclick="showToast('Te enviaremos un correo para restablecerla'); return false;" style="font-size:12.5px;color:#1A56DB;cursor:pointer;">¿Olvidaste tu contraseña?</a>
         </div>
 
         <button class="btn-login" onclick="handleLogin()">Iniciar sesión</button>
@@ -2615,7 +2680,6 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     <div class="step-dot" id="dot-1-onboarding"></div>
     <div class="step-dot" id="dot-2-onboarding"></div>
     <div class="step-dot" id="dot-3-onboarding"></div>
-    <div class="step-dot" id="dot-4-onboarding"></div>
   </div>
 
   <!-- PASO 1: Datos básicos -->
@@ -2768,7 +2832,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 </div>
 
 
-<div id="screen-invitado" class="app-screen" style="background:linear-gradient(160deg,#0F1C3F 0%,#1A3A6B 55%,#1A56DB 100%);min-height:100vh;padding:32px 20px;box-sizing:border-box;">
+<div id="screen-invitado" class="app-screen" style="background:linear-gradient(160deg,#0F1C3F 0%,#1A3A6B 55%,#1A56DB 100%);min-height:100vh;min-height:100dvh;padding:32px 20px;box-sizing:border-box;">
   <div style="min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;">
   <div style="background:white;border-radius:20px;padding:34px 30px;max-width:440px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.25);">
     <div style="text-align:center;margin-bottom:24px;">
@@ -3005,16 +3069,17 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 <div class="wrap">
   <div class="header-block">
     <div>
-      <h1>23 candidatos han aplicado</h1>
-      <div class="sub">Ordenados por encaje con el perfil que necesitas</div>
+      <h1 id="portal-h1">23 candidatos han aplicado</h1>
+      <div class="sub" id="portal-sub">Ordenados por encaje con el perfil que necesitas</div>
     </div>
   </div>
 
-  <div class="sla-alert" id="sla-alert-portal">
+  <div class="sla-alert ejemplo" id="sla-alert-portal">
     <div class="sla-alert-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
     <div class="sla-alert-text"><b>3 candidatos esperan respuesta — 1 hace más de 20h</b>Responder rápido (aunque sea un "no") mejora tu reputación y hace que los mejores candidatos sigan confiando en CERCO.</div>
   </div>
 
+  <div id="portal-aviso-real"></div>
   <div class="ai-banner">
     <div><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg></div>
     <div><b>Recomendación de CERCO</b>Este rol busca perfiles <b>I + C</b> (Influyente y Concienzudo): trato cercano con el paciente para calmar la consulta, y precisión metódica en el protocolo de higiene. Un I solo comunica bien pero se salta pasos; un C solo es preciso pero seco con el paciente. Hemos ordenado los candidatos por su encaje real con el rol y con el hueco actual de tu equipo.</div>
@@ -3487,7 +3552,7 @@ try {
 
 // ===== onboarding =====
 
-const dots_onboarding = ['dot-1-onboarding','dot-2-onboarding','dot-3-onboarding','dot-4-onboarding'];
+const dots_onboarding = ['dot-1-onboarding','dot-2-onboarding','dot-3-onboarding'];
 function setStepper_onboarding(n){
   dots_onboarding.forEach((id,i)=>{
     const el = document.getElementById(id);
@@ -3501,7 +3566,7 @@ function goStep_onboarding(n){
   ['screen-1-onboarding','screen-2-onboarding','screen-test-onboarding','screen-results-onboarding','screen-4-onboarding'].forEach(id=>{const e=document.getElementById(id); if(e) e.style.display='none';});
   if(n===1) document.getElementById('screen-1-onboarding').style.display='block';
   if(n===2) document.getElementById('screen-2-onboarding').style.display='block';
-  if(n===4) document.getElementById('screen-4-onboarding').style.display='block';
+  if(n===4){ var e4=document.getElementById('screen-4-onboarding'); if(e4) e4.style.display='block'; }
   setStepper_onboarding(n);
 }
 setStepper_onboarding(1);
@@ -3661,6 +3726,7 @@ function showResults_onboarding(){
 
   try {
     localStorage.setItem('smiletalent_disc_empresa', JSON.stringify({dominant, secondary, norm}));
+    try{ if(window.CDB) CDB.renderTodo(); }catch(e){}
   } catch(e){}
   if(typeof loadPersonalDiscIntoBadge === 'function') loadPersonalDiscIntoBadge();
 
@@ -3834,6 +3900,7 @@ function showResults_testdisc(){
 
   try {
     localStorage.setItem('smiletalent_disc_individual', JSON.stringify({dominant, secondary, norm}));
+    try{ if(window.CDB && !window.esInvitado) CDB.renderTodo(); }catch(e){}
   } catch(e){}
   if(typeof loadPersonalDiscIntoBadge === 'function') loadPersonalDiscIntoBadge();
 
@@ -4657,7 +4724,8 @@ function submitNewOffer(){
   const jornada = document.getElementById('co-jornada').value;
 
   renderOfferCard(titulo, ubicacion, jornada, offerDiscProfiles.join(' + '), true);
-  saveOfferToStorage({titulo, ubicacion, jornada, disc: offerDiscProfiles.join(' + ')});
+  saveOfferToStorage({titulo, ubicacion, jornada, disc: offerDiscProfiles.join(' + '), estado:'activa', candidatos:0, fecha:new Date().toISOString()});
+  try{ if(window.CDB) CDB.renderTodo(); }catch(e){}
 
   showToast('¡Oferta publicada correctamente!');
   // reset form for next time
@@ -4695,6 +4763,7 @@ function saveCompanyToStorage(){
   if(!nom) return;
   try {
     localStorage.setItem('smiletalent_empresa', JSON.stringify({nom, nomResp, ciutat}));
+    try{ if(window.CDB){ CDB.fechaAlta(); CDB.setDemo(false); } }catch(e){}
   } catch(e){}
 }
 function loadCompanyFromStorage(){
@@ -4935,6 +5004,7 @@ function completeHire(){
 
 function toggleIAPanel(){
   const p = document.getElementById('ia-panel');
+  if(!p) return;
   p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
 }
 
@@ -5339,11 +5409,21 @@ function downloadFullCV(){
 function syncWorkspaceName(){
   try {
     const d = JSON.parse(localStorage.getItem('smiletalent_empresa') || '{}');
+    const n = document.getElementById('ws-name');
+    const i = document.getElementById('ws-initial');
+    const p = document.getElementById('ws-plan');
     if(d.nom){
-      const n = document.getElementById('ws-name');
-      const i = document.getElementById('ws-initial');
       if(n) n.textContent = d.nom;
       if(i) i.textContent = d.nom.charAt(0).toUpperCase();
+      if(p) p.textContent = 'Plan gratuito';
+    } else if(window.CDB && !CDB.demo()){
+      if(n) n.textContent = 'Tu clínica';
+      if(i) i.textContent = 'C';
+      if(p) p.textContent = 'Sin configurar';
+    } else {
+      if(n) n.textContent = 'Clínica Dental Madrid Centro';
+      if(i) i.textContent = 'C';
+      if(p) p.textContent = 'Ejemplo';
     }
   } catch(e){}
 }
@@ -5412,6 +5492,675 @@ function empezarTestInvitado(){
   showScreen('testdisc');
 }
 
+
+/* ============================================================
+   CERCO · DATOS DE LA CLÍNICA
+   Todo lo que ve el propietario sale de aquí. Si acaba de
+   registrarse, las cifras son cero y van subiendo con lo que
+   hace. Los datos de ejemplo viven aparte y siempre van
+   marcados como ejemplo.
+   ============================================================ */
+window.CDB = {
+  K: { emp:'smiletalent_empresa', eq:'cerco_equipo', of:'smiletalent_ofertas',
+       pl:'cerco_plantilla', demo:'cerco_demo', me:'smiletalent_disc_empresa',
+       alta:'cerco_alta' },
+  LETRAS: ['D','I','S','C'],
+  COLOR: { D:'#FF5A5F', I:'#F0A800', S:'#00B488', C:'#5B5FE0' },
+  NOMBRE: { D:'Dominante', I:'Influyente', S:'Estable', C:'Concienzudo' },
+
+  _get: function(k, def){ try{ var v = localStorage.getItem(k); return v===null? def : JSON.parse(v); }catch(e){ return def; } },
+  _set: function(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+
+  clinica: function(){ var c = this._get(this.K.emp, {}); return (c && typeof c==='object') ? c : {}; },
+  nombreClinica: function(){ return (this.clinica().nom || '').trim(); },
+  registrado: function(){ return !!this.nombreClinica(); },
+  miDisc: function(){ return this._get(this.K.me, null); },
+  equipo: function(){ var e = this._get(this.K.eq, []); return Array.isArray(e)? e : []; },
+  ofertas: function(){ var o = this._get(this.K.of, []); return Array.isArray(o)? o : []; },
+  plantilla: function(){ var n = parseInt(this._get(this.K.pl, 0),10); return isNaN(n)?0:n; },
+  setPlantilla: function(n){ this._set(this.K.pl, parseInt(n,10)||0); },
+
+  fechaAlta: function(){
+    var f = this._get(this.K.alta, null);
+    if(!f){ f = new Date().toISOString(); this._set(this.K.alta, f); }
+    return f;
+  },
+  diasDesdeAlta: function(){
+    var d = Math.floor((Date.now() - new Date(this.fechaAlta()).getTime()) / 86400000);
+    return d < 0 ? 0 : d;
+  },
+
+  /* modo ejemplo: encendido mientras no hay clínica registrada */
+  demo: function(){
+    var v = null;
+    try{ v = localStorage.getItem(this.K.demo); }catch(e){}
+    if(v === null) return !this.registrado();
+    return v === '1';
+  },
+  setDemo: function(b){
+    try{ localStorage.setItem(this.K.demo, b ? '1':'0'); }catch(e){}
+    this.aplicarModo();
+    this.renderTodo();
+  },
+  aplicarModo: function(){
+    document.body.classList.toggle('solo-real', !this.demo());
+  },
+
+  /* --- equipo --- */
+  addMiembro: function(m){
+    var l = this.equipo();
+    m.id = 'm' + Date.now() + Math.floor(Math.random()*1000);
+    m.fecha = new Date().toISOString();
+    l.push(m);
+    this._set(this.K.eq, l);
+    return m;
+  },
+  delMiembro: function(id){
+    this._set(this.K.eq, this.equipo().filter(function(x){ return x.id !== id; }));
+  },
+
+  /* el responsable cuenta como miembro en cuanto hace su test */
+  equipoCompleto: function(){
+    var l = this.equipo().slice();
+    var mio = this.miDisc();
+    if(mio && mio.dominant){
+      l.unshift({ id:'__yo__', nombre:(this.clinica().nomResp || 'Tú'), rol:'Responsable',
+                  dom:mio.dominant, sec:mio.secondary, pct:(mio.norm? mio.norm[mio.dominant]:null), yo:true });
+    }
+    return l;
+  },
+
+  /* --- cálculo de la composición DISC ---
+     el perfil principal pesa el doble que el secundario */
+  composicion: function(){
+    var eq = this.equipoCompleto(), p = {D:0,I:0,S:0,C:0}, tot = 0;
+    eq.forEach(function(m){
+      if(p[m.dom] !== undefined){ p[m.dom] += 2; tot += 2; }
+      if(p[m.sec] !== undefined){ p[m.sec] += 1; tot += 1; }
+    });
+    var out = {};
+    this.LETRAS.forEach(function(l){ out[l] = tot ? Math.round(p[l]/tot*100) : 0; });
+    if(tot){
+      var suma = out.D+out.I+out.S+out.C;
+      if(suma !== 100){
+        var mayor = this.LETRAS.slice().sort(function(a,b){ return out[b]-out[a]; })[0];
+        out[mayor] += (100 - suma);
+      }
+    }
+    return out;
+  },
+
+  ofertasPorEstado: function(){
+    var r = { activa:0, pausada:0, cerrada:0 };
+    this.ofertas().forEach(function(o){ var e = o.estado || 'activa'; if(r[e]!==undefined) r[e]++; });
+    return r;
+  },
+
+  candidatosRecibidos: function(){
+    var n = 0;
+    this.ofertas().forEach(function(o){ n += (parseInt(o.candidatos,10) || 0); });
+    return n;
+  },
+
+  resumen: function(){
+    var eq = this.equipoCompleto();
+    var est = this.ofertasPorEstado();
+    var pl = this.plantilla();
+    return {
+      clinica: this.nombreClinica(),
+      responsable: (this.clinica().nomResp || '').trim(),
+      miembros: eq.length,
+      plantilla: pl,
+      pendientes: pl > eq.length ? pl - eq.length : 0,
+      comp: this.composicion(),
+      ofertas: this.ofertas().length,
+      activas: est.activa, pausadas: est.pausada, cerradas: est.cerrada,
+      candidatos: this.candidatosRecibidos(),
+      contratados: 0,
+      miDiscHecho: !!this.miDisc(),
+      dias: this.diasDesdeAlta()
+    };
+  },
+
+  /* --- código de resultado del test: MG-IC-08 --- */
+  parseCodigo: function(txt){
+    if(!txt) return null;
+    var c = txt.trim().toUpperCase().replace(/\s+/g,'');
+    var m = c.match(/^([A-ZÑ]{1,3})-([DISC])([DISC])-(\d{1,3})$/);
+    if(!m) return null;
+    return { ini:m[1], dom:m[2], sec:m[3], pct:parseInt(m[4],10) };
+  },
+
+  reset: function(){
+    var self = this;
+    [this.K.emp, this.K.eq, this.K.of, this.K.pl, this.K.me, this.K.alta,
+     'smiletalent_disc_individual'].forEach(function(k){
+      try{ localStorage.removeItem(k); }catch(e){}
+    });
+    try{ localStorage.removeItem(self.K.demo); }catch(e){}
+  },
+
+  renderTodo: function(){
+    try{ if(typeof renderInicioReal==='function') renderInicioReal(); }catch(e){}
+    try{ if(typeof renderStatsReal==='function') renderStatsReal(); }catch(e){}
+    try{ if(typeof renderEquipo==='function') renderEquipo(); }catch(e){}
+    try{ if(typeof renderOfertasReal==='function') renderOfertasReal(); }catch(e){}
+    try{ if(typeof renderPortalReal==='function') renderPortalReal(); }catch(e){}
+    try{ if(typeof renderMiCuenta==='function') renderMiCuenta(); }catch(e){}
+    try{ if(typeof renderSwitchDemo==='function') renderSwitchDemo(); }catch(e){}
+    try{ if(typeof syncWorkspaceName==='function') syncWorkspaceName(); }catch(e){}
+  }
+};
+
+/* ---------- utilidades de pintado ---------- */
+function _ini(nombre){
+  return (nombre||'?').trim().split(/\s+/).map(function(p){ return p.charAt(0).toUpperCase(); }).join('').slice(0,2) || '?';
+}
+function _esc(t){
+  return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function _svg(d, color, size){
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+(size||16)+'" height="'+(size||16)+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;">'+d+'</svg>';
+}
+var ICO = {
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  chart:'<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  spark:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  brief:'<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
+  build:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+  trash:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>'
+};
+
+/* ============================ INICIO ============================ */
+function renderInicioReal(){
+  var box = document.getElementById('inicio-real');
+  if(!box) return;
+  if(CDB.demo()){ box.innerHTML=''; box.style.display='none'; return; }
+  box.style.display='';
+
+  var r = CDB.resumen();
+  var hoy = new Date();
+  var dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var fecha = dias[hoy.getDay()] + ', ' + hoy.getDate() + ' de ' + meses[hoy.getMonth()];
+  fecha = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+  var h = hoy.getHours();
+  var saludo = h < 14 ? 'Buenos días' : (h < 21 ? 'Buenas tardes' : 'Buenas noches');
+  var nom = r.responsable ? (', ' + r.responsable.split(/\s+/)[0]) : '';
+
+  var pasos = [
+    { ok: !!r.clinica, tit:'Completa los datos de tu clínica',
+      sub: r.clinica ? r.clinica : 'Nombre, dirección y especialidades',
+      btn:'Completar', scr:'onboarding' },
+    { ok: r.miDiscHecho, tit:'Haz tu test de personalidad',
+      sub: r.miDiscHecho ? 'Hecho — ya contamos tu perfil en el equipo' : 'Son 5 minutos. Es la base de todo lo demás',
+      btn:'Hacer el test', scr:'testdisc' },
+    { ok: r.miembros > 1, tit:'Invita a tu equipo',
+      sub: r.miembros > 1 ? (r.miembros + ' personas con el test hecho') : 'Envíales el enlace y añade sus resultados',
+      btn:'Invitar', scr:'equipo' },
+    { ok: r.ofertas > 0, tit:'Publica tu primera oferta',
+      sub: r.ofertas > 0 ? (r.ofertas + ' oferta' + (r.ofertas>1?'s':'') + ' publicada' + (r.ofertas>1?'s':'')) : 'Cuando necesites cubrir un puesto',
+      btn:'Publicar', scr:'crear-oferta' }
+  ];
+  var hechos = pasos.filter(function(p){ return p.ok; }).length;
+
+  var html = '';
+  html += '<div style="margin-bottom:24px;">'
+        + '<div style="font-size:13px;color:#9CA3AF;margin-bottom:4px;">'+fecha+'</div>'
+        + '<h1 style="font-size:24px;font-weight:800;color:#111827;margin:0;">'+saludo+_esc(nom)+'</h1>'
+        + '</div>';
+
+  /* --- primeros pasos, mientras queden --- */
+  if(hechos < 4){
+    html += '<div style="background:white;border-radius:16px;border:1px solid #EAECF0;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);">'
+          + '<div style="padding:18px 20px 14px;border-bottom:1px solid #F3F4F6;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">'
+          + '<div><div style="font-size:15px;font-weight:800;color:#111827;">Primeros pasos</div>'
+          + '<div style="font-size:12.5px;color:#6B7280;margin-top:2px;">Tu panel se irá llenando a medida que los completes</div></div>'
+          + '<div style="font-size:13px;font-weight:800;color:#1A56DB;white-space:nowrap;">'+hechos+' de 4</div></div>'
+          + '<div style="background:#F3F4F6;border-radius:99px;height:6px;margin-top:12px;">'
+          + '<div style="width:'+(hechos/4*100)+'%;background:#1A56DB;height:100%;border-radius:99px;transition:width .3s;"></div></div>'
+          + '</div>';
+    pasos.forEach(function(p,i){
+      html += '<div class="paso-row'+(p.ok?' hecho':'')+'">'
+            + '<div class="paso-num">'+(p.ok? _svg(ICO.check,'#0E9F6E',15) : (i+1))+'</div>'
+            + '<div style="flex:1;min-width:0;"><div class="paso-tit">'+p.tit+'</div><div class="paso-sub">'+_esc(p.sub)+'</div></div>'
+            + (p.ok ? '' : '<button class="paso-btn" onclick="showScreen(\''+p.scr+'\')">'+p.btn+'</button>')
+            + '</div>';
+    });
+    html += '</div>';
+  }
+
+  /* --- cifras reales --- */
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;" class="inicio-kpis">'
+    + _kpi(r.activas, 'Ofertas activas', 'ofertes')
+    + _kpi(r.candidatos, 'Candidatos recibidos', 'portal')
+    + _kpi(r.miembros + (r.plantilla ? '/'+r.plantilla : ''), 'Test del equipo', 'equipo')
+    + '<div onclick="showScreen(\'crear-oferta\')" style="background:#1A56DB;border-radius:14px;padding:16px;text-align:center;cursor:pointer;box-shadow:0 4px 12px rgba(26,86,219,.25);">'
+    + '<div style="font-size:24px;font-weight:800;color:white;">+</div>'
+    + '<div style="font-size:11.5px;color:rgba(255,255,255,.85);margin-top:2px;">Nueva oferta</div></div>'
+    + '</div>';
+
+  /* --- qué pasa hoy --- */
+  if(r.candidatos === 0){
+    html += '<div class="cerco-empty" style="margin-bottom:16px;">'
+          + _svg(ICO.users,'#C3CBD9',30)
+          + '<h3>Aún no tienes candidatos</h3>'
+          + '<p>Cuando publiques una oferta y alguien se inscriba, aparecerá aquí con su encaje calculado. '
+          + 'Todo lo que veas en esta pantalla será tuyo, nunca datos inventados.</p>'
+          + '<button class="paso-btn" style="margin-top:16px;" onclick="showScreen(\'crear-oferta\')">Publicar una oferta</button>'
+          + '</div>';
+  }
+
+  /* --- Seimian: solo dice algo cuando hay datos para decirlo --- */
+  html += '<div style="background:linear-gradient(135deg,#0F1C3F,#1A3A6B);border-radius:16px;padding:20px;">'
+        + '<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.5);margin-bottom:10px;">'
+        + '<span style="display:inline-flex;align-items:center;gap:7px;">'+_svg(ICO.spark,'#F5A623',15)+'Seimian</span></div>'
+        + '<div style="font-size:13.5px;color:white;line-height:1.6;">' + _mensajeSeimian(r) + '</div>'
+        + '</div>';
+
+  box.innerHTML = html;
+}
+
+function _kpi(valor, etiqueta, pantalla){
+  return '<div onclick="showScreen(\''+pantalla+'\')" style="background:white;border-radius:14px;border:1px solid #EAECF0;padding:16px;text-align:center;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+       + '<div style="font-size:24px;font-weight:800;color:#111827;">'+valor+'</div>'
+       + '<div style="font-size:11.5px;color:#6B7280;margin-top:2px;">'+etiqueta+'</div></div>';
+}
+
+function _mensajeSeimian(r){
+  var falta = r.miDiscHecho ? '' :
+    ' Te falta tu propio test: sin él no cuento contigo en la lectura del equipo.';
+  if(r.miembros === 0)
+    return 'Empieza por tu test de personalidad. Sin él no puedo calcular el encaje de nadie con tu equipo, y es lo que hace que CERCO sirva de algo.';
+  if(r.miembros < 3)
+    return 'Con '+r.miembros+' persona'+(r.miembros===1?'':'s')+' todavía no puedo leer el equipo. A partir de 3 test hechos empiezo a decirte qué perfil te falta.'+falta;
+  var comp = r.comp, flojo = null, min = 101;
+  ['D','I','S','C'].forEach(function(l){ if(comp[l] < min){ min = comp[l]; flojo = l; } });
+  if(min < 15)
+    return 'Tu equipo tiene poca presencia del perfil <b style="color:#F5A623;">'+CDB.NOMBRE[flojo]+' ('+flojo+')</b> — un '+min+'%. En la próxima incorporación, dale peso a ese perfil.'+falta;
+  return 'Tu equipo está repartido entre los cuatro perfiles, sin huecos claros. Cuando publiques una oferta te diré qué perfil encaja mejor con ese puesto concreto.'+falta;
+}
+
+/* ========================== ESTADÍSTICAS ========================== */
+function renderStatsReal(){
+  var box = document.getElementById('stats-real');
+  if(!box) return;
+  if(CDB.demo()){ box.innerHTML=''; box.style.display='none'; return; }
+  box.style.display='';
+
+  var r = CDB.resumen();
+  var eq = CDB.equipoCompleto();
+  var html = '';
+
+  html += '<div style="margin-bottom:24px;">'
+        + '<h1 style="font-size:22px;font-weight:800;color:#111827;margin:0 0 4px;">Estadísticas</h1>'
+        + '<div style="font-size:13.5px;color:#6B7280;">'
+        + (r.clinica ? _esc(r.clinica) + ' · ' : '')
+        + (r.dias === 0 ? 'desde hoy' : 'desde hace ' + r.dias + ' día' + (r.dias===1?'':'s'))
+        + '</div></div>';
+
+  /* sin equipo: no hay nada que medir */
+  if(eq.length === 0){
+    html += '<div class="cerco-empty">'
+          + _svg(ICO.chart,'#C3CBD9',32)
+          + '<h3>Todavía no hay nada que medir</h3>'
+          + '<p>Las estadísticas se construyen con los test de personalidad de tu equipo. '
+          + 'Haz el tuyo y pásale el enlace a tu gente: en cuanto haya resultados, esta pantalla cobra vida.</p>'
+          + '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;">'
+          + '<button class="paso-btn" onclick="showScreen(\'testdisc\')">Hacer mi test</button>'
+          + '<button class="paso-btn ghost" onclick="showScreen(\'equipo\')">Invitar a mi equipo</button>'
+          + '</div></div>';
+    box.innerHTML = html;
+    return;
+  }
+
+  /* KPIs honestos: solo lo que podemos contar */
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" class="stats-kpis">'
+        + _kpiStat(eq.length, 'personas con el test hecho', r.pendientes ? r.pendientes+' pendientes' : 'todo el equipo', r.pendientes?'#D97706':'#059669')
+        + _kpiStat(r.ofertas, 'ofertas publicadas', r.activas + ' activas', '#6B7280')
+        + _kpiStat(r.candidatos, 'candidatos recibidos', r.candidatos ? 'en tus ofertas' : 'aún ninguno', '#6B7280')
+        + _kpiStat(r.contratados, 'contrataciones', r.contratados ? '' : 'aún ninguna', '#6B7280')
+        + '</div>';
+
+  /* composición real */
+  var comp = r.comp;
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="stats-cols">';
+  html += '<div style="background:white;border-radius:14px;border:1px solid #EAECF0;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+        + '<div style="font-size:14px;font-weight:800;color:#111827;margin-bottom:4px;">Composición de tu equipo</div>'
+        + '<div style="font-size:12px;color:#6B7280;margin-bottom:16px;">Calculado con '+eq.length+' test'+(eq.length===1?'':'s')+'. El perfil principal cuenta el doble que el secundario.</div>'
+        + '<div style="display:flex;flex-direction:column;gap:10px;">';
+  ['D','I','S','C'].forEach(function(l){
+    html += '<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+          + '<div style="display:flex;align-items:center;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:'+CDB.COLOR[l]+';"></div>'
+          + '<span style="font-size:13px;color:#374151;">'+CDB.NOMBRE[l]+' ('+l+')</span></div>'
+          + '<span style="font-size:13px;font-weight:700;color:'+CDB.COLOR[l]+';">'+comp[l]+'%</span></div>'
+          + '<div style="background:#F3F4F6;border-radius:99px;height:7px;"><div style="width:'+comp[l]+'%;background:'+CDB.COLOR[l]+';height:100%;border-radius:99px;"></div></div></div>';
+  });
+  html += '</div>';
+  if(eq.length < 3){
+    html += '<div style="margin-top:14px;background:#F8F9FA;border-radius:8px;padding:10px 12px;font-size:12px;color:#6B7280;">'
+          + '<span style="display:inline-flex;align-items:flex-start;gap:7px;">'+_svg(ICO.info,'#9CA3AF',14)
+          + '<span>Con '+eq.length+' test'+(eq.length===1?'':'s')+' esta lectura aún es orientativa. A partir de 3 personas empieza a ser fiable.</span></span></div>';
+  }
+  html += '</div>';
+
+  /* lista del equipo */
+  html += '<div style="background:white;border-radius:14px;border:1px solid #EAECF0;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">'
+        + '<div><div style="font-size:14px;font-weight:800;color:#111827;">Tu equipo</div>'
+        + '<div style="font-size:12px;color:#6B7280;margin-top:2px;">'+eq.length+' con el test hecho'+(r.pendientes?' · '+r.pendientes+' pendientes':'')+'</div></div>'
+        + '<button class="paso-btn ghost" onclick="showScreen(\'equipo\')">Gestionar</button></div>';
+  eq.slice(0,6).forEach(function(m){
+    html += _filaMiembro(m, false);
+  });
+  if(eq.length > 6)
+    html += '<div style="text-align:center;padding-top:12px;"><span onclick="showScreen(\'equipo\')" style="font-size:12.5px;color:#1A56DB;font-weight:700;cursor:pointer;">Ver las '+eq.length+' personas →</span></div>';
+  html += '</div></div>';
+
+  /* Seimian solo si hay base */
+  if(eq.length >= 3){
+    html += '<div style="background:linear-gradient(135deg,#0F1C3F,#1A3A6B);border-radius:16px;padding:20px 22px;margin-top:16px;">'
+          + '<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px;">'
+          + '<span style="display:inline-flex;align-items:center;gap:7px;">'+_svg(ICO.spark,'#F5A623',15)+'Seimian · Recomendación</span></div>'
+          + '<div style="font-size:14px;color:white;line-height:1.6;">'+_mensajeSeimian(r)+'</div></div>';
+  }
+
+  box.innerHTML = html;
+}
+
+function _kpiStat(valor, etiqueta, nota, color){
+  return '<div style="background:white;border-radius:14px;border:1px solid #EAECF0;padding:18px 16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+       + '<div style="font-size:28px;font-weight:800;color:#111827;">'+valor+'</div>'
+       + '<div style="font-size:12px;color:#6B7280;margin-top:2px;">'+etiqueta+'</div>'
+       + (nota ? '<div style="font-size:11px;color:'+color+';font-weight:600;margin-top:4px;">'+nota+'</div>' : '')
+       + '</div>';
+}
+
+function _filaMiembro(m, conBorrar){
+  var col = CDB.COLOR[m.dom] || '#9CA3AF';
+  return '<div class="miembro-row">'
+       + '<div class="mini-disc" style="background:'+col+';">'+(m.dom||'?')+'</div>'
+       + '<div style="flex:1;min-width:0;">'
+       + '<div style="font-size:13.5px;font-weight:600;color:#111827;">'+_esc(m.nombre)+(m.yo?' <span style="font-size:11px;color:#1A56DB;font-weight:700;">· tú</span>':'')+'</div>'
+       + '<div style="font-size:11.5px;color:#6B7280;">'+_esc(m.rol||'Sin rol')+' · Perfil '+(m.dom||'?')+'/'+(m.sec||'?')+'</div></div>'
+       + (conBorrar && !m.yo
+          ? '<button onclick="borrarMiembro(\''+m.id+'\')" title="Quitar" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;">'+_svg(ICO.trash,'#C3CBD9',15)+'</button>'
+          : '')
+       + '</div>';
+}
+
+/* ============================ MI EQUIPO ============================ */
+function renderEquipo(){
+  var box = document.getElementById('equipo-body');
+  if(!box) return;
+  var eq = CDB.equipoCompleto();
+  var pl = CDB.plantilla();
+  var link = (typeof buildInviteLink === 'function') ? buildInviteLink() : null;
+  var nomClinica = CDB.nombreClinica();
+  var html = '';
+
+  /* cabecera */
+  html += '<div style="margin-bottom:22px;">'
+        + '<h1 style="font-size:22px;font-weight:800;color:#111827;margin:0 0 4px;">Mi equipo</h1>'
+        + '<div style="font-size:13.5px;color:#6B7280;">Cada persona que hace el test suma a las estadísticas de tu clínica</div></div>';
+
+  /* paso 1: enlace */
+  html += '<div style="background:white;border-radius:16px;border:1px solid #EAECF0;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+        + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">'
+        + '<div style="width:22px;height:22px;border-radius:50%;background:#EEF2FF;color:#1A56DB;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">1</div>'
+        + '<div style="font-size:14.5px;font-weight:800;color:#111827;">Envía el enlace a tu gente</div></div>'
+        + '<div style="font-size:12.5px;color:#6B7280;margin-bottom:14px;padding-left:31px;">Quien lo abra hace el test directamente, sin registrarse ni instalar nada. Al terminar recibe un código.</div>';
+
+  if(!nomClinica){
+    html += '<div style="background:#FFF8EC;border:1px solid #FDE9C8;border-radius:10px;padding:13px 15px;font-size:13px;color:#92400E;line-height:1.55;">'
+          + 'Primero pon el nombre de tu clínica en <b>Mi clínica</b>: es lo que verán tus compañeros al abrir el enlace.'
+          + '<div style="margin-top:11px;"><button class="paso-btn" onclick="showScreen(\'onboarding\')">Ir a Mi clínica</button></div></div>';
+  } else {
+    html += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
+          + '<input type="text" readonly id="invite-link-equipo" value="'+_esc(link||'')+'" style="flex:1;min-width:220px;border:1px solid #E5E7EB;border-radius:9px;padding:11px 12px;font-size:12px;color:#4B5563;background:#F9FAFB;font-family:inherit;outline:none;">'
+          + '<button onclick="copyInviteLink(this)" style="background:#1A56DB;color:white;border:none;border-radius:9px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;">Copiar</button>'
+          + '<button onclick="compartirWhatsapp()" style="background:#E8F8F1;color:#0E9F6E;border:none;border-radius:9px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;">WhatsApp</button>'
+          + '</div>';
+  }
+  html += '</div>';
+
+  /* paso 2: añadir código */
+  html += '<div style="background:white;border-radius:16px;border:1px solid #EAECF0;padding:20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+        + '<div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">'
+        + '<div style="width:22px;height:22px;border-radius:50%;background:#EEF2FF;color:#1A56DB;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">2</div>'
+        + '<div style="font-size:14.5px;font-weight:800;color:#111827;">Añade el código que te envíen</div></div>'
+        + '<div style="font-size:12.5px;color:#6B7280;margin-bottom:14px;padding-left:31px;">Te llegará algo como <b style="font-family:ui-monospace,Menlo,monospace;color:#374151;">MG-IC-84</b>. Lo pegas aquí con el nombre y el puesto.</div>'
+        + '<div style="display:grid;grid-template-columns:1.4fr 1.2fr 1fr auto;gap:8px;align-items:center;" class="equipo-form">'
+        + '<input type="text" id="eq-nombre" placeholder="Nombre y apellido" style="border:1px solid #E5E7EB;border-radius:9px;padding:11px 12px;font-size:13px;font-family:inherit;outline:none;">'
+        + '<select id="eq-rol" style="border:1px solid #E5E7EB;border-radius:9px;padding:11px 12px;font-size:13px;font-family:inherit;outline:none;background:white;color:#374151;">'
+        + '<option value="">Puesto…</option>'
+        + '<option>Odontólogo/a</option><option>Higienista dental</option><option>Auxiliar dental</option>'
+        + '<option>Recepción</option><option>Gerencia</option><option>Ortodoncista</option>'
+        + '<option>Protésico/a</option><option>Otro</option></select>'
+        + '<input type="text" id="eq-codigo" placeholder="Código" maxlength="12" oninput="this.value=this.value.toUpperCase()" style="border:1px solid #E5E7EB;border-radius:9px;padding:11px 12px;font-size:13px;font-family:ui-monospace,Menlo,monospace;letter-spacing:1px;outline:none;">'
+        + '<button onclick="anadirMiembro()" style="background:#1A56DB;color:white;border:none;border-radius:9px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Añadir</button>'
+        + '</div>'
+        + '<div id="eq-error" style="font-size:12.5px;color:#DC2626;margin-top:9px;min-height:1px;"></div>'
+        + '</div>';
+
+  /* tamaño de plantilla */
+  html += '<div style="background:white;border-radius:16px;border:1px solid #EAECF0;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+        + '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+        + '<div style="flex:1;min-width:200px;"><div style="font-size:13.5px;font-weight:700;color:#111827;">¿Cuántas personas sois en total?</div>'
+        + '<div style="font-size:12.5px;color:#6B7280;margin-top:2px;">Para saber cuántos test faltan por hacer</div></div>'
+        + '<input type="number" min="0" max="500" id="eq-plantilla" value="'+(pl||'')+'" placeholder="0" onchange="guardarPlantilla()" style="width:88px;border:1px solid #E5E7EB;border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;text-align:center;outline:none;">'
+        + '</div></div>';
+
+  /* lista */
+  html += '<div style="background:white;border-radius:16px;border:1px solid #EAECF0;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+        + '<div style="font-size:14.5px;font-weight:800;color:#111827;">Personas con el test hecho</div>'
+        + '<div style="font-size:13px;font-weight:800;color:#1A56DB;">'+eq.length+(pl?' de '+pl:'')+'</div></div>';
+
+  if(pl > 0){
+    var pct = Math.min(100, Math.round(eq.length/pl*100));
+    html += '<div style="background:#F3F4F6;border-radius:99px;height:7px;margin:10px 0 16px;">'
+          + '<div style="width:'+pct+'%;background:linear-gradient(90deg,#1A56DB,#3B82F6);height:100%;border-radius:99px;transition:width .3s;"></div></div>';
+  } else {
+    html += '<div style="height:12px;"></div>';
+  }
+
+  if(eq.length === 0){
+    html += '<div style="text-align:center;padding:26px 10px;">'
+          + _svg(ICO.users,'#C3CBD9',28)
+          + '<div style="font-size:14px;font-weight:700;color:#374151;margin-top:12px;">Todavía no hay nadie</div>'
+          + '<div style="font-size:13px;color:#6B7280;margin-top:5px;line-height:1.55;">Empieza por ti: haz tu test y entrarás automáticamente en la lista.</div>'
+          + '<button class="paso-btn" style="margin-top:15px;" onclick="showScreen(\'testdisc\')">Hacer mi test</button></div>';
+  } else {
+    eq.forEach(function(m){ html += _filaMiembro(m, true); });
+  }
+  html += '</div>';
+
+  box.innerHTML = html;
+}
+
+function guardarPlantilla(){
+  var el = document.getElementById('eq-plantilla');
+  if(!el) return;
+  CDB.setPlantilla(el.value);
+  CDB.renderTodo();
+}
+
+function anadirMiembro(){
+  var nEl = document.getElementById('eq-nombre'),
+      rEl = document.getElementById('eq-rol'),
+      cEl = document.getElementById('eq-codigo'),
+      err = document.getElementById('eq-error');
+  if(!nEl || !cEl) return;
+  var nombre = nEl.value.trim(), rol = rEl ? rEl.value : '', codigo = cEl.value.trim();
+  err.textContent = '';
+
+  if(!nombre){ err.textContent = 'Escribe el nombre de la persona.'; nEl.focus(); return; }
+  var p = CDB.parseCodigo(codigo);
+  if(!p){ err.textContent = 'Ese código no tiene el formato correcto. Debe ser algo como MG-IC-84.'; cEl.focus(); return; }
+
+  var ini = _ini(nombre);
+  if(p.ini !== ini){
+    err.innerHTML = 'Aviso: el código empieza por <b>'+p.ini+'</b> y el nombre por <b>'+ini+'</b>. '
+                  + 'Si es correcto, vuelve a pulsar Añadir.';
+    if(cEl.dataset.avisado === codigo + nombre){ /* confirmado, seguimos */ }
+    else { cEl.dataset.avisado = codigo + nombre; return; }
+  }
+
+  var repe = CDB.equipo().some(function(m){ return m.codigo === codigo.toUpperCase(); });
+  if(repe){ err.textContent = 'Ese código ya está añadido.'; return; }
+
+  CDB.addMiembro({ nombre:nombre, rol:rol||'Sin puesto', dom:p.dom, sec:p.sec, pct:p.pct, codigo:codigo.toUpperCase() });
+  nEl.value=''; cEl.value=''; if(rEl) rEl.value='';
+  CDB.renderTodo();
+  if(typeof showToast === 'function') showToast(nombre.split(/\s+/)[0] + ' añadido al equipo · Perfil ' + p.dom + '/' + p.sec);
+}
+
+function borrarMiembro(id){
+  CDB.delMiembro(id);
+  CDB.renderTodo();
+  if(typeof showToast === 'function') showToast('Persona quitada del equipo');
+}
+
+function compartirWhatsapp(){
+  var link = (typeof buildInviteLink === 'function') ? buildInviteLink() : null;
+  if(!link){ if(typeof showToast==='function') showToast('Pon antes el nombre de tu clínica'); return; }
+  var txt = 'Hola, estamos usando CERCO para conocer mejor cómo trabajamos en equipo. '
+          + '¿Puedes hacer este test? Son 5 minutos y al final te da un código: pásamelo y ya está.\n\n' + link;
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+}
+
+/* ====================== MIS OFERTAS (reales) ====================== */
+function renderOfertasReal(){
+  var strip = document.getElementById('ofertes-strip-real');
+  var sub = document.getElementById('ofertes-sub');
+  if(sub) sub.textContent = CDB.nombreClinica() ? (CDB.nombreClinica() + ' — control total, de un solo vistazo') : 'Control total, de un solo vistazo';
+  if(!strip) return;
+
+  if(CDB.demo()){ strip.innerHTML=''; strip.style.display='none'; }
+  else {
+    strip.style.display='';
+    var r = CDB.resumen();
+    strip.innerHTML = '<div class="glance-strip">'
+      + _pill('#E8F8F1', r.activas, 'Ofertas activas')
+      + _pill('#EAF0FF', r.candidatos, 'Candidatos totales')
+      + _pill('#FFF4E5', r.pausadas, 'Pausadas')
+      + _pill('#F3F1FF', r.cerradas, 'Cerradas')
+      + '</div>';
+  }
+
+  /* contadores de columna: solo las tarjetas visibles */
+  ['activa','pausada','cerrada'].forEach(function(est){
+    var badge = document.querySelector('.board-count[data-col="'+est+'"]');
+    if(!badge) return;
+    var col = badge.closest('.board-col');
+    if(!col) return;
+    var n = 0;
+    col.querySelectorAll('.offer-card').forEach(function(c){
+      if(CDB.demo() || !c.classList.contains('ejemplo')) n++;
+    });
+    badge.textContent = n;
+  });
+}
+function _pill(bg, val, label){
+  return '<div class="glance-pill"><div class="gp-icon" style="background:'+bg+';">'+_svg(ICO.brief,'#1A56DB',17)+'</div>'
+       + '<div><div class="gp-val">'+val+'</div><div class="gp-label">'+label+'</div></div></div>';
+}
+
+
+/* ====================== MI CUENTA (dades reals) ====================== */
+function renderMiCuenta(){
+  var demo = CDB.demo();
+  var c = CDB.clinica(), r = CDB.resumen();
+  var set = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = val; };
+  var setv = function(id, val){ var e=document.getElementById(id); if(e && !e.value) e.value = val; };
+
+  if(demo){
+    set('mc-hero-name','Tu nombre');
+    set('mc-hero-role','Gerente · Clínica Dental Madrid Centro');
+    set('mc-st-ofertas','3'); set('mc-st-cand','45'); set('mc-st-equipo','3');
+    set('mc-st-equipo-lbl','Esperan respuesta');
+    return;
+  }
+
+  var nom = (c.nomResp||'').trim();
+  var rolSel = document.getElementById('mc-rol');
+  var rol = rolSel ? rolSel.value : 'Gerente';
+  set('mc-hero-name', nom || 'Tu nombre');
+  set('mc-hero-role', rol + (c.nom ? ' · ' + c.nom : ''));
+  set('mc-st-ofertas', r.activas);
+  set('mc-st-cand', r.candidatos);
+  set('mc-st-equipo', r.miembros);
+  set('mc-st-equipo-lbl', 'Test del equipo');
+
+  // camps del formulari: omplim només si estan buits, per no trepitjar el que escrigui
+  var nEl = document.getElementById('mc-nombre');
+  if(nEl && !nEl.value && nom) nEl.value = nom;
+  var eEl = document.getElementById('mc-email');
+  if(eEl && eEl.value === 'contacto@dentalmadrid.es') eEl.value = '';
+  var tEl = document.getElementById('mc-telefono');
+  if(tEl && tEl.value === '+34 600 000 000') tEl.value = '';
+
+  // inicial de l'avatar
+  var av = document.getElementById('mc-avatar-letter');
+  if(av && !document.getElementById('mc-avatar-circle').style.backgroundImage)
+    av.textContent = nom ? nom.trim().charAt(0).toUpperCase() : '?';
+
+  // membres amb accés
+  var acc = document.getElementById('mc-miembros-acceso');
+  if(acc) acc.textContent = '1 de 1';
+}
+
+/* ====================== CANDIDATOS ====================== */
+function renderPortalReal(){
+  var h1 = document.getElementById('portal-h1');
+  var sub = document.getElementById('portal-sub');
+  var aviso = document.getElementById('portal-aviso-real');
+  if(CDB.demo()){
+    if(h1) h1.textContent = '23 candidatos han aplicado';
+    if(sub) sub.textContent = 'Ordenados por encaje con el perfil que necesitas';
+    if(aviso){ aviso.innerHTML=''; aviso.style.display='none'; }
+    return;
+  }
+  var n = CDB.candidatosRecibidos();
+  if(h1) h1.textContent = n === 0 ? 'Todavía no tienes candidatos' : (n + (n===1?' candidato ha aplicado':' candidatos han aplicado'));
+  if(sub) sub.textContent = n === 0
+    ? 'En cuanto alguien se inscriba en una de tus ofertas, aparecerá aquí'
+    : 'Ordenados por encaje con el perfil que necesitas';
+  if(aviso){
+    aviso.style.display='';
+    aviso.innerHTML = '<div style="background:#F8F9FA;border:1px solid #E5E7EB;border-radius:12px;padding:16px 18px;margin-bottom:16px;">'
+      + '<div style="display:flex;align-items:flex-start;gap:11px;">'
+      + _svg(ICO.info,'#9CA3AF',17)
+      + '<div style="flex:1;font-size:13px;color:#4B5563;line-height:1.6;">'
+      + '<b style="color:#111827;">Los perfiles que ves debajo son de ejemplo.</b> '
+      + 'Sirven para enseñarte cómo CERCO ordena y puntúa a los candidatos. '
+      + 'Los tuyos aparecerán aquí en cuanto publiques una oferta y alguien se inscriba.'
+      + (CDB.resumen().ofertas === 0
+          ? '<div style="margin-top:12px;"><button class="paso-btn" onclick="showScreen(\'crear-oferta\')">Publicar mi primera oferta</button></div>'
+          : '')
+      + '</div></div></div>';
+  }
+}
+
+/* ====================== INTERRUPTOR DE EJEMPLO ====================== */
+function renderSwitchDemo(){
+  var el = document.getElementById('demo-switch');
+  if(!el) return;
+  var on = CDB.demo();
+  el.innerHTML = '<div onclick="CDB.setDemo('+(on?'false':'true')+')" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:9px 10px;border-radius:9px;">'
+    + '<div class="sw-track'+(on?' on':'')+'"><div class="sw-knob"></div></div>'
+    + '<div style="min-width:0;"><div style="font-size:12px;font-weight:700;color:'+(on?'#92400E':'#6B7280')+';">Datos de ejemplo</div>'
+    + '<div style="font-size:10.5px;color:#9CA3AF;line-height:1.35;">'+(on?'Verás una clínica inventada':'Solo ves lo tuyo')+'</div></div></div>';
+
+  /* aviso visible en las pantallas de ejemplo */
+  document.querySelectorAll('.aviso-ejemplo').forEach(function(a){ a.style.display = on ? '' : 'none'; });
+}
+
 // ---- Navigation (always runs, isolated from any error above) ----
 window.showScreen = function(id){
   document.querySelectorAll('.app-screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + id));
@@ -5419,6 +6168,7 @@ window.showScreen = function(id){
   if(typeof syncMobileChrome === 'function') syncMobileChrome(id);
   if(typeof syncWorkspaceName === 'function') syncWorkspaceName();
   if(id === 'stats' && typeof refreshInviteLink === 'function') setTimeout(refreshInviteLink, 40);
+  try{ if(window.CDB){ CDB.aplicarModo(); CDB.renderTodo(); } }catch(e){}
   document.body.classList.toggle('on-login', id === 'login');
   window.scrollTo(0,0);
   const main = document.querySelector('.shell-main');
@@ -5434,6 +6184,7 @@ document.querySelectorAll('.shell-nav-item').forEach(item=>{
     showScreen('invitado');
     return;
   }
+  try{ CDB.fechaAlta(); CDB.aplicarModo(); CDB.renderTodo(); }catch(e){}
   let hasSession = false;
   try {
     const data = JSON.parse(localStorage.getItem('smiletalent_empresa') || 'null');
@@ -5456,310 +6207,72 @@ document.querySelectorAll('.shell-nav-item').forEach(item=>{
 
 
 
-<!-- ============================================================
-     FIREBASE AUTH + FEEDBACK LAYER
-     ============================================================ -->
-<script type="module">
-import { initializeApp }        from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-         signOut, onAuthStateChanged }
-                                from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, collection, addDoc, serverTimestamp }
-                                from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-/* ---- Config ---- */
-const firebaseConfig = {
-  apiKey:            "AIzaSyCFjY_-Wsk-g_sQeEz3LXpnBC4xmUBIjB4",
-  authDomain:        "smiletalent-1caa7.firebaseapp.com",
-  projectId:         "smiletalent-1caa7",
-  storageBucket:     "smiletalent-1caa7.firebasestorage.app",
-  messagingSenderId: "518085373307",
-  appId:             "1:518085373307:web:e298ed9f6c9453b13721de"
-};
-const ADMIN_EMAIL  = "asishfigueras@gmail.com";
-const EXPIRY_DATE  = new Date('2026-07-25T23:59:59');
-
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-
-/* ---- Inject CSS ---- */
-const css = `
-/* AUTH WALL */
-#auth-wall{position:fixed;inset:0;z-index:99000;background:#F4F6F9;
-  display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
-.auth-card{background:#fff;border-radius:20px;padding:40px 36px;width:100%;max-width:400px;
-  box-shadow:0 8px 32px rgba(16,24,40,.12);text-align:center;}
-.auth-logo{font-size:28px;font-weight:800;color:#1A56DB;letter-spacing:-1px;margin-bottom:6px;}
-.auth-subtitle{font-size:13px;color:#6B7280;margin-bottom:28px;}
-.auth-tabs{display:flex;background:#F3F4F6;border-radius:12px;padding:4px;margin-bottom:24px;}
-.auth-tab{flex:1;padding:9px;border:none;background:none;border-radius:9px;cursor:pointer;
-  font-size:13px;font-weight:600;color:#6B7280;transition:all .15s;}
-.auth-tab.active{background:#fff;color:#1A56DB;box-shadow:0 1px 4px rgba(0,0,0,.1);}
-.auth-input{width:100%;padding:11px 14px;border:1.5px solid #E5E7EB;border-radius:10px;
-  font-size:14px;outline:none;margin-bottom:12px;transition:border-color .15s;box-sizing:border-box;}
-.auth-input:focus{border-color:#1A56DB;}
-.auth-btn{width:100%;padding:12px;background:#1A56DB;color:#fff;border:none;border-radius:10px;
-  font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .15s;}
-.auth-btn:hover{background:#1047B8;}
-.auth-btn:disabled{background:#9CA3AF;cursor:not-allowed;}
-.auth-msg{font-size:12px;margin-top:10px;min-height:18px;color:#EF4444;}
-.auth-msg.ok{color:#00B488;}
-
-/* EXPIRED WALL */
-#expired-wall{position:fixed;inset:0;z-index:99100;background:#F4F6F9;
-  display:none;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
-.expired-card{background:#fff;border-radius:20px;padding:40px;max-width:420px;text-align:center;
-  box-shadow:0 8px 32px rgba(16,24,40,.12);}
-.expired-icon{font-size:48px;margin-bottom:16px;}
-.expired-title{font-size:22px;font-weight:800;color:#212529;margin-bottom:10px;}
-.expired-text{font-size:14px;color:#6B7280;line-height:1.6;}
-
-/* USER BADGE */
-#user-badge{position:fixed;bottom:20px;right:20px;z-index:98000;background:#1A56DB;color:#fff;
-  border-radius:99px;padding:8px 16px;font-size:12px;font-weight:600;display:none;
-  align-items:center;gap:10px;box-shadow:0 4px 12px rgba(26,86,219,.35);font-family:-apple-system,sans-serif;}
-#user-badge-email{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-#logout-btn{background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:99px;
-  padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;}
-#admin-tag{background:#F0A800;color:#000;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:800;}
-
-/* FEEDBACK */
-#feedback-btn{position:fixed;bottom:20px;left:20px;z-index:98000;background:#00B488;color:#fff;
-  border:none;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;
-  display:none;box-shadow:0 4px 12px rgba(0,180,136,.35);font-family:-apple-system,sans-serif;}
-#feedback-modal{position:fixed;inset:0;z-index:99500;background:rgba(0,0,0,.5);
-  display:none;align-items:center;justify-content:center;font-family:-apple-system,sans-serif;}
-#feedback-modal.open{display:flex;}
-.fb-card{background:#fff;border-radius:20px;padding:32px;width:100%;max-width:460px;
-  box-shadow:0 16px 40px rgba(0,0,0,.18);}
-.fb-title{font-size:18px;font-weight:800;color:#212529;margin-bottom:6px;}
-.fb-sub{font-size:13px;color:#6B7280;margin-bottom:20px;}
-.fb-stars{display:flex;gap:8px;margin-bottom:20px;}
-.fb-star{font-size:28px;cursor:pointer;transition:transform .1s;user-select:none;}
-.fb-star:hover,.fb-star.on{transform:scale(1.15);}
-.fb-label{font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;}
-.fb-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
-.fb-chip{padding:6px 14px;border:1.5px solid #E5E7EB;border-radius:99px;font-size:12px;
-  cursor:pointer;transition:all .12s;color:#6B7280;}
-.fb-chip.on{border-color:#1A56DB;background:#EEF2FF;color:#1A56DB;font-weight:600;}
-.fb-textarea{width:100%;padding:12px;border:1.5px solid #E5E7EB;border-radius:10px;
-  font-size:13px;resize:vertical;min-height:80px;outline:none;box-sizing:border-box;}
-.fb-textarea:focus{border-color:#1A56DB;}
-.fb-actions{display:flex;gap:10px;margin-top:16px;}
-.fb-cancel{flex:1;padding:11px;border:1.5px solid #E5E7EB;background:#fff;border-radius:10px;
-  font-size:13px;font-weight:600;cursor:pointer;color:#6B7280;}
-.fb-submit{flex:2;padding:11px;background:#1A56DB;color:#fff;border:none;border-radius:10px;
-  font-size:13px;font-weight:700;cursor:pointer;}
-.fb-submit:disabled{background:#9CA3AF;}
-.fb-ok{text-align:center;padding:20px 0;display:none;}
-.fb-ok-icon{font-size:40px;margin-bottom:10px;}
-.fb-ok-text{font-size:16px;font-weight:700;color:#212529;}
-`;
-const style = document.createElement('style');
-style.textContent = css;
-document.head.appendChild(style);
-
-/* ---- Inject HTML ---- */
-document.body.insertAdjacentHTML('beforeend', `
-<div id="auth-wall">
-  <div class="auth-card">
-    <div class="auth-logo">CERCO</div>
-    <div class="auth-subtitle">Plataforma de talent dental</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login">Iniciar sessió</button>
-      <button class="auth-tab"        id="tab-register">Registrar-se</button>
+<!-- ===== MODO ENTREVISTA ===== -->
+<div id="interview-mode" style="display:none;position:fixed;inset:0;z-index:9995;background:linear-gradient(160deg,#0B1428 0%,#0F1C3F 55%,#16264F 100%);align-items:center;justify-content:center;padding:24px 20px;box-sizing:border-box;overflow-y:auto;">
+  <div style="width:100%;max-width:700px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;flex-shrink:0;"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+        <span style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.55);">Modo entrevista · Seimian</span>
+      </div>
+      <button onclick="closeInterviewMode()" style="background:rgba(255,255,255,.08);border:none;width:34px;height:34px;border-radius:9px;cursor:pointer;color:white;display:flex;align-items:center;justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
     </div>
-    <input class="auth-input" id="auth-email"    type="email"    placeholder="Correu electrònic" />
-    <input class="auth-input" id="auth-pass"     type="password" placeholder="Contrasenya" />
-    <input class="auth-input" id="auth-pass2"    type="password" placeholder="Repeteix la contrasenya" style="display:none"/>
-    <button class="auth-btn" id="auth-submit">Entra</button>
-    <div class="auth-msg" id="auth-msg"></div>
-  </div>
-</div>
 
-<div id="expired-wall">
-  <div class="expired-card">
-    <div class="expired-icon">⏰</div>
-    <div class="expired-title">Prototip finalitzat</div>
-    <div class="expired-text">El període de prova d'aquest prototip ha acabat.<br>Gràcies per la teva participació i feedback!</div>
-  </div>
-</div>
+    <div id="im-progress" style="font-size:12.5px;color:rgba(255,255,255,.5);margin-bottom:10px;">Pregunta 1 de 3</div>
+    <div id="im-question" style="font-size:25px;line-height:1.45;font-weight:700;color:white;margin-bottom:14px;"></div>
+    <div id="im-why" style="font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#F5A623;margin-bottom:26px;"></div>
 
-<div id="user-badge">
-  <span id="user-badge-email"></span>
-  <span id="admin-tag" style="display:none">ADMIN</span>
-  <button id="logout-btn">Sortir</button>
-</div>
-
-<button id="feedback-btn">💬 Feedback</button>
-
-<div id="feedback-modal">
-  <div class="fb-card">
-    <div id="fb-form">
-      <div class="fb-title">Com ho veig fins ara?</div>
-      <div class="fb-sub">La teva opinió ajuda a millorar CERCO</div>
-      <div class="fb-stars" id="fb-stars">
-        <span class="fb-star" data-v="1">⭐</span>
-        <span class="fb-star" data-v="2">⭐</span>
-        <span class="fb-star" data-v="3">⭐</span>
-        <span class="fb-star" data-v="4">⭐</span>
-        <span class="fb-star" data-v="5">⭐</span>
-      </div>
-      <div class="fb-label">Què milloraries?</div>
-      <div class="fb-chips">
-        <span class="fb-chip" data-v="Disseny">Disseny</span>
-        <span class="fb-chip" data-v="Funcionalitats">Funcionalitats</span>
-        <span class="fb-chip" data-v="Facilitat d'ús">Facilitat d'ús</span>
-        <span class="fb-chip" data-v="Contingut">Contingut</span>
-        <span class="fb-chip" data-v="Velocitat">Velocitat</span>
-        <span class="fb-chip" data-v="Res">Res, tot bé!</span>
-      </div>
-      <div class="fb-label">Comentari lliure</div>
-      <textarea class="fb-textarea" id="fb-comment" placeholder="Escriu aquí el que vulguis..."></textarea>
-      <div class="fb-actions">
-        <button class="fb-cancel" id="fb-cancel">Cancel·lar</button>
-        <button class="fb-submit" id="fb-send">Enviar feedback</button>
-      </div>
+    <div style="font-size:12.5px;color:rgba(255,255,255,.55);margin-bottom:10px;">¿Qué tal ha respondido?</div>
+    <div id="im-rating" style="display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;">
+      <button onclick="rateAnswer(1,this)" style="flex:1;min-width:120px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Floja</button>
+      <button onclick="rateAnswer(2,this)" style="flex:1;min-width:120px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Correcta</button>
+      <button onclick="rateAnswer(3,this)" style="flex:1;min-width:120px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Brillante</button>
     </div>
-    <div class="fb-ok" id="fb-ok">
-      <div class="fb-ok-icon">✅</div>
-      <div class="fb-ok-text">Gràcies! Feedback enviat.</div>
+
+    <div style="font-size:12.5px;color:rgba(255,255,255,.55);margin-bottom:8px;">Tus notas</div>
+    <textarea id="im-notes" placeholder="Apunta lo que te llame la atención mientras responde…" style="width:100%;box-sizing:border-box;min-height:96px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:13px 15px;font-size:14px;color:white;font-family:inherit;line-height:1.55;outline:none;resize:vertical;margin-bottom:24px;"></textarea>
+
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">
+      <button id="im-prev" onclick="prevInterviewQ()" style="background:rgba(255,255,255,.08);color:white;border:none;border-radius:10px;padding:13px 22px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">← Anterior</button>
+      <button id="im-next" onclick="nextInterviewQ()" style="background:#1A56DB;color:white;border:none;border-radius:10px;padding:13px 26px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Siguiente pregunta →</button>
     </div>
   </div>
 </div>
-`);
 
-/* ---- Auth logic ---- */
-let isLogin = true;
-const wall      = document.getElementById('auth-wall');
-const expWall   = document.getElementById('expired-wall');
-const badge     = document.getElementById('user-badge');
-const badgeEmail= document.getElementById('user-badge-email');
-const adminTag  = document.getElementById('admin-tag');
-const logoutBtn = document.getElementById('logout-btn');
-const fbBtn     = document.getElementById('feedback-btn');
-const tabLogin  = document.getElementById('tab-login');
-const tabReg    = document.getElementById('tab-register');
-const emailEl   = document.getElementById('auth-email');
-const passEl    = document.getElementById('auth-pass');
-const pass2El   = document.getElementById('auth-pass2');
-const submitEl  = document.getElementById('auth-submit');
-const msgEl     = document.getElementById('auth-msg');
+<!-- ===== RESUMEN DE LA ENTREVISTA ===== -->
+<div id="interview-summary" style="display:none;position:fixed;inset:0;z-index:9996;background:rgba(11,20,40,.72);align-items:center;justify-content:center;padding:24px 20px;box-sizing:border-box;overflow-y:auto;">
+  <div style="width:100%;max-width:520px;background:white;border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <div style="width:34px;height:34px;border-radius:10px;background:#0F1C3F;display:flex;align-items:center;justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+      </div>
+      <div><div style="font-size:16px;font-weight:800;color:#111827;">Entrevista terminada</div>
+      <div style="font-size:12px;color:#6B7280;">Resumen de Seimian</div></div>
+    </div>
+    <div id="im-summary-text" style="font-size:14px;color:#374151;line-height:1.65;margin-bottom:22px;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="document.getElementById('interview-summary').style.display='none'; openHireModal();" style="flex:1;min-width:150px;background:#059669;color:white;border:none;border-radius:10px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Contratar</button>
+      <button onclick="document.getElementById('interview-summary').style.display='none';" style="flex:1;min-width:150px;background:white;color:#374151;border:1px solid #E5E7EB;border-radius:10px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Decidir más tarde</button>
+    </div>
+  </div>
+</div>
 
-tabLogin.onclick = () => {
-  isLogin = true;
-  tabLogin.classList.add('active'); tabReg.classList.remove('active');
-  pass2El.style.display = 'none'; submitEl.textContent = 'Entra'; msgEl.textContent = '';
-};
-tabReg.onclick = () => {
-  isLogin = false;
-  tabReg.classList.add('active'); tabLogin.classList.remove('active');
-  pass2El.style.display = ''; submitEl.textContent = 'Crear compte'; msgEl.textContent = '';
-};
-
-submitEl.onclick = async () => {
-  const email = emailEl.value.trim();
-  const pass  = passEl.value;
-  msgEl.textContent = ''; msgEl.className = 'auth-msg';
-  submitEl.disabled = true;
-  try {
-    if (isLogin) {
-      await signInWithEmailAndPassword(auth, email, pass);
-    } else {
-      if (pass !== pass2El.value) { msgEl.textContent = 'Les contrasenyes no coincideixen.'; submitEl.disabled=false; return; }
-      if (pass.length < 6)        { msgEl.textContent = 'La contrasenya ha de tenir mínim 6 caràcters.'; submitEl.disabled=false; return; }
-      await createUserWithEmailAndPassword(auth, email, pass);
-    }
-  } catch(e) {
-    const errs = {
-      'auth/user-not-found':     'Compte no trobat.',
-      'auth/wrong-password':     'Contrasenya incorrecta.',
-      'auth/email-already-in-use':'Aquest correu ja té compte. Inicia sessió.',
-      'auth/invalid-email':      'Format de correu incorrecte.',
-      'auth/invalid-credential': 'Correu o contrasenya incorrectes.',
-    };
-    msgEl.textContent = errs[e.code] || e.message;
-    submitEl.disabled = false;
-  }
-};
-
-logoutBtn.onclick = () => signOut(auth);
-
-onAuthStateChanged(auth, user => {
-  if (user) {
-    wall.style.display = 'none';
-    const isAdmin = user.email === ADMIN_EMAIL;
-    if (!isAdmin && new Date() > EXPIRY_DATE) {
-      expWall.style.display = 'flex'; return;
-    }
-    badge.style.display = 'flex';
-    badgeEmail.textContent = user.email;
-    adminTag.style.display = isAdmin ? '' : 'none';
-    fbBtn.style.display    = isAdmin ? 'none' : '';
-  } else {
-    wall.style.display = 'flex';
-    badge.style.display = 'none';
-    fbBtn.style.display = 'none';
-    expWall.style.display = 'none';
-    submitEl.disabled = false;
-  }
-});
-
-/* ---- Feedback logic ---- */
-const modal    = document.getElementById('feedback-modal');
-const fbForm   = document.getElementById('fb-form');
-const fbOk     = document.getElementById('fb-ok');
-const fbCancel = document.getElementById('fb-cancel');
-const fbSend   = document.getElementById('fb-send');
-const fbComment= document.getElementById('fb-comment');
-let fbRating = 0, fbChips = [];
-
-fbBtn.onclick = () => {
-  fbRating = 0; fbChips = []; fbComment.value = '';
-  document.querySelectorAll('.fb-star').forEach(s => s.classList.remove('on'));
-  document.querySelectorAll('.fb-chip').forEach(c => c.classList.remove('on'));
-  fbForm.style.display = ''; fbOk.style.display = 'none';
-  modal.classList.add('open');
-};
-fbCancel.onclick = () => modal.classList.remove('open');
-modal.onclick = e => { if(e.target===modal) modal.classList.remove('open'); };
-
-document.querySelectorAll('.fb-star').forEach(star => {
-  star.onclick = () => {
-    fbRating = +star.dataset.v;
-    document.querySelectorAll('.fb-star').forEach((s,i) => s.classList.toggle('on', i < fbRating));
-  };
-});
-document.querySelectorAll('.fb-chip').forEach(chip => {
-  chip.onclick = () => {
-    chip.classList.toggle('on');
-    const v = chip.dataset.v;
-    fbChips = fbChips.includes(v) ? fbChips.filter(x=>x!==v) : [...fbChips, v];
-  };
-});
-
-fbSend.onclick = async () => {
-  if (!fbRating) { alert('Selecciona una valoració primer!'); return; }
-  fbSend.disabled = true;
-  const screen = document.querySelector('.app-screen.active')?.id || 'unknown';
-  try {
-    await addDoc(collection(db,'feedback'), {
-      rating:       fbRating,
-      improvements: fbChips,
-      comment:      fbComment.value.trim(),
-      userEmail:    auth.currentUser?.email || 'anònim',
-      timestamp:    serverTimestamp(),
-      screen
-    });
-    fbForm.style.display = 'none'; fbOk.style.display = 'block';
-    setTimeout(() => modal.classList.remove('open'), 2200);
-  } catch(e) {
-    alert('Error enviant feedback. Torna-ho a intentar.');
-  }
-  fbSend.disabled = false;
-};
-</script>
+<!-- ===== CONTRATAR ===== -->
+<div id="hire-modal" style="display:none;position:fixed;inset:0;z-index:9997;background:rgba(11,20,40,.72);align-items:center;justify-content:center;padding:24px 20px;box-sizing:border-box;overflow-y:auto;">
+  <div style="width:100%;max-width:470px;background:white;border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="width:46px;height:46px;border-radius:13px;background:#E8F8F1;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <div style="font-size:18px;font-weight:800;color:#111827;margin-bottom:8px;">¿Confirmas la contratación?</div>
+    <div style="font-size:14px;color:#6B7280;line-height:1.65;margin-bottom:22px;">Al confirmar se avisa a la candidata, la oferta pasa a <b>Cerradas</b> y el resto de personas inscritas reciben una respuesta automática para que no se queden esperando.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="completeHire()" style="flex:1;min-width:150px;background:#059669;color:white;border:none;border-radius:10px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Sí, contratar</button>
+      <button onclick="document.getElementById('hire-modal').style.display='none';" style="flex:1;min-width:150px;background:white;color:#374151;border:1px solid #E5E7EB;border-radius:10px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

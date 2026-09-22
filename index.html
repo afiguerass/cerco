@@ -1635,11 +1635,11 @@ __SCREENS_CSS__/* ===== onboarding ===== */
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Email</div>
-        <input type="text" id="mc-email" value="contacto@dentalmadrid.es" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:220px;outline:none;" placeholder="tu@correo.com">
+        <input type="text" id="mc-email" onchange="guardarCampoPerfil('email', this.value.trim())" value="contacto@dentalmadrid.es" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:220px;outline:none;" placeholder="tu@correo.com">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Teléfono</div>
-        <input type="text" id="mc-telefono" value="+34 600 000 000" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:160px;outline:none;" placeholder="+34 600 000 000">
+        <input type="text" id="mc-telefono" onchange="guardarCampoPerfil('telefono', this.value.trim())" value="+34 600 000 000" style="border:none;text-align:right;font-size:13px;color:#6B7280;background:none;font-family:inherit;width:160px;outline:none;" placeholder="+34 600 000 000">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Rol</div>
@@ -1674,19 +1674,19 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     <div style="padding:0 20px;">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Nuevos candidatos</div>
-        <div class="mc-toggle on" onclick="this.classList.toggle('on')" style="width:40px;height:23px;border-radius:99px;background:#1A56DB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;transform:translateX(17px);"></div></div>
+        <div class="mc-toggle on" onclick="this.classList.toggle('on'); guardarAvisos();" style="width:40px;height:23px;border-radius:99px;background:#1A56DB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;transform:translateX(17px);"></div></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Mensajes de chat</div>
-        <div class="mc-toggle on" onclick="this.classList.toggle('on')" style="width:40px;height:23px;border-radius:99px;background:#1A56DB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;transform:translateX(17px);"></div></div>
+        <div class="mc-toggle on" onclick="this.classList.toggle('on'); guardarAvisos();" style="width:40px;height:23px;border-radius:99px;background:#1A56DB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;transform:translateX(17px);"></div></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #F9FAFB;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Alertas 24h sin respuesta</div>
-        <div class="mc-toggle on" onclick="this.classList.toggle('on')" style="width:40px;height:23px;border-radius:99px;background:#1A56DB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;transform:translateX(17px);"></div></div>
+        <div class="mc-toggle on" onclick="this.classList.toggle('on'); guardarAvisos();" style="width:40px;height:23px;border-radius:99px;background:#1A56DB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;transform:translateX(17px);"></div></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;">
         <div style="font-size:13.5px;font-weight:600;color:#111827;">Resumen semanal</div>
-        <div class="mc-toggle" onclick="this.classList.toggle('on')" style="width:40px;height:23px;border-radius:99px;background:#E5E7EB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;"></div></div>
+        <div class="mc-toggle" onclick="this.classList.toggle('on'); guardarAvisos();" style="width:40px;height:23px;border-radius:99px;background:#E5E7EB;position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;"><div style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s;"></div></div>
       </div>
     </div>
   </div>
@@ -1712,7 +1712,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
   <!-- Cerrar sesión -->
   <div style="text-align:center;padding:8px 0;">
-    <button onclick="showScreen('login')" style="background:none;border:none;color:#EF4444;font-size:14px;font-weight:600;cursor:pointer;padding:10px 20px;">Cerrar sesión</button>
+    <button onclick="cerrarSesion()" style="background:none;border:none;color:#EF4444;font-size:14px;font-weight:600;cursor:pointer;padding:10px 20px;">Cerrar sesión</button>
   </div>
 
 </div>
@@ -2621,6 +2621,52 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 </div>
 </div>
 
+<div id="screen-registro" class="app-screen" style="background:#F8F9FA;">
+<div style="max-width:440px;margin:0 auto;padding:36px 20px 60px;">
+  <div style="text-align:center;margin-bottom:26px;">
+    <h1 style="font-size:23px;font-weight:800;color:#111827;margin:0 0 6px;">Crea tu cuenta</h1>
+    <div style="font-size:14px;color:#6B7280;line-height:1.55;">Es gratis. Después configuras tu clínica.</div>
+  </div>
+
+  <div style="background:white;border-radius:16px;border:1px solid #EAECF0;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.04);">
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:7px;">Tu nombre y apellido</label>
+      <input type="text" id="reg-nombre" placeholder="Ej: Anna Ribas" autocomplete="name" style="width:100%;box-sizing:border-box;border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;font-size:16px;font-family:inherit;outline:none;color:#111827;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:7px;">Correo electrónico</label>
+      <input type="email" id="reg-email" placeholder="tu@correo.com" autocomplete="email" style="width:100%;box-sizing:border-box;border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;font-size:16px;font-family:inherit;outline:none;color:#111827;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:7px;">Contraseña</label>
+      <div style="position:relative;">
+        <input type="password" id="reg-pwd" placeholder="Mínimo 6 caracteres" autocomplete="new-password" style="width:100%;box-sizing:border-box;border:1px solid #E5E7EB;border-radius:10px;padding:12px 46px 12px 14px;font-size:16px;font-family:inherit;outline:none;color:#111827;">
+        <button type="button" onclick="verPwdRegistro()" aria-label="Mostrar contraseña" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:8px;color:#9CA3AF;display:flex;align-items:center;">
+          <svg id="reg-ojo" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:7px;">Repite la contraseña</label>
+      <input type="password" id="reg-pwd2" placeholder="La misma otra vez" autocomplete="new-password" style="width:100%;box-sizing:border-box;border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;font-size:16px;font-family:inherit;outline:none;color:#111827;">
+    </div>
+
+    <label style="display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#4B5563;line-height:1.55;margin-bottom:18px;cursor:pointer;">
+      <input type="checkbox" id="reg-acepto" style="margin-top:2px;width:16px;height:16px;flex-shrink:0;">
+      <span>Acepto que CERCO guarde mis datos y los resultados del test de personalidad de mi equipo para el funcionamiento del servicio.</span>
+    </label>
+
+    <div id="reg-error" style="font-size:13px;color:#DC2626;line-height:1.5;margin-bottom:12px;min-height:1px;"></div>
+
+    <button onclick="handleRegistro()" style="width:100%;background:#1A56DB;color:white;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;">Crear mi cuenta</button>
+  </div>
+
+  <div style="text-align:center;font-size:13.5px;color:#6B7280;margin-top:20px;">
+    ¿Ya tienes cuenta? <span onclick="showScreen('login')" style="color:#1A56DB;font-weight:700;cursor:pointer;">Inicia sesión</span>
+  </div>
+</div>
+</div>
+
 <div id="screen-login" class="app-screen">
   <div class="login-split">
     <div class="login-left">
@@ -2648,6 +2694,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
           <a href="#" onclick="showToast('Te enviaremos un correo para restablecerla'); return false;" style="font-size:12.5px;color:#1A56DB;cursor:pointer;">¿Olvidaste tu contraseña?</a>
         </div>
 
+        <div id="login-error" style="display:none;font-size:13px;color:#DC2626;line-height:1.5;margin-bottom:12px;"></div>
         <button class="btn-login" onclick="handleLogin()">Iniciar sesión</button>
 
         <div class="divider">o continúa con</div>
@@ -2660,7 +2707,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
           </button>
         </div>
 
-        <div class="signup-row">¿No tienes cuenta? <a href="#" onclick="showScreen('onboarding'); return false;">Regístrate aquí</a></div>
+        <div class="signup-row">¿No tienes cuenta? <a href="#" onclick="showScreen('registro'); return false;">Regístrate aquí</a></div>
       </div>
     </div>
     <div class="login-right">
@@ -2865,6 +2912,10 @@ __SCREENS_CSS__/* ===== onboarding ===== */
     </div>
 
     <button onclick="empezarTestInvitado()" style="width:100%;background:#1A56DB;color:white;border:none;border-radius:11px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Empezar el test</button>
+    <div id="invitado-salida" style="display:none;text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #F3F4F6;">
+      <span style="font-size:13px;color:#6B7280;">¿Eres tú quien envió este enlace? </span>
+      <span onclick="volverAMiPanel()" style="font-size:13px;font-weight:700;color:#1A56DB;cursor:pointer;">Ir a mi panel</span>
+    </div>
     <div style="text-align:center;font-size:11.5px;color:#9CA3AF;margin-top:14px;">Tu resultado solo lo ves tú y tu responsable.</div>
   </div>
 </div>
@@ -3148,7 +3199,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 
   <div class="header-row">
     <div>
-      <div class="clinic-name">Clínica Dental Madrid Centro</div>
+      <div class="clinic-name" id="pub-clinic-name">Clínica Dental Madrid Centro</div>
       <div class="clinic-loc"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Madrid, Comunidad de Madrid · 15–30 trabajadores</div>
       <div class="badge-row">
         <span class="tag">Odontología General</span>
@@ -3575,18 +3626,21 @@ function handleLogoUpload(input){
   const file = input.files && input.files[0];
   if(!file) return;
   if(!file.type.startsWith('image/')){
-    showToast('Por favor, sube un archivo de imagen');
+    if(typeof showToast==='function') showToast('Por favor, sube un archivo de imagen');
     return;
   }
-  const url = URL.createObjectURL(file);
-  const box = document.getElementById('logo-upload-box');
-  box.style.backgroundImage = `url('${url}')`;
-  box.style.backgroundSize = 'cover';
-  box.style.backgroundPosition = 'center';
-  box.style.color = 'transparent';
-  box.innerHTML = '<span style="background:rgba(0,0,0,.55);color:white;padding:4px 10px;border-radius:8px;font-size:11px;"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Logo cargado — clic para cambiar</span>';
-  box.style.color = '';
-  showToast('Logo cargado correctamente');
+  _reducirImagen(file, 400, function(dataUrl){
+    if(!dataUrl){ if(typeof showToast==='function') showToast('No se ha podido leer la imagen'); return; }
+    const box = document.getElementById('logo-upload-box');
+    if(box){
+      box.style.backgroundImage = "url('" + dataUrl + "')";
+      box.style.backgroundSize = 'cover';
+      box.style.backgroundPosition = 'center';
+      box.style.color = 'transparent';
+    }
+    try { guardarCampoPerfil('logo', dataUrl); } catch(e){}
+    if(typeof showToast==='function') showToast('Logo actualizado');
+  });
 }
 
 function generateDescAI_onboarding(){
@@ -3857,6 +3911,7 @@ function nextBlock_testdisc(){
   const nScored = a.scores ? Object.values(a.scores).filter(v=>v!==null&&v!==undefined).length : 0;
   if(nScored < 4){
     document.getElementById('err-msg-testdisc').textContent = 'Puntúa las 4 frases (del 1 al 4) antes de continuar.';
+    if(window.verAviso) verAviso('err-msg-testdisc');
     return;
   }
   if(current_testdisc < blocks_testdisc.length-1){
@@ -4093,6 +4148,20 @@ function explain_portal(name, match, disc){
 let activeDiscFilter_portal = null;
 let activeRadiusKm_portal = 9999;
 
+function limpiarFiltrosPortal(){
+  var b = document.getElementById('search-portal'); if(b) b.value = '';
+  try{ activeDiscFilter_portal = null; }catch(e){}
+  document.querySelectorAll('#screen-portal .filter-chip').forEach(function(c){ c.classList.remove('active'); });
+  var todas = document.querySelector('#screen-portal .radius-chip[data-km="9999"]');
+  if(todas){
+    document.querySelectorAll('#screen-portal .radius-chip').forEach(function(c){ c.classList.remove('active'); });
+    todas.classList.add('active');
+    try{ activeRadiusKm_portal = 9999; }catch(e){}
+  }
+  applyFilters_portal();
+  if(typeof showToast === 'function') showToast('Filtros quitados');
+}
+
 function applyFilters_portal(){
   const q = (document.getElementById('search-portal')?.value || '').toLowerCase().trim();
   document.querySelectorAll('#screen-portal .candidate-card').forEach((card, i)=>{
@@ -4104,6 +4173,29 @@ function applyFilters_portal(){
     card.style.display = (matchesText && matchesDisc && matchesRadius) ? '' : 'none';
   });
   const visibleCount = [...document.querySelectorAll('#screen-portal .candidate-card')].filter(c=>c.style.display !== 'none').length;
+
+  // Una lista vacía sin explicación parece una app rota
+  (function(){
+    var grid = document.querySelector('#screen-portal .grid') || document.querySelector('#screen-portal .candidate-card')?.parentElement;
+    var vacio = document.getElementById('portal-sin-resultados');
+    if(visibleCount > 0){ if(vacio) vacio.remove(); return; }
+    if(!grid) return;
+    if(!vacio){
+      vacio = document.createElement('div');
+      vacio.id = 'portal-sin-resultados';
+      vacio.style.cssText = 'grid-column:1/-1;background:white;border:1px dashed #D8DEE9;border-radius:16px;padding:34px 24px;text-align:center;';
+      grid.appendChild(vacio);
+    }
+    var motivo = q
+      ? 'Ningún candidato coincide con <b>&laquo;' + q.replace(/[<>&]/g,'') + '&raquo;</b>.'
+      : 'Ningún candidato cumple los filtros que has puesto.';
+    vacio.innerHTML =
+      '<div style="font-size:15px;font-weight:800;color:#111827;margin-bottom:8px;">Sin resultados</div>'
+      + '<div style="font-size:13.5px;color:#6B7280;line-height:1.6;max-width:380px;margin:0 auto;">' + motivo
+      + ' Prueba con otra palabra, amplía la distancia o quita el filtro de perfil.</div>'
+      + '<div style="margin-top:16px;"><button onclick="limpiarFiltrosPortal()" style="background:#1A56DB;color:white;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Quitar los filtros</button></div>';
+  })();
+
   const note = document.getElementById('location-result-note');
   if(note){
     const cityVal = document.getElementById('location-input-portal')?.value || 'tu zona';
@@ -4196,7 +4288,40 @@ const CHAT_RESPONSES = [
 let chatIdx = 0;
 let chatTyping = false;
 
+
+/* Seimian respon segons el que te el propietari en aquest moment,
+   no amb frases fetes que no encaixen amb la seva situacio. */
+function abrirSeimian(){
+  if(typeof openChat !== 'function'){ if(typeof showToast==='function') showToast('Seimian no está disponible'); return; }
+  window.__chatSeimian = true;
+  var vell = document.getElementById('global-chat-modal');
+  if(vell) vell.remove();          // sempre comencem net
+  try{ chatIdx = 0; }catch(e){}
+  openChat('Seimian');
+  setTimeout(function(){
+    try{
+      var t = document.getElementById('chat-title');
+      if(t) t.textContent = 'Seimian';
+      var cont = document.getElementById('chat-messages');
+      if(!cont) return;
+      cont.innerHTML = '';
+      var r = CDB.resumen();
+      var msg;
+      if(!r.clinica)            msg = 'Hola. Para poder ayudarte necesito saber de qué clínica hablamos: complétalo en Mi clínica y vuelve.';
+      else if(!r.miDiscHecho)   msg = 'Hola. Todavía no has hecho tu test de personalidad, y es lo primero: sin él no puedo calcular el encaje de nadie con tu equipo.';
+      else if(r.miembros < 3)   msg = 'Tienes ' + r.miembros + ' persona' + (r.miembros===1?'':'s') + ' con el test hecho. A partir de 3 empiezo a leer el equipo y a decirte qué perfil te falta. Pásales el enlace desde Mi equipo.';
+      else if(r.ofertas === 0)  msg = 'Tu equipo ya está medido. Cuando publiques una oferta te diré qué perfil encaja mejor con ese puesto concreto.';
+      else                      msg = 'Tienes ' + r.ofertas + ' oferta' + (r.ofertas>1?'s':'') + ' y ' + r.miembros + ' personas con el test hecho. Pregúntame por el encaje de cualquier candidato o por el hueco que tiene tu equipo.';
+      var bur = document.createElement('div');
+      bur.style.cssText = 'background:white;border-radius:14px;padding:11px 14px;font-size:13.5px;color:#374151;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.06);align-self:flex-start;max-width:85%;';
+      bur.textContent = msg;
+      cont.appendChild(bur);
+    }catch(e){}
+  }, 60);
+}
+
 function openChat(withName){
+  if(withName !== 'Seimian') window.__chatSeimian = false;
   let modal = document.getElementById('global-chat-modal');
   if(!modal){
     modal = document.createElement('div');
@@ -4233,8 +4358,8 @@ function openChat(withName){
       </div>`;
     document.body.appendChild(modal);
     document.getElementById('chat-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendChatMsg(); });
-    // Mensaje inicial
-    setTimeout(()=> addChatMsg(CHAT_RESPONSES[0], 'them'), 400);
+    // Mensaje inicial (no si quien abre es Seimian: ese escribe el suyo)
+    if(!window.__chatSeimian) setTimeout(()=> addChatMsg(CHAT_RESPONSES[0], 'them'), 400);
     chatIdx = 1;
   }
   const name = withName || 'María García';
@@ -4251,9 +4376,45 @@ function addChatMsg(text, who){
   const div = document.createElement('div');
   div.style.cssText = `align-self:${isMe?'flex-end':'flex-start'};max-width:78%;`;
   div.innerHTML = `<div style="background:${isMe?'#1A56DB':'white'};color:${isMe?'white':'#111827'};border-radius:${isMe?'16px 16px 4px 16px':'16px 16px 16px 4px'};padding:10px 14px;font-size:13.5px;line-height:1.5;box-shadow:${isMe?'none':'0 1px 3px rgba(0,0,0,.06)'};">${text}</div>
-  <div style="font-size:10.5px;color:#9CA3AF;margin-top:3px;text-align:${isMe?'right':'left'};">${isMe?'Tú':'Maria'} · ahora</div>`;
+  <div style="font-size:10.5px;color:#9CA3AF;margin-top:3px;text-align:${isMe?'right':'left'};">${isMe?'Tú':(document.getElementById('chat-title')?.textContent || 'Maria')} · ahora</div>`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* Seimian contesta amb el que sap de la clinica. No inventa xifres:
+   si no te dades, ho diu. */
+function respuestaSeimian(pregunta){
+  var q = (pregunta||'').toLowerCase();
+  var r;
+  try { r = CDB.resumen(); } catch(e){ r = null; }
+  if(!r) return 'Ahora mismo no puedo leer los datos de tu clínica. Prueba a recargar la página.';
+
+  if(/equipo|plantilla|perfil|disc|composici/.test(q)){
+    if(r.miembros === 0) return 'Todavía no hay ningún test hecho, así que no puedo decirte nada de tu equipo. Empieza por el tuyo desde Mi cuenta.';
+    if(r.miembros < 3)   return 'De momento tengo ' + r.miembros + ' test. Con menos de 3 personas cualquier lectura sería inventada. Pásales el enlace desde Mi equipo.';
+    var c = r.comp, flojo = 'D', min = 101;
+    ['D','I','S','C'].forEach(function(l){ if(c[l] < min){ min = c[l]; flojo = l; } });
+    return 'Con ' + r.miembros + ' test: D ' + c.D + '%, I ' + c.I + '%, S ' + c.S + '%, C ' + c.C + '%. '
+         + (min < 15 ? 'El perfil que más te falta es ' + CDB.NOMBRE[flojo] + ' (' + flojo + ').'
+                     : 'Está bastante repartido, sin huecos claros.');
+  }
+  if(/oferta|publicar|puesto|vacante/.test(q)){
+    return r.ofertas === 0
+      ? 'No tienes ninguna oferta publicada. Cuando publiques una te diré qué perfil encaja mejor con ese puesto.'
+      : 'Tienes ' + r.ofertas + ' oferta' + (r.ofertas>1?'s':'') + ', ' + r.activas + ' activa' + (r.activas===1?'':'s') + '.';
+  }
+  if(/candidat|curriculum|cv|encaje/.test(q)){
+    return r.candidatos === 0
+      ? 'Aún no has recibido candidatos. Los que ves en la pantalla de Candidatos son perfiles de ejemplo para enseñarte cómo los ordeno.'
+      : 'Has recibido ' + r.candidatos + ' candidatos. Los tienes ordenados por encaje en la pantalla de Candidatos.';
+  }
+  if(/enlace|invitar|c[oó]digo|equipo test/.test(q)){
+    return 'En Mi equipo tienes el enlace para tu gente. Lo abren, hacen el test y te devuelven un código que tú pegas ahí mismo.';
+  }
+  if(/hola|buenas|qu[eé] tal|hey/.test(q)){
+    return 'Hola. Pregúntame por tu equipo, por una oferta o por los candidatos y te digo lo que veo.';
+  }
+  return 'De eso todavía no puedo sacar conclusiones fiables. Pregúntame por tu equipo, por tus ofertas o por los candidatos.';
 }
 
 function sendChatMsg(){
@@ -4269,7 +4430,9 @@ function sendChatMsg(){
   const delay = 800 + Math.random() * 1200;
   setTimeout(()=>{
     if(typing) typing.style.display = 'none';
-    const response = CHAT_RESPONSES[chatIdx % CHAT_RESPONSES.length];
+    const response = window.__chatSeimian
+      ? respuestaSeimian(text)
+      : CHAT_RESPONSES[chatIdx % CHAT_RESPONSES.length];
     chatIdx++;
     addChatMsg(response, 'them');
     chatTyping = false;
@@ -4670,46 +4833,137 @@ function generateOfferDescAI(){
   field.value = `Buscamos a alguien para el puesto de ${titulo}, con ganas de aprender y crecer dentro de un equipo cercano y dinámico. Valoramos sobre todo la actitud, el trato con el paciente y las ganas de formar parte de un proyecto serio a largo plazo.`;
   showToast('Descripción generada con IA');
 }
-function renderOfferCard(titulo, ubicacion, jornada, disc, isNew){
-  const discColors = {D:'#FF5A5F', I:'#F0A800', S:'#00B488', C:'#5B5FE0'};
-  const col = document.querySelector('#screen-ofertes .board-col');
-  if(!col) return;
-  const card = document.createElement('div');
-  card.className = 'offer-card';
-  card.onclick = ()=> showScreen('portal');
-  card.innerHTML = `
-    <span class="sla-tag ok"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> ${isNew ? 'Recién creada' : 'Guardada en este dispositivo'}</span>
-    <div class="offer-title-row">
-      <div class="offer-title">${titulo}</div>
-      <span class="offer-disc" style="background:${discColors[disc] || '#9CA3AF'};">${disc}</span>
-    </div>
-    <div class="offer-meta-row"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> ${ubicacion} · ${jornada} · ${isNew ? 'ahora mismo' : 'creada anteriormente'}</div>
-    <div class="offer-cand-count"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0 candidatos</div>
-    <div class="offer-actions">
-      <button class="oa-btn primary" onclick="event.stopPropagation(); showScreen('portal')">Ver candidatos</button>
-      <button class="oa-btn" onclick="event.stopPropagation(); toggleOfferStatus(this,'pausada')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg> Pausar</button>
-    </div>`;
-  const header = col.querySelector('.board-col-header');
-  header.insertAdjacentElement('afterend', card);
-  const countBadge = col.querySelector('.board-count');
-  if(countBadge) countBadge.textContent = (parseInt(countBadge.textContent) || 0) + 1;
-}
+function _discColor(l){ return ({D:'#FF5A5F', I:'#F0A800', S:'#00B488', C:'#5B5FE0'})[l] || '#9CA3AF'; }
 
 function getSavedOffers(){
-  try { return JSON.parse(localStorage.getItem('smiletalent_ofertas') || '[]'); }
+  try { var l = JSON.parse(localStorage.getItem('smiletalent_ofertas') || '[]'); return Array.isArray(l)? l : []; }
   catch(e){ return []; }
 }
-function saveOfferToStorage(offer){
-  const list = getSavedOffers();
-  list.push(offer);
+function setSavedOffers(list){
   try { localStorage.setItem('smiletalent_ofertas', JSON.stringify(list)); } catch(e){}
 }
-function loadSavedOffersOnInit(){
-  const list = getSavedOffers();
-  list.forEach(o => renderOfferCard(o.titulo, o.ubicacion, o.jornada, o.disc, false));
-  if(list.length){
-    showToast(`Bienvenido/a de vuelta — ${list.length} oferta(s) guardada(s) en este dispositivo`);
+function saveOfferToStorage(offer){
+  var list = getSavedOffers();
+  offer.id = offer.id || ('of' + Date.now() + Math.floor(Math.random()*999));
+  list.push(offer);
+  setSavedOffers(list);
+  return offer;
+}
+
+/* Pinta les ofertes reals a la columna que els toca segons el seu estat.
+   Es torna a executar sencer cada vegada, aixi mai queden restes. */
+function pintarOfertasReales(){
+  var board = document.querySelector('#screen-ofertes .board');
+  if(!board) return;
+  var esc = (typeof _esc === 'function') ? _esc : function(t){
+    return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  };
+  var enDemo = true;
+  try { enDemo = window.CDB ? CDB.demo() : true; } catch(e){ enDemo = true; }
+  board.querySelectorAll('.offer-card:not(.ejemplo)').forEach(function(c){ c.remove(); });
+  board.querySelectorAll('.oferta-vacia').forEach(function(c){ c.remove(); });
+
+  var cols = board.querySelectorAll('.board-col');
+  var orden = {activa:0, pausada:1, cerrada:2};
+  var lista = getSavedOffers();
+
+  lista.forEach(function(o){
+    var est = o.estado || 'activa';
+    var col = cols[orden[est] !== undefined ? orden[est] : 0];
+    if(!col) return;
+    var card = document.createElement('div');
+    card.className = 'offer-card';
+    card.dataset.oid = o.id || '';
+    if(est === 'cerrada') card.style.opacity = '.7';
+    card.onclick = function(){ showScreen('portal'); };
+
+    var fecha = '';
+    try {
+      var d = o.fecha ? new Date(o.fecha) : null;
+      if(d && !isNaN(d)){
+        var dias = Math.floor((Date.now() - d.getTime())/86400000);
+        fecha = dias <= 0 ? 'hoy' : (dias === 1 ? 'ayer' : 'hace ' + dias + ' días');
+      }
+    } catch(e){}
+
+    var acciones = '';
+    if(est === 'activa'){
+      acciones = '<button class="oa-btn primary" onclick="event.stopPropagation(); showScreen(\'portal\')">Ver candidatos</button>'
+               + '<button class="oa-btn" onclick="event.stopPropagation(); cambiarEstadoOferta(\''+o.id+'\',\'pausada\')">Pausar</button>';
+    } else if(est === 'pausada'){
+      acciones = '<button class="oa-btn primary" onclick="event.stopPropagation(); cambiarEstadoOferta(\''+o.id+'\',\'activa\')">Reactivar</button>'
+               + '<button class="oa-btn" onclick="event.stopPropagation(); cambiarEstadoOferta(\''+o.id+'\',\'cerrada\')">Cerrar</button>';
+    } else {
+      acciones = '<button class="oa-btn primary" onclick="event.stopPropagation(); cambiarEstadoOferta(\''+o.id+'\',\'activa\')">Volver a publicar</button>';
+    }
+    acciones += '<button class="oa-btn" title="Eliminar" onclick="event.stopPropagation(); eliminarOferta(\''+o.id+'\')" style="color:#DC2626;">Eliminar</button>';
+
+    var disc = (o.disc || '').trim();
+    var letra = disc ? disc.charAt(0) : '';
+
+    card.innerHTML =
+      '<div class="offer-title-row">'
+      + '<div class="offer-title">' + esc(o.titulo || 'Sin título') + '</div>'
+      + (letra ? '<span class="offer-disc" style="background:'+_discColor(letra)+';">'+esc(disc)+'</span>' : '')
+      + '</div>'
+      + '<div class="offer-meta-row">' + esc(o.ubicacion||'') + (o.jornada? ' · '+esc(o.jornada):'') + (fecha? ' · publicada '+fecha : '') + '</div>'
+      + '<div class="offer-cand-count">' + (parseInt(o.candidatos,10)||0) + ' candidatos</div>'
+      + '<div class="offer-actions">' + acciones + '</div>';
+
+    var header = col.querySelector('.board-col-header');
+    if(header) header.insertAdjacentElement('afterend', card);
+    else col.appendChild(card);
+  });
+
+  // missatge quan una columna queda buida en mode real
+  if(!enDemo){
+    var textos = ['Aún no tienes ofertas activas.','Ninguna oferta pausada.','Ninguna oferta cerrada.'];
+    cols.forEach(function(col, i){
+      if(col.querySelectorAll('.offer-card:not(.ejemplo)').length) return;
+      var v = document.createElement('div');
+      v.className = 'oferta-vacia';
+      v.style.cssText = 'font-size:13px;color:#9CA3AF;padding:18px 14px;text-align:center;border:1px dashed #E5E7EB;border-radius:12px;margin-top:10px;line-height:1.5;';
+      v.textContent = textos[i] || '';
+      col.appendChild(v);
+    });
   }
+
+  if(window.CDB && typeof renderOfertasReal === 'function') renderOfertasReal();
+}
+
+function cambiarEstadoOferta(id, estado){
+  var list = getSavedOffers();
+  var n = 0;
+  list.forEach(function(o){ if(o.id === id){ o.estado = estado; n++; } });
+  if(!n) return;
+  setSavedOffers(list);
+  pintarOfertasReales();
+  try{ if(window.CDB) CDB.renderTodo(); }catch(e){}
+  var msg = estado === 'pausada' ? 'Oferta pausada — ya no recibirá candidatos nuevos'
+          : estado === 'activa'  ? 'Oferta activa de nuevo'
+          : 'Oferta cerrada';
+  if(typeof showToast === 'function') showToast(msg);
+}
+
+function eliminarOferta(id){
+  var list = getSavedOffers();
+  var o = list.filter(function(x){ return x.id === id; })[0];
+  if(!o) return;
+  if(!confirm('¿Eliminar la oferta "' + (o.titulo||'') + '"?\n\nEsta acción no se puede deshacer.')) return;
+  setSavedOffers(list.filter(function(x){ return x.id !== id; }));
+  pintarOfertasReales();
+  try{ if(window.CDB) CDB.renderTodo(); }catch(e){}
+  if(typeof showToast === 'function') showToast('Oferta eliminada');
+}
+
+/* es manté el nom antic perquè hi ha crides que hi apunten */
+function renderOfferCard(){ pintarOfertasReales(); }
+function loadSavedOffersOnInit(){ pintarOfertasReales(); }
+function toggleOfferStatus(btn, nuevo){
+  var card = btn && btn.closest ? btn.closest('.offer-card') : null;
+  if(card && card.dataset.oid) return cambiarEstadoOferta(card.dataset.oid, nuevo);
+  if(typeof showToast === 'function')
+    showToast(nuevo === 'pausada' ? 'Esta oferta es de ejemplo' : 'Esta oferta es de ejemplo');
 }
 
 function submitNewOffer(){
@@ -4718,13 +4972,15 @@ function submitNewOffer(){
   const err = document.getElementById('co-err');
   if(!titulo || !ubicacion){
     err.textContent = 'Completa al menos el título y la ubicación.';
+    if(window.verAviso) verAviso(err);
     return;
   }
   err.textContent = '';
+  if(!window._unaSolaVez('oferta', 900)) return;
   const jornada = document.getElementById('co-jornada').value;
 
-  renderOfferCard(titulo, ubicacion, jornada, offerDiscProfiles.join(' + '), true);
-  saveOfferToStorage({titulo, ubicacion, jornada, disc: offerDiscProfiles.join(' + '), estado:'activa', candidatos:0, fecha:new Date().toISOString()});
+  saveOfferToStorage({titulo:titulo, ubicacion:ubicacion, jornada:jornada, disc: offerDiscProfiles.join(' + '), estado:'activa', candidatos:0, fecha:new Date().toISOString()});
+  pintarOfertasReales();
   try{ if(window.CDB) CDB.renderTodo(); }catch(e){}
 
   showToast('¡Oferta publicada correctamente!');
@@ -4757,28 +5013,111 @@ document.getElementById('hub-search')?.addEventListener('keydown', (e)=>{
 // ---- Persistencia local del perfil de empresa ----
 function saveCompanyToStorage(){
   const nom = document.getElementById('f-nom-onboarding')?.value.trim();
-  const nomResp = document.getElementById('f-nombre-responsable')?.value.trim();
+  let nomResp = document.getElementById('f-nombre-responsable')?.value.trim();
   const ciutat = document.getElementById('f-ciutat-onboarding')?.value.trim();
+  let prev = {};
+  try { prev = JSON.parse(localStorage.getItem('smiletalent_empresa') || '{}') || {}; } catch(e){}
+  if(!nomResp){
+    try { nomResp = (CAuth.cuenta()||{}).nombre || prev.nomResp || ''; } catch(e){ nomResp = prev.nomResp || ''; }
+  }
   if(nomResp) applyUserName(nomResp);
   if(!nom) return;
   try {
-    localStorage.setItem('smiletalent_empresa', JSON.stringify({nom, nomResp, ciutat}));
-    try{ if(window.CDB){ CDB.fechaAlta(); CDB.setDemo(false); } }catch(e){}
+    const dades = Object.assign({}, prev, {nom:nom, nomResp:nomResp, ciutat:ciutat || prev.ciutat || ''});
+    localStorage.setItem('smiletalent_empresa', JSON.stringify(dades));
+    try{ if(window.CDB){ CDB.fechaAlta(); CDB.setDemo(false); CDB.renderTodo(); } }catch(e){}
   } catch(e){}
 }
 function loadCompanyFromStorage(){
   let data;
   try { data = JSON.parse(localStorage.getItem('smiletalent_empresa')); } catch(e){ return; }
   if(!data || !data.nom) return;
+
+  var put = function(id, val){
+    var e = document.getElementById(id);
+    if(e && val) e.value = val;
+  };
+
+  // Mi clínica: el formulario debe salir con lo que ya guardaste
+  put('f-nom-onboarding', data.nom);
+  put('f-nombre-responsable', data.nomResp);
+  put('f-ciutat-onboarding', data.ciutat);
+  put('f-descripcio-onboarding', data.descripcion);
+  put('f-web-onboarding', data.web);
+
+  // Mi cuenta: datos personales
+  put('mc-nombre', data.nomResp || '');
+  put('mc-email', data.email);
+  put('mc-telefono', data.telefono);
+
   const sub = document.querySelector('#screen-ofertes .ofertes-sub');
   if(sub) sub.textContent = `${data.nom}${data.ciutat ? ' — ' + data.ciutat : ''} — control total, de un solo vistazo`;
-  // Carregar nom al perfil personal
-  const inp = document.getElementById('mc-nombre');
-  if(inp && inp.value === '') inp.value = data.nom;
-  const heroName = document.getElementById('mc-hero-name');
-  if(heroName && heroName.textContent === 'Tu nombre') heroName.textContent = data.nom;
+
   const letter = document.getElementById('mc-avatar-letter');
-  if(letter) letter.textContent = (data.nom || 'T').charAt(0).toUpperCase();
+  if(letter && data.nomResp) letter.textContent = data.nomResp.charAt(0).toUpperCase();
+
+  // Foto de perfil y logo guardados
+  try {
+    if(data.foto) _pintarAvatar(data.foto);
+    if(data.logo){
+      var lb = document.getElementById('logo-upload-box');
+      if(lb){
+        lb.style.backgroundImage = "url('" + data.logo + "')";
+        lb.style.backgroundSize = 'cover';
+        lb.style.backgroundPosition = 'center';
+        lb.style.color = 'transparent';
+      }
+    }
+  } catch(e){}
+
+  // Interruptores de notificaciones
+  try {
+    if(Array.isArray(data.avisos)){
+      document.querySelectorAll('#screen-mi-cuenta .mc-toggle').forEach(function(t, i){
+        t.classList.toggle('on', data.avisos[i] !== false);
+        t.style.background = t.classList.contains('on') ? '#1A56DB' : '#E5E7EB';
+        var k = t.querySelector('div');
+        if(k) k.style.left = t.classList.contains('on') ? '20px' : '3px';
+      });
+    }
+  } catch(e){}
+}
+
+/* Guarda en el perfil de la clínica cualquier campo que el usuario toque */
+function guardarCampoPerfil(clave, valor){
+  try {
+    if(!window.CDB || CDB.demo()) return;
+    var d = CDB.clinica();
+    d[clave] = valor;
+    localStorage.setItem(CDB.K.emp, JSON.stringify(d));
+  } catch(e){}
+}
+
+/* Los interruptores de avisos se recuerdan */
+function guardarAvisos(){
+  try {
+    if(!window.CDB || CDB.demo()) return;
+    var estados = [];
+    document.querySelectorAll('#screen-mi-cuenta .mc-toggle').forEach(function(t){ estados.push(t.classList.contains('on')); });
+    guardarCampoPerfil('avisos', estados);
+  } catch(e){}
+}
+
+/* El perfil público es el de tu clínica, no el del ejemplo */
+function renderPerfilPublico(){
+  if(!window.CDB) return;
+  var demo = CDB.demo();
+  var c = CDB.clinica();
+  var set = function(id, val){ var e = document.getElementById(id); if(e && val) e.textContent = val; };
+  if(demo){
+    set('pub-clinic-name', 'Clínica Dental Madrid Centro');
+    set('pub-owner-name', 'Tu nombre');
+    return;
+  }
+  set('pub-clinic-name', c.nom || 'Tu clínica');
+  set('pub-owner-name', c.nomResp || 'Tu nombre');
+  var av = document.getElementById('pub-owner-avatar');
+  if(av && c.nomResp) av.textContent = c.nomResp.charAt(0).toUpperCase();
 }
 
 // ---- Inicializacion: cargar datos guardados en este navegador ----
@@ -4817,37 +5156,221 @@ function applyUserName(nom){
     localStorage.setItem('smiletalent_empresa', JSON.stringify(data));
   } catch(e){}
 }
-function handleLogin(){
-  const email = document.getElementById('login-email')?.value.trim();
-  try {
-    localStorage.removeItem('smiletalent_empresa');
-    localStorage.removeItem('smiletalent_ofertas');
-    localStorage.removeItem('smiletalent_disc_empresa');
-    localStorage.removeItem('smiletalent_disc_individual');
-  } catch(e){}
-  showScreen('benvinguda');
+/* ====================== CUENTAS: registro y sesión ======================
+   Mientras no haya Firestore, la cuenta vive en este dispositivo.
+   La estructura es la misma que usará Firebase Auth, para poder
+   cambiarlo sin tocar las pantallas.
+   ====================================================================== */
+window.CAuth = {
+  K:{ cuenta:'cerco_cuenta', sesion:'cerco_sesion' },
+  _hash: function(t){
+    var h = 5381;
+    for(var i=0;i<t.length;i++){ h = ((h<<5)+h) ^ t.charCodeAt(i); }
+    return (h>>>0).toString(36);
+  },
+  cuenta: function(){
+    try{ return JSON.parse(localStorage.getItem(this.K.cuenta)||'null'); }catch(e){ return null; }
+  },
+  existe: function(){ var c=this.cuenta(); return !!(c && c.email); },
+  crear: function(nombre, email, pwd){
+    var c = { nombre:nombre, email:email.toLowerCase(), pwd:this._hash(pwd), alta:new Date().toISOString() };
+    try{ localStorage.setItem(this.K.cuenta, JSON.stringify(c)); }catch(e){}
+    this.entrar();
+    return c;
+  },
+  comprueba: function(email, pwd){
+    var c = this.cuenta();
+    if(!c) return 'sin-cuenta';
+    if(c.email !== email.toLowerCase()) return 'email';
+    if(c.pwd !== this._hash(pwd)) return 'pwd';
+    return 'ok';
+  },
+  entrar: function(){ try{ localStorage.setItem(this.K.sesion,'1'); }catch(e){} },
+  salir:  function(){ try{ localStorage.removeItem(this.K.sesion); }catch(e){} },
+  activa: function(){ try{ return localStorage.getItem(this.K.sesion)==='1'; }catch(e){ return false; } }
+};
+
+
+/* Un avis que l'usuari no veu es un boto que sembla mort.
+   Aquesta funcio l'escriu i s'assegura que quedi a la vista. */
+window.verAviso = function(el){
+  if(typeof el === 'string') el = document.getElementById(el);
+  if(!el) return;
+  var txt = (el.textContent || '').trim();
+  if(!txt) return;
+  try{
+    var r = el.getBoundingClientRect();
+    var fuera = r.top < 60 || r.bottom > (window.innerHeight - 20);
+    if(fuera) el.scrollIntoView({behavior:'smooth', block:'center'});
+  }catch(e){
+    try{ el.scrollIntoView(); }catch(x){}
+  }
+  // parpelleig breu perque es noti
+  try{
+    el.style.transition = 'none';
+    el.style.opacity = '0.25';
+    setTimeout(function(){ el.style.transition='opacity .25s'; el.style.opacity='1'; }, 60);
+  }catch(e){}
+};
+
+function _emailValido(e){ return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(e); }
+
+
+/* Si algu obre l'enllaç d'equip pero ja te el seu compte en aquest
+   dispositiu, li donem la sortida cap al seu panell. */
+function volverAMiPanel(){
+  try{ sessionStorage.removeItem('cerco_invitado_nombre'); }catch(e){}
+  try{ sessionStorage.removeItem('cerco_invitado_clinica'); }catch(e){}
+  window.esInvitado = false;
+  var base = location.origin + location.pathname;
+  try{ history.replaceState({}, '', base); }catch(e){}
+  if(CDB.registrado()) showScreen('inicio'); else showScreen('login');
 }
-function handleLoginSocial(provider){
-  try {
-    localStorage.removeItem('smiletalent_empresa');
-    localStorage.removeItem('smiletalent_ofertas');
-    localStorage.removeItem('smiletalent_disc_empresa');
-    localStorage.removeItem('smiletalent_disc_individual');
-  } catch(e){}
+
+function verPwdRegistro(){
+  var i = document.getElementById('reg-pwd');
+  var i2 = document.getElementById('reg-pwd2');
+  if(!i) return;
+  var mostrar = i.type === 'password';
+  i.type = mostrar ? 'text' : 'password';
+  if(i2) i2.type = i.type;
+}
+
+function handleRegistro(){
+  var n = (document.getElementById('reg-nombre')||{}).value || '';
+  var e = (document.getElementById('reg-email')||{}).value || '';
+  var p1 = (document.getElementById('reg-pwd')||{}).value || '';
+  var p2 = (document.getElementById('reg-pwd2')||{}).value || '';
+  var ac = document.getElementById('reg-acepto');
+  var err = document.getElementById('reg-error');
+  var poner = function(m, foco){
+    if(err){ err.textContent = m; if(window.verAviso) verAviso(err); }
+    var f = document.getElementById(foco); if(f){ try{ f.focus({preventScroll:true}); }catch(e){ f.focus(); } }
+  };
+  if(err) err.textContent = '';
+
+  n = n.trim(); e = e.trim();
+  if(n.length < 3)            return poner('Escribe tu nombre y apellido.','reg-nombre');
+  if(!_emailValido(e))        return poner('Ese correo no parece correcto. Revísalo.','reg-email');
+  if(p1.length < 6)           return poner('La contraseña necesita al menos 6 caracteres.','reg-pwd');
+  if(p1 !== p2)               return poner('Las dos contraseñas no coinciden.','reg-pwd2');
+  if(ac && !ac.checked)       return poner('Marca la casilla para poder continuar.','reg-acepto');
+
+  var ya = CAuth.cuenta();
+  if(ya && ya.email === e.toLowerCase()){
+    return poner('Ya existe una cuenta con ese correo en este dispositivo. Inicia sesión.','reg-email');
+  }
+
+  if(!window._unaSolaVez('registro')) return;
+  CAuth.crear(n, e, p1);
+  try{
+    var emp = CDB.clinica(); emp.nomResp = n; emp.email = e;
+    localStorage.setItem(CDB.K.emp, JSON.stringify(emp));
+    CDB.fechaAlta(); CDB.setDemo(false);
+  }catch(x){}
+  if(typeof applyUserName === 'function') applyUserName(n);
+
+  document.getElementById('reg-pwd').value = '';
+  document.getElementById('reg-pwd2').value = '';
   showScreen('benvinguda');
+  if(typeof showToast === 'function') showToast('Cuenta creada. Ahora configuramos tu clínica.');
+}
+
+function handleLogin(){
+  var e = (document.getElementById('login-email')||{}).value || '';
+  var p = (document.getElementById('login-pwd')||{}).value || '';
+  var err = document.getElementById('login-error');
+  var poner = function(m, foco){
+    if(err){ err.textContent = m; err.style.display='block'; if(window.verAviso) verAviso(err); }
+    else if(typeof showToast === 'function') showToast(m);
+    var f = document.getElementById(foco); if(f){ try{ f.focus({preventScroll:true}); }catch(e){ f.focus(); } }
+  };
+  if(err){ err.textContent=''; err.style.display='none'; }
+
+  e = e.trim();
+  if(!_emailValido(e)) return poner('Escribe un correo válido.','login-email');
+  if(!p)               return poner('Escribe tu contraseña.','login-pwd');
+
+  var r = CAuth.comprueba(e, p);
+  if(r === 'sin-cuenta') return poner('No hay ninguna cuenta en este dispositivo. Pulsa "Regístrate aquí" para crearla.','login-email');
+  if(r === 'email')      return poner('No encontramos ninguna cuenta con ese correo en este dispositivo.','login-email');
+  if(r === 'pwd')        return poner('La contraseña no es correcta.','login-pwd');
+
+  if(!window._unaSolaVez('login')) return;
+  CAuth.entrar();
+  document.getElementById('login-pwd').value = '';
+  try{ CDB.setDemo(false); CDB.renderTodo(); }catch(x){}
+  if(CDB.registrado()){
+    showScreen('inicio');
+    if(typeof showToast === 'function') showToast('Hola de nuevo, ' + ((CAuth.cuenta()||{}).nombre||'').split(/\s+/)[0]);
+  } else {
+    showScreen('benvinguda');
+  }
+}
+
+function handleLoginSocial(provider){
+  var err = document.getElementById('login-error');
+  if(err){ err.style.display='block';
+    err.textContent = 'Entrar con ' + provider + ' estará disponible en la versión completa. De momento, crea tu cuenta con correo.'; }
+  else if(typeof showToast === 'function') showToast('Entrar con ' + provider + ' llegará en la versión completa');
+}
+
+function cerrarSesion(){
+  CAuth.salir();
+  showScreen('login');
+  if(typeof showToast === 'function') showToast('Sesión cerrada. Tus datos siguen guardados.');
+}
+
+/* Redueix la imatge abans de guardar-la: una foto de mobil sencera
+   no hi cap a l'emmagatzematge del navegador. */
+function _reducirImagen(file, maxPx, cb){
+  var fr = new FileReader();
+  fr.onload = function(ev){
+    var img = new Image();
+    img.onload = function(){
+      try {
+        var esc = Math.min(1, maxPx / Math.max(img.width, img.height));
+        var w = Math.round(img.width * esc), h = Math.round(img.height * esc);
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(img, 0, 0, w, h);
+        cb(cv.toDataURL('image/jpeg', 0.82));
+      } catch(e){ cb(ev.target.result); }
+    };
+    img.onerror = function(){ cb(null); };
+    img.src = ev.target.result;
+  };
+  fr.onerror = function(){ cb(null); };
+  fr.readAsDataURL(file);
+}
+
+function _pintarAvatar(dataUrl){
+  var avatar = document.getElementById('mc-avatar-circle');
+  var letter = document.getElementById('mc-avatar-letter');
+  if(!avatar) return;
+  avatar.style.backgroundImage = "url('" + dataUrl + "')";
+  avatar.style.backgroundSize = 'cover';
+  avatar.style.backgroundPosition = 'center';
+  if(letter) letter.style.display = 'none';
 }
 
 function handleMcPhotoUpload(input){
   const file = input.files && input.files[0];
-  if(!file || !file.type.startsWith('image/')) return;
-  const url = URL.createObjectURL(file);
-  const avatar = document.getElementById('mc-avatar-circle');
-  const letter = document.getElementById('mc-avatar-letter');
-  avatar.style.backgroundImage = `url('${url}')`;
-  avatar.style.backgroundSize = 'cover';
-  avatar.style.backgroundPosition = 'center';
-  if(letter) letter.style.display = 'none';
-  showToast('Foto de perfil actualizada');
+  if(!file) return;
+  if(!file.type.startsWith('image/')){
+    if(typeof showToast==='function') showToast('Por favor, sube un archivo de imagen');
+    return;
+  }
+  _reducirImagen(file, 320, function(dataUrl){
+    if(!dataUrl){ if(typeof showToast==='function') showToast('No se ha podido leer la imagen'); return; }
+    _pintarAvatar(dataUrl);
+    try {
+      guardarCampoPerfil('foto', dataUrl);
+      if(typeof showToast==='function') showToast('Foto de perfil actualizada');
+    } catch(e){
+      if(typeof showToast==='function') showToast('Foto puesta, pero no se ha podido guardar en este navegador');
+    }
+  });
 }
 // Hover sobre avatar
 document.addEventListener('DOMContentLoaded', function(){
@@ -4860,14 +5383,29 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function updateMcBadge(){
-  const nom = document.getElementById('mc-nombre')?.value.trim() || 'A';
+  const nom = document.getElementById('mc-nombre')?.value.trim() || '';
   const rol = document.getElementById('mc-rol')?.value || 'Gerente';
   const letter = document.getElementById('mc-avatar-letter');
   const heroName = document.getElementById('mc-hero-name');
   const heroRole = document.getElementById('mc-hero-role');
-  if(letter) letter.textContent = nom.charAt(0).toUpperCase();
-  if(heroName) heroName.textContent = nom;
-  if(heroRole) heroRole.textContent = rol + ' · Clínica Dental Madrid Centro';
+  const av = document.getElementById('mc-avatar-circle');
+
+  let clinica = 'Clínica Dental Madrid Centro';
+  try { if(window.CDB && !CDB.demo()) clinica = CDB.nombreClinica() || ''; } catch(e){}
+
+  if(letter && !(av && av.style.backgroundImage)) letter.textContent = nom ? nom.charAt(0).toUpperCase() : '?';
+  if(heroName) heroName.textContent = nom || 'Tu nombre';
+  if(heroRole) heroRole.textContent = rol + (clinica ? ' · ' + clinica : '');
+
+  // El rol elegido se guarda con el resto del perfil
+  try {
+    if(window.CDB && !CDB.demo()){
+      const d = CDB.clinica();
+      d.rol = rol;
+      if(nom) d.nomResp = nom;
+      localStorage.setItem(CDB.K.emp, JSON.stringify(d));
+    }
+  } catch(e){}
 }
 function updateBadgeFromSettings(){ updateMcBadge(); }
 
@@ -5133,7 +5671,6 @@ const ES_LOCATIONS = [
   {c:'Alcobendas', p:'Madrid', r:'Comunidad de Madrid'},
   {c:'Torrejón de Ardoz', p:'Madrid', r:'Comunidad de Madrid'},
   {c:'Parla', p:'Madrid', r:'Comunidad de Madrid'},
-  {c:'Alcalá de Henares', p:'Madrid', r:'Comunidad de Madrid'},
   {c:'Las Rozas', p:'Madrid', r:'Comunidad de Madrid'},
   {c:'Pozuelo de Alarcón', p:'Madrid', r:'Comunidad de Madrid'},
   {c:'Coslada', p:'Madrid', r:'Comunidad de Madrid'},
@@ -5192,7 +5729,6 @@ const ES_LOCATIONS = [
   {c:'Antequera', p:'Málaga', r:'Andalucía'},
   {c:'Ronda', p:'Málaga', r:'Andalucía'},
   {c:'Úbeda', p:'Jaén', r:'Andalucía'},
-  {c:'Marbella', p:'Málaga', r:'Andalucía'},
   {c:'Barakaldo', p:'Vizcaya', r:'País Vasco'},
   {c:'Getxo', p:'Vizcaya', r:'País Vasco'},
   {c:'Irún', p:'Guipúzcoa', r:'País Vasco'},
@@ -5203,12 +5739,9 @@ const ES_LOCATIONS = [
   {c:'Torrelavega', p:'Cantabria', r:'Cantabria'},
   {c:'Calahorra', p:'La Rioja', r:'La Rioja'},
   {c:'Eibar', p:'Guipúzcoa', r:'País Vasco'},
-  {c:'Ourense', p:'Ourense', r:'Galicia'},
   {c:'Ferrol', p:'A Coruña', r:'Galicia'},
-  {c:'Pontevedra', p:'Pontevedra', r:'Galicia'},
   {c:'Narón', p:'A Coruña', r:'Galicia'},
   {c:'Vilagarcía de Arousa', p:'Pontevedra', r:'Galicia'},
-  {c:'Gijón', p:'Asturias', r:'Asturias'},
   {c:'Avilés', p:'Asturias', r:'Asturias'},
   {c:'Siero', p:'Asturias', r:'Asturias'},
   {c:'Langreo', p:'Asturias', r:'Asturias'},
@@ -5247,7 +5780,7 @@ const ES_LOCATIONS = [
   {c:'Arrecife', p:'Las Palmas', r:'Canarias'},
   {c:'Puerto del Rosario', p:'Las Palmas', r:'Canarias'},
   {c:'Adeje', p:'S.C. Tenerife', r:'Canarias'},
-  {c:'La Orotava', p:'S.C. Tenerife', r:'Canarias'},
+  {c:'La Orotava', p:'S.C. Tenerife', r:'Canarias'}
 ];
 const ES_REGIONS = ['Andalucía','Aragón','Asturias','Islas Baleares','Canarias','Cantabria','Castilla y León','Castilla-La Mancha','Cataluña','C. Valenciana','Extremadura','Galicia','La Rioja','Comunidad de Madrid','R. de Murcia','Navarra','País Vasco'];
 
@@ -5402,7 +5935,111 @@ function updateOriginNote(){ if(typeof applyFilters_portal === 'function') apply
 
 
 function downloadFullCV(){
-  showToast('Descargando el CV completo de María García (PDF, 3 páginas)');
+  try {
+    var nom = 'María García';
+    try {
+      var t = document.querySelector('#screen-candidat h1, #screen-candidat .cand-name, #screen-candidat .cand-strip-name');
+      if(t && t.textContent.trim()){
+        // ens quedem nomes amb el nom: fora edat, comes i tot el que vingui darrere
+        nom = t.textContent.trim().split(/[,·|\n]/)[0].replace(/\s*\d+\s*$/,'').trim() || nom;
+      }
+    } catch(e){}
+    var bytes = construirPDFCurriculum(nom);
+    var blob = new Blob([bytes], {type:'application/pdf'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'CV_' + nom.replace(/[^A-Za-zÀ-ÿ0-9]+/g,'_') + '.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    if(typeof showToast === 'function') showToast('CV descargado');
+  } catch(e){
+    if(typeof showToast === 'function') showToast('No se ha podido generar el PDF');
+  }
+}
+
+/* Construeix un PDF valid sense cap llibreria externa. */
+function construirPDFCurriculum(nombre){
+  var lineas = [
+    ['H1', nombre],
+    ['P',  'Higienista Dental · Perfil DISC I/C'],
+    ['', ''],
+    ['H2', 'EXPERIENCIA'],
+    ['P',  'Clinica Dental Sants — Higienista (2022-2026)'],
+    ['S',  'Higienes, sellados y educacion en salud bucodental.'],
+    ['S',  'Seguimiento de pacientes con periodontitis.'],
+    ['P',  'Clinica Odontomas — Auxiliar (2020-2022)'],
+    ['S',  'Instrumentacion y esterilizacion segun protocolo.'],
+    ['', ''],
+    ['H2', 'FORMACION'],
+    ['P',  'CFGS Higiene Bucodental — IES Bonanova (2020)'],
+    ['S',  'Curso de periodoncia avanzada (2023)'],
+    ['', ''],
+    ['H2', 'IDIOMAS'],
+    ['S',  'Castellano y catalan nativos. Ingles B2.'],
+    ['', ''],
+    ['H2', 'PERFIL DE PERSONALIDAD'],
+    ['S',  'Influyente con rasgo Concienzudo (I/C).'],
+    ['S',  'Trato cercano con el paciente y precision en el protocolo.'],
+    ['', ''],
+    ['S',  'Documento generado por CERCO'],
+    ['S',  'Porque el talento dental tambien merece encontrarse']
+  ];
+
+  var esc = function(t){
+    return String(t)
+      .replace(/[—–]/g,'-').replace(/[""]/g,'\"').replace(/['']/g,"'").replace(/…/g,'...')
+      .replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+  };
+
+  var y = 770;
+  var cont = 'BT\n';
+  lineas.forEach(function(l){
+    var tipo = l[0], txt = l[1];
+    if(!txt){ y -= 10; return; }
+    var fuente, tam, sangria;
+    if(tipo === 'H1'){ fuente='/F2'; tam=20; sangria=60; y -= 6; }
+    else if(tipo === 'H2'){ fuente='/F2'; tam=11; sangria=60; y -= 8; }
+    else if(tipo === 'P'){ fuente='/F2'; tam=10; sangria=60; }
+    else { fuente='/F1'; tam=10; sangria=68; }
+    cont += '/'.slice(0,0) + fuente + ' ' + tam + ' Tf\n';
+    cont += '1 0 0 1 ' + sangria + ' ' + y + ' Tm\n';
+    cont += '(' + esc(txt) + ') Tj\n';
+    y -= (tipo === 'H1' ? 26 : (tipo === 'H2' ? 18 : 15));
+  });
+  cont += 'ET';
+
+  var objetos = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>',
+    '<< /Length ' + cont.length + ' >>\nstream\n' + cont + '\nendstream',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>'
+  ];
+
+  var pdf = '%PDF-1.4\n';
+  var pos = [];
+  objetos.forEach(function(o, i){
+    pos.push(pdf.length);
+    pdf += (i+1) + ' 0 obj\n' + o + '\nendobj\n';
+  });
+  var xref = pdf.length;
+  pdf += 'xref\n0 ' + (objetos.length+1) + '\n0000000000 65535 f \n';
+  pos.forEach(function(x){
+    pdf += ('0000000000' + x).slice(-10) + ' 00000 n \n';
+  });
+  pdf += 'trailer\n<< /Size ' + (objetos.length+1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF';
+
+  // Latin-1: cada caracter es un byte
+  var buf = new Uint8Array(pdf.length);
+  for(var i=0;i<pdf.length;i++){
+    var c = pdf.charCodeAt(i);
+    buf[i] = c < 256 ? c : 63;   // el que no hi cap, interrogant
+  }
+  return buf;
 }
 
 
@@ -5481,6 +6118,11 @@ function detectarInvitacion(){
   if(!equipo) return false;
   const el = document.getElementById('invitado-clinica');
   if(el) el.textContent = equipo;
+  try{
+    var propi = CDB.registrado() || CAuth.existe();
+    var sal = document.getElementById('invitado-salida');
+    if(sal && propi) sal.style.display = 'block';
+  }catch(e){}
   try { sessionStorage.setItem('cerco_invitado_clinica', equipo); } catch(e){}
   return true;
 }
@@ -5518,7 +6160,12 @@ window.CDB = {
   equipo: function(){ var e = this._get(this.K.eq, []); return Array.isArray(e)? e : []; },
   ofertas: function(){ var o = this._get(this.K.of, []); return Array.isArray(o)? o : []; },
   plantilla: function(){ var n = parseInt(this._get(this.K.pl, 0),10); return isNaN(n)?0:n; },
-  setPlantilla: function(n){ this._set(this.K.pl, parseInt(n,10)||0); },
+  setPlantilla: function(n){
+    var v = parseInt(n,10);
+    if(isNaN(v) || v < 0) v = 0;
+    if(v > 999) v = 999;
+    this._set(this.K.pl, v);
+  },
 
   fechaAlta: function(){
     var f = this._get(this.K.alta, null);
@@ -5628,7 +6275,10 @@ window.CDB = {
     var c = txt.trim().toUpperCase().replace(/\s+/g,'');
     var m = c.match(/^([A-ZÑ]{1,3})-([DISC])([DISC])-(\d{1,3})$/);
     if(!m) return null;
-    return { ini:m[1], dom:m[2], sec:m[3], pct:parseInt(m[4],10) };
+    if(m[2] === m[3]) return null;           // el perfil principal i el secundari no poden ser el mateix
+    var pct = parseInt(m[4],10);
+    if(isNaN(pct) || pct > 100) return null; // un percentatge per sobre de 100 no existeix
+    return { ini:m[1], dom:m[2], sec:m[3], pct:pct };
   },
 
   reset: function(){
@@ -5644,9 +6294,10 @@ window.CDB = {
     try{ if(typeof renderInicioReal==='function') renderInicioReal(); }catch(e){}
     try{ if(typeof renderStatsReal==='function') renderStatsReal(); }catch(e){}
     try{ if(typeof renderEquipo==='function') renderEquipo(); }catch(e){}
-    try{ if(typeof renderOfertasReal==='function') renderOfertasReal(); }catch(e){}
+    try{ if(typeof pintarOfertasReales==='function') pintarOfertasReales(); }catch(e){}
     try{ if(typeof renderPortalReal==='function') renderPortalReal(); }catch(e){}
     try{ if(typeof renderMiCuenta==='function') renderMiCuenta(); }catch(e){}
+    try{ if(typeof renderPerfilPublico==='function') renderPerfilPublico(); }catch(e){}
     try{ if(typeof renderSwitchDemo==='function') renderSwitchDemo(); }catch(e){}
     try{ if(typeof syncWorkspaceName==='function') syncWorkspaceName(); }catch(e){}
   }
@@ -5952,7 +6603,7 @@ function renderEquipo(){
         + '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
         + '<div style="flex:1;min-width:200px;"><div style="font-size:13.5px;font-weight:700;color:#111827;">¿Cuántas personas sois en total?</div>'
         + '<div style="font-size:12.5px;color:#6B7280;margin-top:2px;">Para saber cuántos test faltan por hacer</div></div>'
-        + '<input type="number" min="0" max="500" id="eq-plantilla" value="'+(pl||'')+'" placeholder="0" onchange="guardarPlantilla()" style="width:88px;border:1px solid #E5E7EB;border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;text-align:center;outline:none;">'
+        + '<input type="number" min="0" max="999" id="eq-plantilla" value="'+(pl||'')+'" placeholder="0" onchange="guardarPlantilla()" style="width:88px;border:1px solid #E5E7EB;border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;text-align:center;outline:none;">'
         + '</div></div>';
 
   /* lista */
@@ -5997,22 +6648,41 @@ function anadirMiembro(){
       err = document.getElementById('eq-error');
   if(!nEl || !cEl) return;
   var nombre = nEl.value.trim(), rol = rEl ? rEl.value : '', codigo = cEl.value.trim();
-  err.textContent = '';
+  err.textContent = ''; if(window.verAviso) verAviso(err);
 
-  if(!nombre){ err.textContent = 'Escribe el nombre de la persona.'; nEl.focus(); return; }
+  if(!nombre){ err.textContent = 'Escribe el nombre de la persona.'; if(window.verAviso) verAviso(err); nEl.focus(); return; }
   var p = CDB.parseCodigo(codigo);
-  if(!p){ err.textContent = 'Ese código no tiene el formato correcto. Debe ser algo como MG-IC-84.'; cEl.focus(); return; }
+  if(!p){ err.textContent = 'Ese código no tiene el formato correcto. Debe ser algo como MG-IC-84.'; if(window.verAviso) verAviso(err); cEl.focus(); return; }
 
+  // Aviso solo si no coincide NI la primera inicial: quien hizo el test pudo
+  // escribir solo su nombre de pila y el responsable escribe nombre y apellido.
   var ini = _ini(nombre);
-  if(p.ini !== ini){
-    err.innerHTML = 'Aviso: el código empieza por <b>'+p.ini+'</b> y el nombre por <b>'+ini+'</b>. '
-                  + 'Si es correcto, vuelve a pulsar Añadir.';
-    if(cEl.dataset.avisado === codigo + nombre){ /* confirmado, seguimos */ }
-    else { cEl.dataset.avisado = codigo + nombre; return; }
+  var encaja = (p.ini === ini) || (p.ini.charAt(0) === ini.charAt(0));
+  if(!encaja){
+    if(cEl.dataset.avisado !== codigo + nombre){
+      cEl.dataset.avisado = codigo + nombre;
+      err.innerHTML = 'Ese código parece de otra persona: empieza por <b>'+p.ini+'</b> y el nombre que has escrito por <b>'+ini+'</b>.'
+                    + '<br><span style="color:#6B7280; if(window.verAviso) verAviso(err);">Si estás seguro, pulsa <b>Añadir</b> otra vez y lo guardo igualmente.</span>';
+      return;
+    }
   }
 
   var repe = CDB.equipo().some(function(m){ return m.codigo === codigo.toUpperCase(); });
-  if(repe){ err.textContent = 'Ese código ya está añadido.'; return; }
+  if(repe){ err.textContent = 'Ese código ya está añadido.'; if(window.verAviso) verAviso(err); return; }
+
+  var norm = function(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); };
+
+  // El responsable ya cuenta con su propio test: no puede entrar dos veces
+  if(CDB.miDisc() && norm(nombre) === norm(CDB.clinica().nomResp)){
+    err.innerHTML = 'Tú ya estás en el equipo con tu propio test. Si quieres cambiar tu resultado, vuelve a hacer el test desde <b>Mi cuenta</b>.'; if(window.verAviso) verAviso(err);
+    return;
+  }
+  // Y tampoco dos personas con el mismo nombre
+  var mismoNombre = CDB.equipo().some(function(m){ return norm(m.nombre) === norm(nombre); });
+  if(mismoNombre){
+    err.textContent = 'Ya hay alguien con ese nombre en el equipo. Añade el apellido para distinguirlos.'; if(window.verAviso) verAviso(err);
+    return;
+  }
 
   CDB.addMiembro({ nombre:nombre, rol:rol||'Sin puesto', dom:p.dom, sec:p.sec, pct:p.pct, codigo:codigo.toUpperCase() });
   nEl.value=''; cEl.value=''; if(rEl) rEl.value='';
@@ -6036,6 +6706,7 @@ function compartirWhatsapp(){
 
 /* ====================== MIS OFERTAS (reales) ====================== */
 function renderOfertasReal(){
+  if(!window.CDB) return;
   var strip = document.getElementById('ofertes-strip-real');
   var sub = document.getElementById('ofertes-sub');
   if(sub) sub.textContent = CDB.nombreClinica() ? (CDB.nombreClinica() + ' — control total, de un solo vistazo') : 'Control total, de un solo vistazo';
@@ -6089,6 +6760,10 @@ function renderMiCuenta(){
 
   var nom = (c.nomResp||'').trim();
   var rolSel = document.getElementById('mc-rol');
+  if(rolSel && c.rol){
+    var hi = [].some.call(rolSel.options, function(o){ return o.value === c.rol; });
+    if(hi) rolSel.value = c.rol;
+  }
   var rol = rolSel ? rolSel.value : 'Gerente';
   set('mc-hero-name', nom || 'Tu nombre');
   set('mc-hero-role', rol + (c.nom ? ' · ' + c.nom : ''));
@@ -6161,6 +6836,73 @@ function renderSwitchDemo(){
   document.querySelectorAll('.aviso-ejemplo').forEach(function(a){ a.style.display = on ? '' : 'none'; });
 }
 
+
+/* ============ COMPORTAMENT D'APP ============
+   Tecla Enter, boto enrere del mobil i proteccio contra
+   el doble toc. Coses que a una app nativa dona per fetes.
+   ============================================ */
+
+/* --- 1. Enter envia el formulari --- */
+(function(){
+  var mapa = [
+    {ids:['reg-nombre','reg-email','reg-pwd','reg-pwd2'], fn:function(){ handleRegistro(); }},
+    {ids:['login-email','login-pwd'],                     fn:function(){ handleLogin(); }},
+    {ids:['eq-nombre','eq-codigo'],                       fn:function(){ anadirMiembro(); }},
+    {ids:['co-titulo','co-ubicacion'],                    fn:function(){ submitNewOffer(); }},
+    {ids:['invitado-nombre'],                             fn:function(){ empezarTestInvitado(); }}
+  ];
+  function enganxa(){
+    mapa.forEach(function(g){
+      g.ids.forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el || el.dataset.enterOk) return;
+        el.dataset.enterOk = '1';
+        el.addEventListener('keydown', function(ev){
+          if(ev.key === 'Enter'){ ev.preventDefault(); try{ g.fn(); }catch(e){} }
+        });
+      });
+    });
+  }
+  window._engancharEnter = enganxa;
+  enganxa();
+  document.addEventListener('click', function(){ setTimeout(enganxa, 60); });
+})();
+
+/* --- 2. El boto enrere del movil navega dins l'app --- */
+(function(){
+  var saltando = false;
+
+  // Cada pantalla que s'obre deixa una marca a l'historial del navegador.
+  window._historialPush = function(id){
+    if(saltando) return;
+    try{
+      var actual = history.state && history.state.cercoScreen;
+      if(actual === id){ return; }              // ja hi som, no dupliquem
+      if(!actual){ history.replaceState({cercoScreen:id}, '', location.href); }
+      else { history.pushState({cercoScreen:id}, '', location.href); }
+    }catch(e){}
+  };
+
+  // Enrere i endavant: ensenyem la pantalla que digui l'historial,
+  // sense tocar-lo, perque els dos botons segueixin funcionant.
+  window.addEventListener('popstate', function(ev){
+    var destino = ev.state && ev.state.cercoScreen;
+    if(!destino) return;
+    saltando = true;
+    try{ showScreen(destino); }catch(e){}
+    saltando = false;
+  });
+})();
+
+/* --- 3. Un boto no es pot prémer dues vegades mentre treballa --- */
+window._unaSolaVez = function(clave, ms){
+  window.__ocupado = window.__ocupado || {};
+  var ara = Date.now();
+  if(window.__ocupado[clave] && ara - window.__ocupado[clave] < (ms||1200)) return false;
+  window.__ocupado[clave] = ara;
+  return true;
+};
+
 // ---- Navigation (always runs, isolated from any error above) ----
 window.showScreen = function(id){
   document.querySelectorAll('.app-screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + id));
@@ -6169,7 +6911,12 @@ window.showScreen = function(id){
   if(typeof syncWorkspaceName === 'function') syncWorkspaceName();
   if(id === 'stats' && typeof refreshInviteLink === 'function') setTimeout(refreshInviteLink, 40);
   try{ if(window.CDB){ CDB.aplicarModo(); CDB.renderTodo(); } }catch(e){}
-  document.body.classList.toggle('on-login', id === 'login');
+  if(id === 'onboarding' || id === 'mi-cuenta'){
+    try{ if(typeof loadCompanyFromStorage === 'function') loadCompanyFromStorage(); }catch(e){}
+  }
+  try{ if(window._historialPush) window._historialPush(id); }catch(e){}
+  try{ if(window._engancharEnter) setTimeout(window._engancharEnter, 30); }catch(e){}
+  document.body.classList.toggle('on-login', id === 'login' || id === 'registro' || id === 'invitado');
   window.scrollTo(0,0);
   const main = document.querySelector('.shell-main');
   if(main) main.scrollTo(0,0);
@@ -6184,15 +6931,23 @@ document.querySelectorAll('.shell-nav-item').forEach(item=>{
     showScreen('invitado');
     return;
   }
-  try{ CDB.fechaAlta(); CDB.aplicarModo(); CDB.renderTodo(); }catch(e){}
-  let hasSession = false;
-  try {
-    const data = JSON.parse(localStorage.getItem('smiletalent_empresa') || 'null');
-    hasSession = !!(data && data.nom);
-  } catch(e){}
-  if(hasSession){
+  try{ CDB.aplicarModo(); CDB.renderTodo(); }catch(e){}
+
+  var tieneClinica = false;
+  try { tieneClinica = CDB.registrado(); } catch(e){}
+  var tieneCuenta  = false, sesion = false;
+  try { tieneCuenta = CAuth.existe(); sesion = CAuth.activa(); } catch(e){}
+
+  // Quien ya usaba la app antes de que existieran las cuentas no se queda fuera
+  if(tieneClinica && !tieneCuenta){ try{ CAuth.entrar(); }catch(e){} sesion = true; }
+
+  if(sesion && tieneClinica){
     showScreen('inicio');
-    setTimeout(()=> showToast('Bienvenido/a de nuevo'), 600);
+    var quien = '';
+    try { quien = ((CAuth.cuenta()||{}).nombre || CDB.clinica().nomResp || '').split(/\s+/)[0]; } catch(e){}
+    setTimeout(function(){ showToast(quien ? ('Hola de nuevo, ' + quien) : 'Bienvenido/a de nuevo'); }, 600);
+  } else if(sesion && tieneCuenta){
+    showScreen('benvinguda');
   } else {
     showScreen('login');
   }
@@ -6272,6 +7027,18 @@ document.querySelectorAll('.shell-nav-item').forEach(item=>{
       <button onclick="document.getElementById('hire-modal').style.display='none';" style="flex:1;min-width:150px;background:white;color:#374151;border:1px solid #E5E7EB;border-radius:10px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Cancelar</button>
     </div>
   </div>
+</div>
+
+
+<!-- ===== SEIMIAN: botó flotant ===== -->
+<div id="ia-fab" onclick="abrirSeimian()" title="Preguntar a Seimian"
+     style="position:fixed;right:26px;bottom:26px;width:58px;height:58px;border-radius:50%;
+            background:linear-gradient(135deg,#0F1C3F,#1A3A6B);box-shadow:0 8px 24px rgba(15,28,63,.35);
+            display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9800;
+            transition:transform .15s, box-shadow .15s;"
+     onmouseenter="this.style.transform='scale(1.06)';this.style.boxShadow='0 12px 30px rgba(15,28,63,.45)'"
+     onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 8px 24px rgba(15,28,63,.35)'">
+  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
 </div>
 
 </body>

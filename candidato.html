@@ -2014,9 +2014,9 @@ function verPwd(id){ var i = $(id); if(i) i.type = i.type === 'password' ? 'text
 
 function traducirError(x, ctx){
   var c = (x && x.code) || '';
-  if(c === 'auth/wrong-password' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials') return 'El correo o la contraseña no son correctos.';
+  if(c === 'auth/wrong-password' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials') return 'El correo o la contraseña no son correctos. Si creaste la cuenta con Google, pulsa «Continuar con Google». Si no la recuerdas, pulsa «¿Olvidaste tu contraseña?».';
   if(c === 'auth/user-not-found') return 'No existe ninguna cuenta con ese correo. Pulsa "Regístrate gratis" para crearla.';
-  if(c === 'auth/email-already-in-use') return 'Ya existe una cuenta con ese correo. Inicia sesión.';
+  if(c === 'auth/email-already-in-use') return 'Ya existe una cuenta con ese correo (de profesional o de clínica). Inicia sesión; si no recuerdas la contraseña, pulsa «¿Olvidaste tu contraseña?». Para probar los dos lados, usa otro correo.';
   if(c === 'auth/weak-password') return 'La contraseña necesita al menos 6 caracteres.';
   if(c === 'auth/invalid-email') return 'Ese correo no parece correcto.';
   if(c === 'auth/too-many-requests') return 'Demasiados intentos. Espera un minuto y vuelve a probar.';
@@ -2082,15 +2082,37 @@ function google(errId){
   });
 }
 
+
+/* Correo para cambiar la contraseña: en español, con vuelta a esta misma página.
+   Si Firebase no acepta la dirección de vuelta, se manda igualmente sin ella. */
+window.CERCO_enviarReset = function(email){
+  try{ firebase.auth().languageCode = 'es'; }catch(x){}
+  var vuelta = { url: location.origin + location.pathname };
+  return firebase.auth().sendPasswordResetEmail(email, vuelta).catch(function(x){
+    var c = (x && x.code) || '';
+    if(/continue-uri|unauthorized-domain|invalid-dynamic-link|argument-error/.test(c)) return firebase.auth().sendPasswordResetEmail(email);
+    throw x;
+  });
+};
+window.CERCO_textoReset = function(email){
+  return 'Listo. Si ' + email + ' tiene cuenta con contraseña, en 1 o 2 minutos te llegará un correo de CERCO (remitente: noreply@cerco-c5724.firebaseapp.com). Búscalo también en Spam y en la pestaña Promociones. ¿Creaste la cuenta con Google? Entonces no tienes contraseña: pulsa «Continuar con Google».';
+};
+window.CERCO_esperaReenvio = function(boton){
+  if(!boton) return; var n = 60;
+  boton.disabled = true; boton.style.opacity = '.5'; boton.style.pointerEvents = 'none';
+  var iv = setInterval(function(){ n--; boton.textContent = 'Reenviar en ' + n + ' s'; if(n <= 0){ clearInterval(iv); boton.disabled = false; boton.style.opacity = ''; boton.style.pointerEvents = ''; boton.textContent = '¿No te llega? Reenviar'; } }, 1000);
+};
 function recuperar(){
   var e = val('li-email');
   if(!emailOk(e)){ error('li-err', 'Escribe primero tu correo aquí arriba y vuelve a pulsar.'); try{ $('li-email').focus(); }catch(x){} return; }
   var el = $('li-err'); el.style.color = '#6B7280'; el.textContent = 'Enviando…';
   Nube.cargar().then(function(ok){
     if(!ok) throw {code:'sin-nube'};
-    return firebase.auth().sendPasswordResetEmail(e);
+    return CERCO_enviarReset(e);
   }).then(function(){
-    el.style.color = '#0E9F6E'; el.textContent = 'Te hemos enviado un correo a ' + e + '. Revisa también la carpeta de spam.';
+    el.style.color = '#0E9F6E'; el.textContent = CERCO_textoReset(e);
+    var b = [].filter.call(document.querySelectorAll('#v-login button, #v-login a'), function(x){ return /olvidaste|reenviar/i.test(x.textContent); })[0];
+    try{ CERCO_esperaReenvio(b); }catch(z){}
   }).catch(function(x){
     el.style.color = ''; el.textContent = traducirError(x);
   });

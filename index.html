@@ -7121,6 +7121,26 @@ function verPwdRegistro(){
   if(i2) i2.type = i.type;
 }
 
+
+/* Correo para cambiar la contraseña: en español, con vuelta a esta misma página.
+   Si Firebase no acepta la dirección de vuelta, se manda igualmente sin ella. */
+window.CERCO_enviarReset = function(email){
+  try{ firebase.auth().languageCode = 'es'; }catch(x){}
+  var vuelta = { url: location.origin + location.pathname };
+  return firebase.auth().sendPasswordResetEmail(email, vuelta).catch(function(x){
+    var c = (x && x.code) || '';
+    if(/continue-uri|unauthorized-domain|invalid-dynamic-link|argument-error/.test(c)) return firebase.auth().sendPasswordResetEmail(email);
+    throw x;
+  });
+};
+window.CERCO_textoReset = function(email){
+  return 'Listo. Si ' + email + ' tiene cuenta con contraseña, en 1 o 2 minutos te llegará un correo de CERCO (remitente: noreply@cerco-c5724.firebaseapp.com). Búscalo también en Spam y en la pestaña Promociones. ¿Creaste la cuenta con Google? Entonces no tienes contraseña: pulsa «Continuar con Google».';
+};
+window.CERCO_esperaReenvio = function(boton){
+  if(!boton) return; var n = 60;
+  boton.disabled = true; boton.style.opacity = '.5'; boton.style.pointerEvents = 'none';
+  var iv = setInterval(function(){ n--; boton.textContent = 'Reenviar en ' + n + ' s'; if(n <= 0){ clearInterval(iv); boton.disabled = false; boton.style.opacity = ''; boton.style.pointerEvents = ''; boton.textContent = '¿No te llega? Reenviar'; } }, 1000);
+};
 /* Envia de veritat el correo para restablecer la contraseña */
 function recuperarContrasena(){
   var campo = document.getElementById('login-email');
@@ -7141,9 +7161,11 @@ function recuperarContrasena(){
   avisa('Enviando…', '#6B7280');
   Nube.cargar().then(function(ok){
     if(!ok) throw new Error('sin-nube');
-    return firebase.auth().sendPasswordResetEmail(email);
+    return CERCO_enviarReset(email);
   }).then(function(){
-    avisa('Te hemos enviado un correo a ' + email + '. Revisa también la carpeta de spam.', '#0E9F6E');
+    avisa(CERCO_textoReset(email), '#0E9F6E');
+    var b = [].filter.call(document.querySelectorAll('#screen-login a, #screen-login button'), function(x){ return /olvidaste|reenviar/i.test(x.textContent); })[0];
+    try{ CERCO_esperaReenvio(b); }catch(z){}
   }).catch(function(x){
     var c = (x && x.code) || '';
     if(c === 'auth/user-not-found')
@@ -7181,30 +7203,41 @@ function handleRegistro(){
   }
 
   if(!window._unaSolaVez('registro')) return;
-  CAuth.crear(n, e, p1);
-  // També creem el compte al núvol perquè funcioni des de qualsevol dispositiu
-  if(window.Nube){
-    Nube.registrar(e, p1).then(function(){
-      if(err) { err.style.color='#0E9F6E'; err.textContent='Cuenta creada y guardada en la nube.'; }
-      setTimeout(function(){ _subirClinica(); }, 600);
-    }).catch(function(x){
-      var c = (x && x.code) || '';
-      if(c === 'auth/email-already-in-use'){
-        Nube.entrar(e, p1).catch(function(){});
-      }
-    });
-  }
-  try{
-    var emp = CDB.clinica(); emp.nomResp = n; emp.email = e;
-    localStorage.setItem(CDB.K.emp, JSON.stringify(emp));
-    CDB.fechaAlta(); CDB.setDemo(false);
-  }catch(x){}
-  if(typeof applyUserName === 'function') applyUserName(n);
-
-  document.getElementById('reg-pwd').value = '';
-  document.getElementById('reg-pwd2').value = '';
-  showScreen('benvinguda');
-  if(typeof showToast === 'function') showToast('Cuenta creada. Ahora configuramos tu clínica.');
+  var btnR = document.querySelector('#screen-registro .btn-login, #screen-registro button[onclick*="handleRegistro"]');
+  var seguir = function(){
+    CAuth.crear(n, e, p1);
+    try{
+      var emp = CDB.clinica(); emp.nomResp = n; emp.email = e;
+      localStorage.setItem(CDB.K.emp, JSON.stringify(emp));
+      CDB.fechaAlta(); CDB.setDemo(false);
+    }catch(x){}
+    if(typeof applyUserName === 'function') applyUserName(n);
+    document.getElementById('reg-pwd').value = '';
+    document.getElementById('reg-pwd2').value = '';
+    if(btnR){ btnR.disabled = false; btnR.textContent = btnR.__txt || btnR.textContent; }
+    showScreen('benvinguda');
+    if(typeof showToast === 'function') showToast('Cuenta creada. Ahora configuramos tu clínica.');
+  };
+  if(!window.Nube) return seguir();
+  // Primero preguntamos a Firebase: si el correo ya tiene cuenta, no fingimos que se ha creado
+  if(btnR){ btnR.__txt = btnR.textContent; btnR.disabled = true; btnR.textContent = 'Creando tu cuenta…'; }
+  if(err){ err.style.color = '#6B7280'; err.textContent = 'Creando tu cuenta…'; }
+  Nube.registrar(e, p1).then(function(){
+    if(err){ err.style.color = '#0E9F6E'; err.textContent = ''; }
+    seguir();
+    setTimeout(function(){ _subirClinica(); }, 600);
+  }).catch(function(x){
+    var c = (x && x.code) || x || '';
+    if(btnR){ btnR.disabled = false; btnR.textContent = btnR.__txt || 'Crear cuenta'; }
+    if(err) err.style.color = '';
+    if(c === 'sin-nube') return seguir();
+    if(c === 'auth/email-already-in-use') return poner('Ya existe una cuenta con ese correo (de clínica o de profesional). Inicia sesión; si no recuerdas la contraseña, pulsa «¿Olvidaste tu contraseña?». Para probar los dos lados, usa otro correo.', 'reg-email');
+    if(c === 'auth/weak-password') return poner('La contraseña necesita al menos 6 caracteres.', 'reg-pwd');
+    if(c === 'auth/invalid-email') return poner('Ese correo no parece correcto. Revísalo.', 'reg-email');
+    if(c === 'auth/network-request-failed') return poner('No hay conexión. Revisa tu internet y vuelve a intentarlo.', 'reg-email');
+    if(c === 'auth/too-many-requests') return poner('Demasiados intentos. Espera un minuto y vuelve a probar.', 'reg-email');
+    return poner('No hemos podido crear la cuenta. Inténtalo de nuevo.', 'reg-email');
+  });
 }
 
 function handleLogin(){
@@ -7288,8 +7321,8 @@ function handleLogin(){
     if(typeof showToast === 'function') showToast('Recuperando tus datos…');
   }).catch(function(x){
     var c = (x && x.code) || '';
-    if(c === 'auth/wrong-password' || c === 'auth/invalid-credential' || local === 'pwd')
-      return poner('La contraseña no es correcta.','login-pwd');
+    if(c === 'auth/wrong-password' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials' || local === 'pwd')
+      return poner('El correo o la contraseña no son correctos. Si creaste la cuenta con Google, pulsa «Continuar con Google». Si no la recuerdas, pulsa «¿Olvidaste tu contraseña?».','login-pwd');
     if(c === 'auth/user-not-found')
       return poner('No existe ninguna cuenta con ese correo. Pulsa "Regístrate aquí" para crearla.','login-email');
     if(c === 'auth/too-many-requests')

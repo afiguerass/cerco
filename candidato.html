@@ -999,6 +999,12 @@ body.en-dx .tab.active .ico{background:rgba(255,255,255,.16);}
 
 .zona-nota{flex-wrap:wrap;}
 .of-prof{display:block;flex-basis:100%;margin-top:4px;padding-left:22px;color:#4B5563;font-weight:500;}
+
+.pm-vid.con-portada{background-size:cover;background-position:center;}
+.pm-portada{position:absolute;left:12px;bottom:12px;background:rgba(15,28,63,.72);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:5px 9px;}
+.pm-vid{position:relative;}
+.of-buscar{padding:8px 16px;min-height:38px;font-size:14px;gap:6px;}
+@media (max-width:759px){ .of-buscar{width:100%;justify-content:center;margin-top:4px;} }
 </style>
 </head>
 <body class="sin-nav">
@@ -1339,7 +1345,7 @@ body.en-dx .tab.active .ico{background:rgba(255,255,255,.16);}
       <div class="zona-desde"><label for="of-desde"><span data-ico="pin" data-s="15" data-c="#1A56DB"></span>Desde</label><input class="inp" type="text" id="of-desde" placeholder="Tu pueblo o ciudad" aria-label="Buscar ofertas desde"></div>
       <div class="chips" id="of-rad" aria-label="Distancia">
         <span class="chip" data-r="5">5 km</span><span class="chip" data-r="10">10 km</span><span class="chip" data-r="25">25 km</span><span class="chip" data-r="50">50 km</span><span class="chip" data-r="100">100 km</span><span class="chip" data-r="prov">Mi provincia</span><span class="chip" data-r="todo">Toda España</span>
-        <span class="km-otro km-otro-s"><input class="inp" type="number" id="of-rad-n" min="1" max="1000" inputmode="numeric" placeholder="Otra" aria-label="Otra distancia, en km"><span>km</span></span>
+        <span class="km-otro km-otro-s"><input class="inp" type="number" id="of-rad-n" min="1" max="1000" inputmode="numeric" placeholder="Otra" aria-label="Otra distancia, en km"><span>km</span></span><button type="button" class="btn btn-p of-buscar" id="of-buscar" onpointerdown="window.__ofTxt=($('of-desde')||{}).value" onclick="buscarZona()"><span data-ico="search" data-s="15" data-c="#fff"></span>Buscar</button>
       </div>
     </div>
     <div class="zona-nota" id="of-nota"></div>
@@ -1891,7 +1897,7 @@ var EJEMPLOS = [
    descripcion:'Llevarás la agenda de cuatro doctores, la relación con los pacientes y los presupuestos.', requisitos:'Experiencia en atención al paciente\nManejo de software de gestión clínica', fecha:new Date(Date.now()-86400000).toISOString()}
 ];
 
-function ofertasVisibles(){ return S.ofertas.length ? S.ofertas : EJEMPLOS; }
+function ofertasVisibles(){ return S.ofertas; }
 function hayReales(){ return S.ofertas.length > 0; }
 
 /* ---------- distancias ----------
@@ -2882,7 +2888,7 @@ function pintarInicio(){
   }
   if(!S.ofertasCargadas) $('in-ofs').innerHTML = '<div class="cargando" style="padding:30px;"><div class="spin"></div></div>';
   else if(!l.length) $('in-ofs').innerHTML = '<div class="vacio"><b>Ya has solicitado todas las ofertas</b><p>Cuando se publiquen nuevas, las verás aquí.</p></div>';
-  else $('in-ofs').innerHTML = notaIn + (!hayReales() ? '<div class="aviso">'+svg('info','#8A5A00',16)+'<span>Todavía no hay ofertas publicadas. Mientras tanto, así es como las verás.</span></div>' : '') + l.map(tarjetaOferta).join('');
+  else $('in-ofs').innerHTML = notaIn + '' + l.map(tarjetaOferta).join('');
 }
 
 document.addEventListener('click', function(ev){
@@ -2931,7 +2937,7 @@ function pintarOfertas(){
   }
   var av = '';
   if(S.errOfertas && !hayReales()) av = '<div class="aviso">'+svg('info','#8A5A00',16)+'<span>No hemos podido cargar las ofertas. Revisa tu conexión y vuelve a abrir esta pantalla.</span></div>';
-  else if(!hayReales()) av = '<div class="aviso">'+svg('info','#8A5A00',16)+'<span><b>Todavía no hay ofertas publicadas.</b> Estas son de ejemplo, para que veas cómo funciona. Te enseñaremos las reales en cuanto las clínicas las publiquen.</span></div>';
+  else if(!hayReales()) av = '<div class="aviso aviso-info">'+svg('info','#1E3A8A',16)+'<span><b>Todavía no hay ofertas publicadas.</b> CERCO acaba de empezar: en cuanto una clínica publique una oferta de tu profesión, la verás aquí y en Inicio. Mientras tanto, deja tu perfil completo y activa «Que las clínicas me encuentren» en Ajustes.</span></div>';
   else if(!d) av = '<div class="aviso aviso-info">'+svg('compass','#1E3A8A',16)+'<span>Haz el test de personalidad para ver tu encaje con cada oferta y poder solicitarlas. <button class="link" onclick="abrirTest(false)">Hacerlo ahora</button></span></div>';
   $('of-aviso').innerHTML = av;
   $('of-sub').textContent = hayReales()
@@ -2950,6 +2956,20 @@ function pintarOfertas(){
   }
   box.innerHTML = l.map(tarjetaOferta).join('');
 }
+/* Buscar: usa lo que haya escrito en «Desde» y en los km, aunque no se haya elegido de la lista */
+function buscarZona(){
+  var i = $('of-desde'), t = String(window.__ofTxt != null ? window.__ofTxt : (i ? i.value : '')).trim(), z = zona(); window.__ofTxt = null;
+  if(t){
+    var l = null; try{ l = CGeo.lugar(t); }catch(e){}
+    if(!l){ $('of-nota').innerHTML = svg('info','#B45309',14)+'<span style="color:#B45309;">No encontramos «'+esc(t)+'». Escribe el nombre del pueblo o la ciudad y elígelo de la lista.</span>'; try{ i.focus(); }catch(e){} return; }
+    z.origen = CGeo.geo(l);
+  }
+  var n = parseInt(($('of-rad-n')||{}).value, 10);
+  if(n > 0 && n <= 1000) ponerRadio(String(n)); else pintarOfertas();
+  try{ var dd = document.querySelector('.geo-dd'); if(dd) dd.remove(); }catch(e){}
+  var lst = $('of-list'); if(lst) setTimeout(function(){ var y = lst.getBoundingClientRect().top + window.scrollY - 140; if(y < window.scrollY || y > window.scrollY + innerHeight * .6) window.scrollTo({top:y, behavior:'smooth'}); }, 60);
+}
+document.addEventListener('keydown', function(ev){ if(ev.key === 'Enter' && ev.target && (ev.target.id === 'of-desde' || ev.target.id === 'of-rad-n')){ var dd = document.querySelector('.geo-dd .act, .geo-dd [aria-selected="true"]'); if(ev.target.id === 'of-desde' && dd) return; window.__ofTxt = ($('of-desde')||{}).value; setTimeout(buscarZona, 30); } });
 function prepZona(){
   var i = $('of-desde'), z = zona(); if(!i) return;
   if(!i.dataset.geo) CGeo.autocompletar(i, function(l){ zona().origen = CGeo.geo(l); pintarOfertas(); }, function(){ return zona().origen || (S.perfil||{}).geo; });
@@ -3516,10 +3536,22 @@ Nube.leerMedia = function(uid, tipo, meta){
 function aDataUrl(blob){
   return new Promise(function(res, rej){ var fr = new FileReader(); fr.onload = function(){ res(fr.result); }; fr.onerror = rej; fr.readAsDataURL(blob); });
 }
-function mb(bytes){ return (bytes/1048576).toFixed(bytes > 1048576*10 ? 0 : 1).replace('.', ',') + ' MB'; }
+function mb(bytes){ bytes = +bytes || 0; if(bytes < 1048576) return Math.max(1, Math.round(bytes/1024)) + ' KB'; return (bytes/1048576).toFixed(bytes > 1048576*10 ? 0 : 1).replace('.', ',') + ' MB'; }
 function mmss(s){ s = Math.round(s||0); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
 function guardarYRepintar(p, msgOk){
-  return Nube.guardarPerfil(p).then(function(){ S.perfil = p; pintarUsuario(); if(S.vista === 'perfil') pintarPerfil(); if(msgOk) toast(msgOk); });
+  var antes = S.perfil || {};
+  return Nube.guardarPerfil(p).then(function(){ S.perfil = p; pintarUsuario(); if(S.vista === 'perfil') pintarPerfil(); if(msgOk) toast(msgOk); mediaASolicitudes(antes, p); });
+}
+/* La solicitud guarda una copia de tu vídeo, CV y foto: si los cambias, se actualiza en las que siguen abiertas */
+function mediaASolicitudes(a, p){
+  var c = {}, k = function(x){ return JSON.stringify(x || null); };
+  if(k(a.video) !== k(p.video)) c.video = p.video || null;
+  if(k(a.cv) !== k(p.cv)) c.cv = p.cv || null;
+  if((a.foto || '') !== (p.foto || '')) c.foto = p.foto || '';
+  if(!Object.keys(c).length) return;
+  (S.sols || []).filter(function(s){ return ['enviada','vista','entrevista','contratada'].indexOf(s.estado) > -1; }).forEach(function(s){
+    Nube.db().collection('candidaturas').doc(s.id).update(c).then(function(){ Object.assign(s, c); }).catch(function(){});
+  });
 }
 
 
@@ -3876,7 +3908,7 @@ function pintarMedia(){
     + '<p class="sub" style="margin:-4px 0 16px;font-size:13.5px;">Es lo primero que ve la clínica, antes que el CV.</p>';
   // vídeo
   if(v){
-    h += '<div class="pm-vid" id="pf-vid"><button type="button" class="pm-play" onclick="verMiVideo()">'+svg('video','#fff',22)+'<span>Ver mi vídeo'+(v.dur ? ' ('+mmss(v.dur)+')' : '')+'</span></button></div>'
+    h += '<div class="pm-vid'+(v.poster ? ' con-portada' : '')+'" id="pf-vid"'+(v.poster ? ' style="background-image:linear-gradient(rgba(15,28,63,.15),rgba(15,28,63,.45)),url(\''+esc(v.poster)+'\')"' : '')+'><button type="button" class="pm-play" onclick="verMiVideo()">'+svg('video','#fff',22)+'<span>Ver mi vídeo'+(v.dur ? ' ('+mmss(v.dur)+')' : '')+'</span></button>'+(v.poster ? '<span class="pm-portada">Portada que ve la clínica</span>' : '')+'</div>'
       + '<div class="pm-row"><button class="btn btn-s" onclick="abrirGrabadora()">'+svg('video','currentColor',15)+'Grabar otro</button><label class="btn btn-s">'+svg('upload','currentColor',15)+'Subir otro<input type="file" accept="video/*" class="sr" onchange="subirVideoPerfil(this)"></label><button class="btn btn-g" style="color:#DC2626;" onclick="quitarVideo()">Quitar</button></div>';
   } else {
     h += '<div class="pm-vacio"><div class="pm-vacio-ic">'+svg('video','#fff',24)+'</div><div style="min-width:0;"><b>Graba un vídeo de 30 segundos</b><span>Quién eres, qué te gusta de tu trabajo y qué buscas. La clínica lo ve antes que tu CV.</span></div>'
@@ -5851,9 +5883,8 @@ function inOfertas(){
   var nG = nGuardadas();
   var h = '<section id="in2-ofs" class="in2-sec"><div class="in2-h"><h2>Ofertas para ti</h2><span class="in2-hb">'+(nG ? '<button onclick="verGuardadas()">'+svg('bookmark','currentColor',14)+'Guardadas ('+nG+')</button>' : '')+'<button onclick="ir(\'ofertas\')">Ver todas'+svg('right','currentColor',15)+'</button></span></div>';
   if(!S.ofertasCargadas) return h + '<div class="cargando"><div class="spin"></div></div></section>';
-  if(!l.length) return h + '<div class="in2-vacio">'+svg('search','#9CA3AF',20)+'<span>Ahora mismo no hay ofertas nuevas para ti. Te avisamos cuando se publique una.</span></div></section>';
+  if(!l.length) return h + '<div class="in2-vacio">'+svg('search','#9CA3AF',20)+'<span>'+(hayReales() ? 'Ahora mismo no hay ofertas nuevas para ti. Te avisamos cuando se publique una.' : 'Todavía no hay ofertas publicadas en CERCO. Cuando una clínica publique una de tu profesión, saldrá aquí.')+'</span></div></section>';
   if(!p.disc) h += '<p class="in2-nota">Haz el test para ver cuánto encajas con cada una.</p>';
-  else if(!hayReales()) h += '<p class="in2-nota">Todavía no hay ofertas publicadas. Así es como las verás.</p>';
   h += '<div class="oc-l">' + l.map(function(x){
     var o = x.o, km = x.km, nueva = !o.ejemplo && o.fecha && Date.now() - new Date(o.fecha) < 7*86400000;
     var chip = /le falta/i.test(x.motivo||'') ? '<span class="oc-chip">'+svg('users','currentColor',12)+'Le falta tu perfil</span>' : (x.fit !== null && x.fit >= 80 ? '<span class="oc-chip az">Busca tu perfil</span>' : '');

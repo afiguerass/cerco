@@ -10391,6 +10391,16 @@ h2, h3{ letter-spacing:-0.02em; font-weight:700; }
   function lista(){ try{ var l = JSON.parse(localStorage.getItem(KCAND) || '[]'); return Array.isArray(l) ? l : []; }catch(x){ return []; } }
   function guardarLista(l){ try{ localStorage.setItem(KCAND, JSON.stringify(l)); }catch(x){} }
   function activas(){ return lista().filter(function(c){ return c.estado !== 'retirada'; }); }
+  // Una persona que solicita dos ofertas es una sola persona: se cuenta una vez
+  function unaPorPersona(l){
+    var vistas = {};
+    return l.filter(function(c){ var k = c.candidatoUid || c.email || c.id; if(vistas[k]) return false; vistas[k] = 1; return true; });
+  }
+  // Lo que se ve en Candidatos: las solicitudes de la oferta abierta o, si no hay, todas
+  function activasEnVista(){
+    var o = (typeof ofertaEnPortal !== 'undefined') ? ofertaEnPortal : null;
+    return activas().filter(function(c){ return !o || String(c.ofertaId) === String(o.id); });
+  }
   function buscar(id){ var l = lista(); for(var i=0;i<l.length;i++) if(l[i].id === id) return l[i]; return null; }
   window.CERCO_candidaturas = lista;
 
@@ -10398,7 +10408,7 @@ h2, h3{ letter-spacing:-0.02em; font-weight:700; }
   var _recibOrig = CDB.candidatosRecibidos;
   CDB.candidatosRecibidos = function(){
     if(this.demo && this.demo()) return _recibOrig.call(this);
-    return activas().length;
+    return unaPorPersona(activas()).length;
   };
 
   function perfilesOferta(o){
@@ -10642,7 +10652,7 @@ h2, h3{ letter-spacing:-0.02em; font-weight:700; }
     [scr.querySelector('.location-bar-left')]
       .forEach(function(el){ if(!el) return; if(hay) el.style.setProperty('display','none','important'); else el.style.removeProperty('display'); });
     var n = {T:0, D:0, I:0, S:0, C:0};
-    activas().forEach(function(c){ n.T++; if(c.disc && n[c.disc.dom] !== undefined) n[c.disc.dom]++; });
+    unaPorPersona(activasEnVista()).forEach(function(c){ n.T++; if(c.disc && n[c.disc.dom] !== undefined) n[c.disc.dom]++; });
     scr.querySelectorAll('.filters-row .filter-chip:not(.orden-chip)').forEach(function(ch){
       if(!ch.dataset.orig) ch.dataset.orig = ch.innerHTML;
       var t = ch.dataset.orig.replace(/<[^>]+>/g,'');
@@ -10670,8 +10680,9 @@ h2, h3{ letter-spacing:-0.02em; font-weight:700; }
     try{ _renderPortalOrig && _renderPortalOrig(); }catch(x){}
     var enDemo = false; try{ enDemo = CDB.demo(); }catch(x){}
     if(!enDemo){
-      var n = activas().length, h1 = document.getElementById('portal-h1'), sub = document.getElementById('portal-sub');
-      var nuevas = activas().filter(function(c){ return c.estado === 'enviada'; }).length;
+      var vis = activasEnVista();
+      var n = unaPorPersona(vis).length, h1 = document.getElementById('portal-h1'), sub = document.getElementById('portal-sub');
+      var nuevas = vis.filter(function(c){ return c.estado === 'enviada'; }).length;
       if(n && h1) h1.textContent = n + (n === 1 ? ' candidato ha aplicado' : ' candidatos han aplicado');
       if(n && sub) sub.textContent = nuevas ? (nuevas === 1 ? 'Tienes 1 solicitud sin abrir' : 'Tienes ' + nuevas + ' solicitudes sin abrir') : 'Ordenados por encaje con el perfil que pide cada oferta';
     }

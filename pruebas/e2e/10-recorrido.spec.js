@@ -236,9 +236,12 @@ test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y
   await page.evaluate(() => showScreen('ofertes'));
   await expect(page.locator('#screen-ofertes')).toContainText(/\b1 candidato\b/);
   await expect(page.locator('#screen-ofertes')).not.toContainText('1 candidatos');
+  await expect(page.locator('#screen-ofertes')).toContainText(/1\s*Candidatos totales/);
   await capturar(page, 'clinica-11-ofertas-con-solicitudes');
   await page.locator('#screen-ofertes').getByRole('button', { name: 'Ver candidatos' }).first().click();
-  await seVe(page, 'Tienes 2 solicitudes sin abrir');
+  // Laura ha solicitado las dos ofertas: es una sola persona, y en esta oferta solo hay una solicitud
+  await seVe(page, '1 candidato ha aplicado');
+  await seVe(page, 'Tienes 1 solicitud sin abrir');
   await seVe(page, 'Higienistas'); // agrupados por profesión
   await capturar(page, 'clinica-12-candidatos');
 

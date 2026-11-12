@@ -2622,11 +2622,11 @@ function testRepasar(){
 function testSinPerfil(){
   var n = testPlanas().length;
   $('tr-big').style.background = '#6B7280'; $('tr-big').textContent = '?';
-  $('tr-nom').textContent = 'Todavía sin perfil definido';
-  $('tr-desc').textContent = 'Has dado casi la misma nota a todo, y así no se ve qué te describe más. No es un fallo ni una nota: repasa solo las preguntas que dejaste iguales y tendrás tu perfil.';
-  $('tr-h').textContent = 'Qué hacer ahora';
-  $('tr-bars').innerHTML = '<div class="hint" style="margin:0 0 4px;">Hasta que lo repases no hay colores ni perfil, y no puedes enviar solicitudes.</div>'
-    + '<button type="button" class="btn btn-p btn-block" style="margin-top:12px;" onclick="testRepasar()">'+(n ? 'Repasar '+n+' pregunta'+(n === 1 ? '' : 's')+(n <= 8 ? ' · 2 minutos' : '') : 'Repasar mis respuestas')+'</button>';
+  $('tr-nom').textContent = 'Perfil sin definir';
+  // Solo la frase «Perfil sin definir» y la opción de repasar (sin párrafos de explicación)
+  $('tr-desc').textContent = ''; $('tr-desc').style.display = 'none';
+  $('tr-h').style.display = 'none';
+  $('tr-bars').innerHTML = '<button type="button" class="btn btn-p btn-block" onclick="testRepasar()">'+(n ? 'Repasar '+n+' pregunta'+(n === 1 ? '' : 's')+(n <= 8 ? ' · 2 minutos' : '') : 'Repasar mis respuestas')+'</button>';
   $('tr-btn').textContent = 'Ahora no'; $('tr-btn').className = 'btn btn-block';
   error('tr-err', '');
   $('t-preg').style.display = 'none'; $('t-res').style.display = '';
@@ -2644,8 +2644,8 @@ function testSeguir(){
   var d = T.res;
   $('tr-big').style.background = COLOR[d.dom]; $('tr-big').textContent = d.dom;
   $('tr-nom').textContent = NOMBRE[d.dom] + ' con rasgo ' + NOMBRE[d.sec].toLowerCase();
-  $('tr-desc').textContent = DESC[d.dom];
-  $('tr-bars').innerHTML = barras(d.norm); $('tr-h').textContent = 'Cómo te repartes'; $('tr-btn').className = 'btn btn-p btn-block';
+  $('tr-desc').textContent = DESC[d.dom]; $('tr-desc').style.display = '';
+  $('tr-bars').innerHTML = barras(d.norm); $('tr-h').textContent = 'Cómo te repartes'; $('tr-h').style.display = ''; $('tr-btn').className = 'btn btn-p btn-block';
   $('tr-btn').textContent = T.repetir ? 'Guardar resultado' : 'Ir a mi panel';
   error('tr-err', '');
   $('t-preg').style.display = 'none'; $('t-res').style.display = '';
@@ -3142,7 +3142,7 @@ function tarjetaClinica(o, cl, d){
   if(f.length) h += '<div class="cl-fotos n'+Math.min(f.length,4)+'">' + f.slice(0,4).map(function(u, i){ return '<img src="'+esc(u)+'" alt="Foto '+(i+1)+' de '+esc(cl.nom||'la clínica')+'" loading="lazy">'; }).join('') + '</div>';
   if(cl.descripcion) h += '<p class="txt" style="margin-bottom:12px;">'+esc(cl.descripcion)+'</p>';
   if(cl.responsable){
-    var ROL = {'Gerente':'gerente de la clínica', 'Director/a clínico':'director/a clínico', 'Odontólogo/a':'odontólogo/a de la clínica', 'Responsable de RRHH':'responsable de personal', 'Propietario/a':'propietario/a de la clínica'};
+    var ROL = {'Gerente':'gerente de la clínica', 'Director/a clínico':'director/a clínico', 'Odontólogo/a':'odontólogo/a de la clínica', 'Responsable de RRHH':'coordinador/a de clínica', 'Propietario/a':'propietario/a de la clínica'};
     var rol = ROL[cl.responsableRol] || '';
     h += '<div class="cl-resp">'+svg('user','#6B7280',15)+'<span>Te responde <b>'+esc(cl.responsable)+'</b>'+(rol ? ', ' + esc(rol) + '.' : ' directamente, sin intermediarios.')+'</span></div>';
   }
@@ -3151,7 +3151,7 @@ function tarjetaClinica(o, cl, d){
   var eq = cl.equipo;
   if(eq && eq.fiable && eq.comp){
     var c = eq.comp;
-    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:10px;">CÓMO ES EL EQUIPO'+(eq.personas ? ' · '+eq.personas+' PERSONAS' : '')+'</div>'
+    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:10px;">CÓMO ES EL EQUIPO'+(eq.personas ? ' · '+eq.personas+(eq.personas == 1 ? ' PERSONA' : ' PERSONAS') : '')+'</div>'
       + '<div class="cl-barra">' + LETRAS.map(function(l){ return c[l] ? '<span style="width:'+c[l]+'%;background:'+COLOR[l]+'" title="'+NOMBRE[l]+' '+c[l]+' %"></span>' : ''; }).join('') + '</div>'
       + '<div class="cl-ley">' + LETRAS.map(function(l){ return '<span><i style="background:'+COLOR[l]+'"></i>'+NOMBRE[l]+' '+(c[l]||0)+' %</span>'; }).join('') + '</div>';
     var fa = eq.falta;
@@ -3164,7 +3164,7 @@ function tarjetaClinica(o, cl, d){
     }
     h += '</div>';
   } else if(eq && eq.personas){
-    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:6px;">CÓMO ES EL EQUIPO</div><p class="txt" style="font-size:13.5px;color:#6B7280;">Equipo de '+eq.personas+' personas. El perfil del equipo aparecerá cuando al menos 3 hayan hecho el test.</p></div>';
+    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:6px;">CÓMO ES EL EQUIPO</div><p class="txt" style="font-size:13.5px;color:#6B7280;">Equipo de '+eq.personas+(eq.personas == 1 ? ' persona' : ' personas')+'. El perfil del equipo aparecerá cuando al menos 3 hayan hecho el test.</p></div>';
   }
   return h + '</div>';
 }
@@ -3304,7 +3304,7 @@ function pintarSolicitud(){
   ] : [
     {k:'enviada', t:'Solicitud enviada', n:'Tu CV resumido y tu perfil han llegado a la clínica.'},
     {k:'vista', t: s.interesa ? 'Les interesas' : 'Vista por la clínica', n: s.interesa ? 'La clínica ha marcado tu perfil como «Me interesa»: sigues en el proceso. El siguiente paso es que te propongan entrevista.' : 'La clínica ha abierto tu perfil.'},
-    {k:'entrevista', t:'Entrevista', n: e === 'entrevista' ? (s.cita ? 'El día y la hora están arriba.' : 'La clínica te propondrá día y hora.') : (fechaDe(s,'entrevista') ? (s.cita ? 'Fue el ' + fechaCitaC(s.cita.fecha).toLowerCase() + '.' : 'Hecha.') : 'Si la clínica quiere conocerte, te propondrá día y hora aquí.')},
+    {k:'entrevista', t:'Entrevista', n: e === 'entrevista' ? (s.cita ? 'El día y la hora están arriba.' : 'La clínica te propondrá día y hora.') : (fechaDe(s,'entrevista') ? (s.cita ? (new Date(s.cita.fecha) > new Date() ? 'Será el ' : 'Fue el ') + fechaCitaC(s.cita.fecha).toLowerCase() + '.' : 'Hecha.') : 'Si la clínica quiere conocerte, te propondrá día y hora aquí.')},
     {k:'final', t: e==='caducada' ? 'La clínica no contestó en '+diasCaduca()+' días' : e==='contratada' ? '¡Te han elegido!' : (e==='descartada' ? 'No han seguido con tu candidatura' : (e==='retirada' ? 'Has retirado la solicitud' : 'Decisión de la clínica')),
      n: e==='caducada' ? 'Hemos cerrado la solicitud para que no esperes más.' + (['auto','preguntar'].indexOf((S.perfil||{}).rebote) > -1 ? ' Te estamos buscando otra clínica que encaje.' : ' Activa el efecto rebote en tu perfil y te buscamos otra.') : e==='contratada' ? 'La clínica te llamará para concretar la incorporación.' : (e==='descartada' ? 'Esta vez han elegido otro perfil.' + (['auto','preguntar'].indexOf((S.perfil||{}).rebote) > -1 ? ' CERCO ya te está buscando otra clínica a la que le falte tu perfil.' : ' Sigue probando: hay más ofertas que te encajan.') : (e==='retirada' ? 'La clínica ya no verá esta solicitud como activa.' : 'Te avisaremos aquí en cuanto decidan.'))}
   ];
@@ -6743,7 +6743,7 @@ function bloqueIncorporacion(s){
       + '<p class="txt" style="font-size:12.5px;color:#6B7280;margin:2px 0 10px;">Te lo envió '+cl+' el '+esc(fechaLargaC(k.f))+'. Lo tienes siempre aquí.</p>'
       + (k.inicio ? '<div class="inc-ini">'+svg('cal','#0B5B43',16)+'<span>Empiezas el <b>'+esc(fechaLargaC(k.inicio))+'</b></span></div>' : '')
       + (k.cond ? '<div class="inc-cond">'+esc(k.cond)+'</div>' : '')
-      + (k.archivo ? '<div class="inc-arch"><span>📄 '+esc(k.archivo.nombre)+'</span><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\')">Ver</button><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\',1)">Descargar</button></div>' : '')
+      + (k.archivo ? '<div class="inc-arch"><span>'+svg('file','#6B7280',15)+' '+esc(k.archivo.nombre)+'</span><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\')">Ver</button><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\',1)">Descargar</button></div>' : '')
       + (rec ? '' : '<button class="btn btn-p" style="width:100%;margin-top:10px;" onclick="confirmarContrato(\''+esc(s.id)+'\')">'+svg('check','#fff',16)+'Lo he recibido</button>')
       + '<p class="txt" style="font-size:11.5px;color:#6B7280;margin-top:8px;">CERCO no firma el contrato: lo firmáis con la clínica como siempre. Si algo no coincide con lo que acordasteis, díselo por mensaje antes de firmar.</p>'
       + '</div>';

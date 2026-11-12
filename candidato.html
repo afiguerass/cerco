@@ -3699,7 +3699,9 @@ function gvBotones(fase){
 function encenderCamara(){
   error('gv-err', '');
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !tipoGrabacion())
-    return error('gv-err', 'Este navegador no deja grabar aquí. Graba el vídeo con la cámara del móvil y súbelo con el enlace de abajo.');
+    return error('gv-err', esIOS() && !hayAudioWeb()
+      ? 'Con el Modo de aislamiento activado, el iPhone no deja a las webs usar la cámara. Graba el vídeo con la cámara del móvil y súbelo con el botón de abajo, o desactiva el Modo de aislamiento para CERCO (toca «aA» → Ajustes del sitio web).'
+      : 'Este navegador no deja grabar aquí. Graba el vídeo con la cámara del móvil y súbelo con el botón de abajo.');
   navigator.mediaDevices.getUserMedia({ video:{ width:{ideal:640}, height:{ideal:480}, facingMode:'user' }, audio:true }).then(function(st){
     GV.stream = st;
     var v = $('gv-v'); v.srcObject = st; v.muted = true; v.controls = false;
@@ -3784,25 +3786,53 @@ function gvMoverTramo(){
   $('gv-tr-t').textContent = mmss(GV.ini) + ' – ' + mmss(GV.ini + VIDEO_MAX_S);
   try{ pv.pause(); pv.currentTime = GV.ini; }catch(e){}
 }
+/* El iPhone (Safari) solo deja reproducir un vídeo con sonido si la orden nace del toque.
+   Preparar el vídeo pasa por pasos que esperan (cargar, saltar al trozo), así que
+   «armamos» el vídeo y el audio en el mismo toque y luego ya se pueden usar. */
+function hayAudioWeb(){ return !!(window.AudioContext || window.webkitAudioContext); }
+function esIOS(){ return /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function msgSinAudio(){
+  return esIOS()
+    ? 'Tu iPhone tiene activado el Modo de aislamiento, que no deja a las webs preparar vídeos con sonido. Desactívalo solo para CERCO: toca «aA» (o el icono de la izquierda en la barra de dirección) → Ajustes del sitio web → desactiva «Modo de aislamiento». O graba con menos calidad: Ajustes → Cámara → Grabar vídeo → 720p HD a 30 fps.'
+    : 'Este navegador no deja a las webs preparar vídeos con sonido. Prueba en Chrome o Safari, o graba el vídeo con menos calidad para que pese menos de ' + VIDEO_MAX_MB + ' MB.';
+}
+function armarVideo(url){
+  var src = document.createElement('video');
+  src.playsInline = true; src.setAttribute('playsinline', ''); src.preload = 'auto'; src.muted = true; // en silencio hasta que el audio pase a la grabación
+  // dentro de la página (invisible): algunos móviles no pintan los vídeos que no están en ella
+  src.style.cssText = 'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
+  document.body.appendChild(src);
+  var ac = null; try{ ac = new (window.AudioContext || window.webkitAudioContext)(); if(ac.resume) ac.resume(); }catch(e){ ac = null; }
+  var listo = { src:src, ac:ac, arrancado:false };
+  if(url) src.src = url;
+  try{ var p = src.play(); if(p && p.then) p.then(function(){ if(!listo.arrancado) src.pause(); }).catch(function(){}); }catch(e){}
+  listo.quitar = function(){ try{ src.pause(); src.removeAttribute('src'); src.load(); src.remove(); }catch(e){} try{ ac && ac.close(); }catch(e){} };
+  return listo;
+}
 // se vuelve a grabar el trozo elegido, a menos calidad, mientras se reproduce sin sonido por los altavoces
 function gvPreparar(){
   var b = $('gv-prep'); if(!b || b.disabled) return;
   var tipo = tipoGrabacion();
-  var src = document.createElement('video'); src.src = GV.url; src.playsInline = true; src.preload = 'auto';
-  if(!window.MediaRecorder || !tipo || !document.createElement('canvas').captureStream) return error('gv-err', 'Este navegador no puede preparar el vídeo. Prueba en Chrome, o recorta el vídeo en tu móvil a 30 segundos y súbelo otra vez.');
+  if(!window.MediaRecorder || !tipo || !document.createElement('canvas').captureStream) return error('gv-err', 'Este navegador no puede preparar el vídeo. Prueba en Chrome o en Safari actualizado, o recorta el vídeo en tu móvil a 30 segundos y súbelo otra vez.');
+  // sin audio web el vídeo saldría mudo: mejor decirlo que guardarlo sin sonido
+  if(!hayAudioWeb()) return error('gv-err', msgSinAudio());
+  if(GV.arm){ try{ GV.arm.quitar(); }catch(e){} }
+  var arm = GV.arm = armarVideo(GV.url), src = arm.src;
   b.disabled = true; b.textContent = 'Preparando…'; $('gv-prog').hidden = false; error('gv-err', '');
   var ini = GV.ini || 0, dur = Math.min(VIDEO_MAX_S, GV.dur - ini), pv = $('gv-v'); try{ pv.pause(); }catch(e){}
   src.onloadedmetadata = function(){
+    src.onloadedmetadata = null;
     // el lado corto a 720 px como mucho: se ve bien en un móvil y pesa poco
     var w = src.videoWidth || 720, h = src.videoHeight || 1280, k = Math.min(1, 720 / Math.min(w, h));
     var cv = document.createElement('canvas'); cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
     var cx = cv.getContext('2d'), st = cv.captureStream(30);
-    try{ var ac = new (window.AudioContext || window.webkitAudioContext)(), so = ac.createMediaElementSource(src), de = ac.createMediaStreamDestination(); so.connect(de); de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); }); GV.ac = ac; }catch(e){}
+    try{ var ac = arm.ac || new (window.AudioContext || window.webkitAudioContext)(), so = ac.createMediaElementSource(src), de = ac.createMediaStreamDestination(); so.connect(de); de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); }); GV.ac = ac; }catch(e){}
+    if(!st.getAudioTracks().length){ arm.quitar(); GV.arm = null; b.disabled = false; b.textContent = 'Preparar mi vídeo'; $('gv-prog').hidden = true; return error('gv-err', msgSinAudio()); }
     var rec, trozos = [];
     try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1400000, audioBitsPerSecond:96000}); }catch(e){ rec = new MediaRecorder(st); }
     rec.ondataavailable = function(e){ if(e.data && e.data.size) trozos.push(e.data); };
     rec.onstop = function(){
-      try{ GV.ac && GV.ac.close(); }catch(e){}
+      try{ GV.ac && GV.ac.close(); }catch(e){} try{ arm.src.remove(); }catch(e){} GV.arm = null;
       var blob = new Blob(trozos, {type: (tipo || 'video/webm').split(';')[0]});
       GV.blob = blob; GV.dur = dur; GV.ini = 0; GV.fin = 0;
       var p2 = $('gv-v'); if(p2){ p2.ontimeupdate = null; p2.src = URL.createObjectURL(blob); p2.controls = true; }
@@ -3814,7 +3844,8 @@ function gvPreparar(){
       var t = src.currentTime - ini, pb = $('gv-prog-b'); if(pb) pb.style.width = Math.min(100, t / dur * 100) + '%';
       if(b) b.textContent = 'Preparando… ' + Math.max(0, Math.round(dur - t)) + ' s';
       if(t >= dur || src.ended){ src.pause(); rec.stop(); return; } requestAnimationFrame(dibuja); };
-    src.onseeked = function(){ src.onseeked = null; var p = src.play(); (p && p.then ? p : Promise.resolve()).then(function(){ rec.start(250); dibuja(); }).catch(function(){ error('gv-err', 'No se ha podido preparar el vídeo.'); b.disabled = false; b.textContent = 'Probar otra vez'; }); };
+    src.onseeked = function(){ src.onseeked = null; arm.arrancado = true; src.muted = false; try{ if(ac && ac.resume) ac.resume(); }catch(e){} var p = src.play(); (p && p.then ? p : Promise.resolve()).then(function(){ rec.start(250); dibuja(); }).catch(function(){ arm.quitar(); GV.arm = null; error('gv-err', 'No se ha podido preparar el vídeo. Vuelve a pulsar el botón; si sigue sin ir, prueba en Chrome o Safari actualizado.'); b.disabled = false; b.textContent = 'Probar otra vez'; }); };
+    arm.arrancado = true; try{ src.pause(); }catch(e){}
     src.currentTime = ini;
   };
 }
@@ -3825,6 +3856,7 @@ function usarVideo(){
     return Nube.subirMedia('video', url, function(k, n){ if(b) b.textContent = n > 1 ? ('Subiendo ' + k + ' de ' + n + '…') : 'Subiendo…'; });
   }).then(function(meta){
     meta.dur = Math.round(GV.dur);
+    var gvv = $('gv-v'); if(gvv && gvv.videoWidth){ meta.w = gvv.videoWidth; meta.h = gvv.videoHeight; }
     if(GV.url){ try{ URL.revokeObjectURL(GV.url); }catch(e){} GV.url = null; GV.archivo = null; }
     if(GV.fin){ meta.ini = 0; meta.fin = GV.fin; }
     var p = Object.assign({}, S.perfil); p.video = meta;
@@ -3931,7 +3963,7 @@ function pintarMedia(){
     + '<p class="sub" style="margin:-4px 0 16px;font-size:13.5px;">Es lo primero que ve la clínica, antes que el CV.</p>';
   // vídeo
   if(v){
-    h += '<div class="pm-vid'+(v.poster ? ' con-portada' : '')+'" id="pf-vid"'+(v.poster ? ' style="background-image:linear-gradient(rgba(15,28,63,.15),rgba(15,28,63,.45)),url(\''+esc(v.poster)+'\')"' : '')+'><button type="button" class="pm-play" onclick="verMiVideo()">'+svg('video','#fff',22)+'<span>Ver mi vídeo'+(v.dur ? ' ('+mmss(v.dur)+')' : '')+'</span></button>'+(v.poster ? '<span class="pm-portada">Portada que ve la clínica</span>' : '')+'</div>'
+    h += '<div class="pm-vid'+(v.poster ? ' con-portada' : '')+'" id="pf-vid" data-w="'+(v.w||'')+'" data-h="'+(v.h||'')+'"'+(v.poster ? ' style="background-image:linear-gradient(rgba(15,28,63,.15),rgba(15,28,63,.45)),url(\''+esc(v.poster)+'\')"' : '')+'><button type="button" class="pm-play" onclick="verMiVideo()">'+svg('video','#fff',22)+'<span>Ver mi vídeo'+(v.dur ? ' ('+mmss(v.dur)+')' : '')+'</span></button>'+(v.poster ? '<span class="pm-portada">Portada que ve la clínica</span>' : '')+'</div>'
       + '<div class="pm-row"><button class="btn btn-s" onclick="abrirGrabadora()">'+svg('video','currentColor',15)+'Grabar otro</button><label class="btn btn-s">'+svg('upload','currentColor',15)+'Subir otro<input type="file" accept="video/*" class="sr" onchange="subirVideoPerfil(this)"></label><button class="btn btn-g" style="color:#DC2626;" onclick="quitarVideo()">Quitar</button></div>';
   } else {
     h += '<div class="pm-vacio"><div class="pm-vacio-ic">'+svg('video','#fff',24)+'</div><div style="min-width:0;"><b>Graba un vídeo de 30 segundos</b><span>Quién eres, qué te gusta de tu trabajo y qué buscas. La clínica lo ve antes que tu CV.</span></div>'
@@ -6382,20 +6414,23 @@ window.pintarMedia = function(){
   }
 
   /* ---------- crear el vídeo nuevo con los cambios ---------- */
-  function renderizar(){
+  function renderizar(arm){
     return new Promise(function(ok, ko){
       var tipo = tipoGrabacion();
       if(!window.MediaRecorder || !tipo || !document.createElement('canvas').captureStream) return ko('soporte');
+      if(!hayAudioWeb()) return ko('audio');
       var a = Object.assign({}, fx()), ini = EV.ini, dur = Math.max(1, EV.fin - EV.ini);
+      arm = arm || armarVideo('');
       urlMedia('video').then(function(u){
-        var src = document.createElement('video'); src.src = u; src.playsInline = true; src.preload = 'auto'; src.crossOrigin = 'anonymous';
-        src.onerror = function(){ ko('leer'); };
+        var src = arm.src; src.crossOrigin = 'anonymous';
+        src.onerror = function(){ arm.quitar(); ko('leer'); };
         src.onloadedmetadata = function(){
+          src.onloadedmetadata = null;
           var w = src.videoWidth || 720, h = src.videoHeight || 1280, k = Math.min(1, 720 / Math.min(w, h));
           var cv = document.createElement('canvas'); cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
           var cx = cv.getContext('2d'), st = cv.captureStream(30), ac = null;
           try{
-            ac = new (window.AudioContext || window.webkitAudioContext)();
+            ac = arm.ac || new (window.AudioContext || window.webkitAudioContext)();
             var nodo = ac.createMediaElementSource(src), ult = nodo;
             if(a.voz){
               var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 90;
@@ -6410,7 +6445,8 @@ window.pintarMedia = function(){
           var rec, trozos = [];
           try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1600000, audioBitsPerSecond:96000}); }catch(x){ rec = new MediaRecorder(st); }
           rec.ondataavailable = function(e){ if(e.data && e.data.size) trozos.push(e.data); };
-          rec.onstop = function(){ try{ ac && ac.close(); }catch(x){} ok({ blob:new Blob(trozos, {type:(tipo || 'video/webm').split(';')[0]}), dur:dur, w:cv.width, h:cv.height }); };
+          if(!st.getAudioTracks().length){ arm.quitar(); return ko('audio'); }
+          rec.onstop = function(){ try{ ac && ac.close(); }catch(x){} try{ src.remove(); }catch(x){} ok({ blob:new Blob(trozos, {type:(tipo || 'video/webm').split(';')[0]}), dur:dur, w:cv.width, h:cv.height }); };
           var paso = function(){
             if(rec.state !== 'recording') return;
             dibujar(cx, src, cv.width, cv.height, a);
@@ -6418,10 +6454,13 @@ window.pintarMedia = function(){
             if(t >= dur || src.ended){ src.pause(); rec.stop(); return; }
             requestAnimationFrame(paso);
           };
-          src.onseeked = function(){ src.onseeked = null; var p = src.play(); (p && p.then ? p : Promise.resolve()).then(function(){ rec.start(250); paso(); }).catch(function(){ ko('play'); }); };
-          try{ src.currentTime = ini; }catch(x){ ko('seek'); }
+          src.onseeked = function(){ src.onseeked = null; arm.arrancado = true; src.muted = false; try{ if(ac && ac.resume) ac.resume(); }catch(x){} var p = src.play(); (p && p.then ? p : Promise.resolve()).then(function(){ rec.start(250); paso(); }).catch(function(){ arm.quitar(); ko('play'); }); };
+          arm.arrancado = true; try{ src.pause(); }catch(x){}
+          try{ src.currentTime = ini; }catch(x){ arm.quitar(); ko('seek'); }
         };
-      }).catch(function(){ ko('leer'); });
+        if(src.getAttribute('src') !== u){ src.src = u; try{ var p0 = src.play(); if(p0 && p0.catch) p0.catch(function(){}); }catch(x){} }
+        else if(src.readyState >= 1) src.onloadedmetadata();
+      }).catch(function(){ arm.quitar(); ko('leer'); });
     });
   }
   function portadaCon(a, t){
@@ -6444,14 +6483,16 @@ window.pintarMedia = function(){
     error('m-err', '');
     var v = $('ev-vid'); try{ v && v.pause(); }catch(x){}
     var a = Object.assign({}, fx()), tP = EV.posterT != null ? Math.max(EV.ini, Math.min(EV.fin, EV.posterT)) : EV.ini, foto = EV.posterFoto ? EV.poster : '';
+    // armado en el mismo toque (iPhone): con la url si ya la tenemos
+    var arm = hayAudioWeb() ? armarVideo(_mediaUrl.video || '') : null;
     (foto ? Promise.resolve(foto) : portadaCon(a, tP)).then(function(poster){
-      return renderizar().then(function(r){
+      return renderizar(arm).then(function(r){
         progreso('Subiendo el vídeo…', 1);
         return aDataUrl(r.blob).then(function(url){
           if(r.blob.size > VIDEO_MAX_MB * 1048576) throw 'grande';
           return Nube.subirMedia('video', url, function(k, n){ progreso(n > 1 ? 'Subiendo ' + k + ' de ' + n + '…' : 'Subiendo…', k / n); });
         }).then(function(meta){
-          meta.dur = Math.round(r.dur); meta.ini = 0; meta.fin = 0; meta.poster = poster || ''; meta.posterT = foto ? null : Math.round((tP - EV.ini) * 10) / 10;
+          meta.dur = Math.round(r.dur); meta.ini = 0; meta.fin = 0; if(r.w && r.h){ meta.w = r.w; meta.h = r.h; } meta.poster = poster || ''; meta.posterT = foto ? null : Math.round((tP - EV.ini) * 10) / 10;
           meta.editado = { filtro: a.preset !== 'orig' || a.luz || a.con || a.col || a.cal ? 1 : 0, texto: a.txt ? 1 : 0, zoom: a.zoom > 1.001 ? 1 : 0, voz: a.voz ? 1 : 0, f: new Date().toISOString() };
           var p = Object.assign({}, S.perfil); p.video = meta; _mediaUrl.video = null;
           return guardarYRepintar(p, 'Vídeo guardado con tus cambios');
@@ -6460,7 +6501,9 @@ window.pintarMedia = function(){
     }).then(function(){ progreso(null); X = null; cerrarModal(); })
     .catch(function(e){
       progreso(null); if(b){ b.disabled = false; b.textContent = 'Guardar cambios'; }
-      error('m-err', e === 'soporte' ? 'Este navegador no puede aplicar filtros ni texto al vídeo. Prueba en Chrome o en Safari actualizado; el recorte y la portada sí se pueden guardar si quitas los demás cambios.'
+      error('m-err', e === 'audio' ? msgSinAudio() + ' El recorte y la portada sí se pueden guardar si quitas los filtros, el texto, el encuadre y el sonido.'
+        : e === 'play' ? 'El móvil no ha dejado reproducir el vídeo para aplicar los cambios. Vuelve a pulsar «Guardar cambios».'
+        : e === 'soporte' ? 'Este navegador no puede aplicar filtros ni texto al vídeo. Prueba en Chrome o en Safari actualizado; el recorte y la portada sí se pueden guardar si quitas los demás cambios.'
         : e === 'grande' ? 'El vídeo con los cambios pesa demasiado. Recórtalo un poco y vuelve a guardar.'
         : 'No se han podido guardar los cambios. Revisa tu conexión y vuelve a intentarlo.');
     });
@@ -6659,6 +6702,73 @@ function bloqueIncorporacion(s){
     }catch(e){}
     return r;
   };
+})();
+
+</script>
+<script>
+/* ================================================================
+   EL MARCO TOMA LA FORMA DEL VÍDEO
+   Vídeo vertical (móvil de pie) → marco vertical, sin franjas negras.
+   Vídeo horizontal → marco horizontal. Antes de reproducir, la
+   portada ya da la forma.
+   ================================================================ */
+(function(){
+  // contenedor → alto máximo del marco
+  var MARCOS = [['#ficha-video', 'min(68vh, 600px)'], ['.pm-vid', 'min(62vh, 480px)'], ['.gv-pant', 'min(56vh, 520px)']];
+  function marcoDe(el){
+    for(var i = 0; i < MARCOS.length; i++){ var b = el.closest ? el.closest(MARCOS[i][0]) : null; if(b) return [b, MARCOS[i][1]]; }
+    return null;
+  }
+  function ajustar(m, w, h){
+    if(!m || !w || !h) return;
+    var box = m[0], r = w / h;
+    if(box.dataset.ratio === r.toFixed(3)) return;
+    box.dataset.ratio = r.toFixed(3);
+    box.style.aspectRatio = w + ' / ' + h;
+    box.style.maxHeight = 'none';
+    box.style.height = 'auto';
+    box.style.width = 'min(100%, calc(' + m[1] + ' * ' + r.toFixed(4) + '))';
+    box.style.marginLeft = 'auto'; box.style.marginRight = 'auto';
+    box.classList.toggle('vid-vertical', r < 0.95);
+  }
+  function porVideo(ev){
+    var v = ev.target; if(!v || v.tagName !== 'VIDEO' || !v.videoWidth) return;
+    var m = marcoDe(v); if(m) ajustar(m, v.videoWidth, v.videoHeight);
+  }
+  // los eventos de vídeo no suben: los cogemos en la fase de captura
+  document.addEventListener('loadedmetadata', porVideo, true);
+  document.addEventListener('resize', porVideo, true);
+  // antes de darle a reproducir: la forma de la portada
+  function urlFondo(el){
+    var bg = el.style.backgroundImage || ''; if(!bg || bg === 'none') bg = getComputedStyle(el).backgroundImage || '';
+    var l = bg.match(/url\((['"]?)(.*?)\1\)/g); if(!l) return '';
+    var u = l[l.length - 1].replace(/^url\((['"]?)/, '').replace(/(['"]?)\)$/, '');
+    return u;
+  }
+  function porPortada(box){
+    if(box.dataset.ratio || box.querySelector('video')) return;
+    var m = marcoDe(box); if(!m) return;
+    if(+box.dataset.w && +box.dataset.h){ ajustar(m, +box.dataset.w, +box.dataset.h); return; }
+    var u = urlFondo(box); if(!u) return;
+    var im = new Image(); im.onload = function(){ if(!box.querySelector('video')) ajustar(m, im.naturalWidth, im.naturalHeight); }; im.src = u;
+  }
+  var SELS = '#ficha-video, .pm-vid, .gv-pant, #ficha-video video, .pm-vid video, .gv-pant video';
+  function revisar(raiz){
+    (raiz || document).querySelectorAll('#ficha-video, .pm-vid').forEach(porPortada);
+    (raiz || document).querySelectorAll('#ficha-video video, .pm-vid video, .gv-pant video').forEach(function(v){ if(v.videoWidth) porVideo({target:v}); });
+  }
+  try{
+    new MutationObserver(function(ms){
+      for(var i = 0; i < ms.length; i++){
+        var ns = ms[i].addedNodes;
+        for(var j = 0; j < ns.length; j++){ var n = ns[j]; if(n.nodeType === 1 && n.matches && (n.matches(SELS) || n.querySelector(SELS))) revisar(n.parentNode || n); }
+      }
+    }).observe(document.documentElement, {childList:true, subtree:true});
+  }catch(x){}
+  if(document.readyState !== 'loading') revisar(); else document.addEventListener('DOMContentLoaded', function(){ revisar(); });
+  // iPhone ya trae su botón de pantalla completa en el vídeo: no ponemos otro encima
+  var ios = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if(ios){ var st = document.createElement('style'); st.textContent = '.fs-btn{display:none !important;}'; document.head.appendChild(st); }
 })();
 
 </script>

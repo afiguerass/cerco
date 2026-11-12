@@ -6743,7 +6743,7 @@ function bloqueIncorporacion(s){
       + '<p class="txt" style="font-size:12.5px;color:#6B7280;margin:2px 0 10px;">Te lo envió '+cl+' el '+esc(fechaLargaC(k.f))+'. Lo tienes siempre aquí.</p>'
       + (k.inicio ? '<div class="inc-ini">'+svg('cal','#0B5B43',16)+'<span>Empiezas el <b>'+esc(fechaLargaC(k.inicio))+'</b></span></div>' : '')
       + (k.cond ? '<div class="inc-cond">'+esc(k.cond)+'</div>' : '')
-      + (k.archivo ? '<div class="inc-arch"><span>📄 '+esc(k.archivo.nombre)+'</span><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\')">Ver</button><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\',1)">Descargar</button></div>' : '')
+      + (k.archivo ? '<div class="inc-arch"><span>'+svg('file','#6B7280',15)+' '+esc(k.archivo.nombre)+'</span><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\')">Ver</button><button class="btn btn-s" onclick="verContratoC(\''+esc(s.id)+'\',1)">Descargar</button></div>' : '')
       + (rec ? '' : '<button class="btn btn-p" style="width:100%;margin-top:10px;" onclick="confirmarContrato(\''+esc(s.id)+'\')">'+svg('check','#fff',16)+'Lo he recibido</button>')
       + '<p class="txt" style="font-size:11.5px;color:#6B7280;margin-top:8px;">CERCO no firma el contrato: lo firmáis con la clínica como siempre. Si algo no coincide con lo que acordasteis, díselo por mensaje antes de firmar.</p>'
       + '</div>';

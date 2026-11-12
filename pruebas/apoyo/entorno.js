@@ -114,6 +114,7 @@ const CSS_CAPTURA = path.join(__dirname, 'captura.css');
 const PROHIBIDAS = [
   /responsable de contrataci[oó]n/i, /\bRRHH\b/, /\bIA\b/, /tik ?tok/i,
   /\bmatching\b/i, /\bkanban\b/i, /caja negra/i,
+  /[\u{1F300}-\u{1FAFF}]/u, // emojis
 ];
 async function sinPalabrasProhibidas(page, nombre) {
   const texto = await page.evaluate(() => document.body.innerText);

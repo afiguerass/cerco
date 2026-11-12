@@ -4711,7 +4711,19 @@ function showResults_testdisc(){
       var caja = document.getElementById('insight-box-testdisc');
       caja.innerHTML = '<div style="font-size:13.5px;color:#374151;line-height:1.6;">Enviando tu resultado a <b>'
         + (clinica || 'tu clínica') + '</b>…</div>';
+      // «Guardar y continuar» espera a que el resultado llegue de verdad a la clínica
+      var btG = document.getElementById('btn-guardar-testdisc');
+      window.__envioEquipo = 'enviando';
+      if(btG){ btG.disabled = true; btG.textContent = 'Enviando…'; btG.style.opacity = '.6'; btG.style.cursor = 'default'; }
+      var finEnvio = function(ok){
+        window.__envioEquipo = ok ? 'ok' : 'error';
+        if(!btG) return;
+        btG.disabled = false; btG.textContent = 'Guardar y continuar'; btG.style.opacity = ''; btG.style.cursor = '';
+        // Si no ha llegado, no se pasa a la pantalla de «ya está»: se queda con su código
+        if(!ok) btG.style.display = 'none';
+      };
       Nube.enviarResultado(cid, invitado, dominant, secondary, norm[dominant]).then(function(ok){
+        finEnvio(!!ok);
         if(ok){
           caja.innerHTML =
             '<div style="background:#E8F8F1;border-radius:12px;padding:18px;text-align:center;">'
@@ -4722,6 +4734,7 @@ function showResults_testdisc(){
           caja.innerHTML = _cajaCodigoInvitado(invitado, clinica, codigo);
         }
       }).catch(function(){
+        finEnvio(false);
         caja.innerHTML = _cajaCodigoInvitado(invitado, clinica, codigo);
       });
       return;
@@ -4827,7 +4840,11 @@ function handleSaveTestDisc(){
   // Un treballador convidat no te panell on anar: te la seva pantalla de gracies
   var esInvitado = false;
   try { esInvitado = !!(window.esModoInvitado && esModoInvitado()); } catch(e){}
-  if(esInvitado){ mostrarGracias(); return; }
+  if(esInvitado){
+    // Mientras el resultado se está enviando, todavía no se puede dar por terminado
+    if(window.__envioEquipo === 'enviando' || window.__envioEquipo === 'error') return;
+    mostrarGracias(); return;
+  }
   // I el porta on hi ha el pas seguent, no a una pantalla d ajustos
   try { _refrescarDiscMiCuenta(); } catch(e){}
   var seguent = '';

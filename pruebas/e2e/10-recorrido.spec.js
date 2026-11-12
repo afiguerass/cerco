@@ -109,8 +109,18 @@ test('2. Un trabajador hace el test con el enlace del equipo', async ({ browser 
   await expect(t.locator('#screen-testdisc')).toBeVisible();
   await capturar(t, 'equipo-02-portada-test');
   await t.locator('#screen-intro-testdisc').getByRole('button').last().click();
+  // Para ver qué pasa mientras se envía, el envío tarda 3 segundos en esta prueba
+  await t.evaluate(() => {
+    const orig = Nube.enviarResultado.bind(Nube);
+    Nube.enviarResultado = (...args) => new Promise((r) => setTimeout(r, 3000)).then(() => orig(...args));
+  });
   await A.contestarTestClinica(t, 'testdisc', { pesos: { D: 1, I: 4, S: 3, C: 2 } });
   await expect(t.locator('#screen-results-testdisc')).toBeVisible();
+  // Mientras se envía, «Guardar y continuar» no se puede pulsar
+  await expect(t.locator('#btn-guardar-testdisc')).toBeDisabled();
+  await expect(t.locator('#btn-guardar-testdisc')).toHaveText('Enviando…');
+  await expect(t.locator('#btn-guardar-testdisc')).toBeEnabled({ timeout: 20_000 });
+  await expect(t.locator('#btn-guardar-testdisc')).toHaveText('Guardar y continuar');
   await expect(t.locator('#insight-box-testdisc')).toContainText('Ya está, Carmen');
   await expect(t.locator('#insight-box-testdisc')).toContainText(`Tu resultado ya le ha llegado a ${A.CLINICA.clinica}`);
   await capturar(t, 'equipo-03-resultado');

@@ -1,0 +1,196 @@
+rules_version = '2';
+
+// Reglas de CERCO · 11 de noviembre de 2026
+// Panel de clínicas (index.html) + portal del profesional (candidato.html).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cuenta real (no la sesión anónima del trabajador que entra por el enlace)
+    function esPropietario(uid) {
+      return request.auth != null
+          && request.auth.uid == uid
+          && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function entrado() { return request.auth != null; }
+    function cuentaReal() { return entrado() && request.auth.token.firebase.sign_in_provider != 'anonymous'; }
+    function soyClinica() { return cuentaReal() && exists(/databases/$(database)/documents/clinicas/$(request.auth.uid)); }
+    function cambia() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // Resultado del test que manda un trabajador por el enlace del equipo
+    function resultadoValido() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['nombre','rol','dom','sec','pct','codigo','origen','fecha'])
+          && d.nombre is string
+          && d.nombre.size() > 0
+          && d.nombre.size() <= 80
+          && d.dom in ['D','I','S','C']
+          && d.sec in ['D','I','S','C']
+          && d.pct is number
+          && d.pct >= 0
+          && d.pct <= 100;
+    }
+
+    // ---------- CLÍNICAS (privado: solo la propia clínica) ----------
+    match /clinicas/{cid} {
+      allow read, write: if esPropietario(cid);
+
+      match /equipo/{miembro} {
+        allow read, update, delete: if esPropietario(cid);
+        allow create: if esPropietario(cid)
+                      || (request.auth != null && resultadoValido());
+      }
+
+      match /ofertas/{oferta} {
+        allow read, write: if esPropietario(cid);
+      }
+    }
+
+    // Lo que cualquiera puede ver de una clínica (nombre, descripción, equipo en %)
+    match /clinicas_publicas/{cid} {
+      allow read: if true;
+      allow write: if esPropietario(cid);
+    }
+
+    // Insignia «Clínica verificada»: solo la pone CERCO desde la consola
+    match /verificaciones/{cid} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /solicitudes_verificacion/{cid} {
+      allow read, write: if esPropietario(cid);
+    }
+
+    // ---------- OFERTAS PÚBLICAS ----------
+    match /ofertas_publicas/{oid} {
+      allow read: if true;
+      allow create: if cuentaReal() && request.resource.data.clinicaId == request.auth.uid;
+      allow update: if cuentaReal()
+                    && resource.data.clinicaId == request.auth.uid
+                    && request.resource.data.clinicaId == request.auth.uid;
+      allow delete: if cuentaReal() && resource.data.clinicaId == request.auth.uid;
+    }
+
+    // ---------- PERFIL DEL PROFESIONAL ----------
+    // Solo lo escribe él. Una clínica lo lee (vídeo y CV completo) solo si
+    // el profesional le ha enviado una solicitud: su uid está en «clinicas».
+    match /candidatos/{uid} {
+      allow read: if esPropietario(uid)
+                  || (cuentaReal() && request.auth.uid in resource.data.get('clinicas', []));
+      allow write: if esPropietario(uid);
+
+      match /media/{trozo} {
+        allow read: if esPropietario(uid)
+                    || (cuentaReal() && request.auth.uid in get(/databases/$(database)/documents/candidatos/$(uid)).data.get('clinicas', []));
+        allow write: if esPropietario(uid);
+      }
+    }
+
+    // Perfil anónimo para «Buscar talento» (sin nombre, foto, teléfono ni correo)
+    match /talento/{uid} {
+      allow read: if esPropietario(uid) || soyClinica();
+      allow write: if esPropietario(uid);
+    }
+
+    // ---------- SOLICITUDES ----------
+    match /candidaturas/{sid} {
+      allow read: if cuentaReal()
+                  && (resource.data.candidatoUid == request.auth.uid
+                      || resource.data.clinicaId == request.auth.uid);
+
+      // Solo el propio profesional la crea, una por oferta, y empieza como «enviada»
+      allow create: if cuentaReal()
+                    && request.resource.data.candidatoUid == request.auth.uid
+                    && request.resource.data.estado == 'enviada'
+                    && (sid == request.resource.data.ofertaId + '_' + request.auth.uid
+                        || sid == 'v_' + request.resource.data.ofertaId + '_' + request.auth.uid);
+
+      // La clínica contesta: abre, «me interesa», entrevista con cita, descarta con motivo,
+      // contrata, mensajes y seguimiento. No puede tocar los datos del profesional.
+      allow update: if cuentaReal()
+                    && resource.data.clinicaId == request.auth.uid
+                    && request.resource.data.candidatoUid == resource.data.candidatoUid
+                    && request.resource.data.clinicaId == resource.data.clinicaId
+                    && resource.data.estado != 'retirada'
+                    && (request.resource.data.estado == resource.data.estado
+                        || request.resource.data.estado in ['vista', 'entrevista', 'descartada', 'contratada'])
+                    && !cambia().hasAny(['candidatoUid', 'clinicaId', 'ofertaId', 'nombre', 'email', 'telefono',
+                         'ciudad', 'profesion', 'experiencia', 'titulacion', 'resumen', 'fuertes', 'trabajos',
+                         'sinExperiencia', 'jornada', 'disponibilidad', 'disc', 'encaje', 'discHist', 'discVeces',
+                         'discCambio', 'geo', 'radio', 'kmOferta', 'foto', 'video', 'cv', 'mensaje', 'fecha',
+                         'tipo', 'modo', 'destacada', 'invitada', 'origen', 'rebote', 'colegiado', 'colegio',
+                         'valorada', 'seguimientoC', 'preparada', 'contratoRecibido', 'ganVista']);
+
+      // El profesional: retira, se cierra por plazo, confirma o cambia la cita, escribe,
+      // valora, contesta el seguimiento y actualiza su test. No toca lo que decide la clínica.
+      allow update: if cuentaReal()
+                    && resource.data.candidatoUid == request.auth.uid
+                    && request.resource.data.candidatoUid == resource.data.candidatoUid
+                    && request.resource.data.clinicaId == resource.data.clinicaId
+                    && (request.resource.data.estado == resource.data.estado
+                        || (request.resource.data.estado == 'retirada' && resource.data.estado in ['enviada', 'vista', 'entrevista'])
+                        || (request.resource.data.estado == 'caducada' && resource.data.estado in ['enviada', 'vista']))
+                    && !cambia().hasAny(['candidatoUid', 'clinicaId', 'ofertaId', 'nota', 'motivo',
+                         'interesa', 'interesaFecha', 'seguimientoCl', 'contrato', 'acogida']);
+
+      // Solo el profesional, cuando elimina su cuenta
+      allow delete: if cuentaReal() && resource.data.candidatoUid == request.auth.uid;
+
+      // Contrato que la clínica envía a la persona contratada (en trozos).
+      // Lo ven las dos partes; lo sube la clínica; lo borra cualquiera de las dos.
+      match /docs/{trozo} {
+        function sol() { return get(/databases/$(database)/documents/candidaturas/$(sid)).data; }
+        allow read: if cuentaReal() && (sol().clinicaId == request.auth.uid || sol().candidatoUid == request.auth.uid);
+        allow create, update: if cuentaReal() && sol().clinicaId == request.auth.uid && sol().estado == 'contratada';
+        allow delete: if cuentaReal() && (sol().clinicaId == request.auth.uid || sol().candidatoUid == request.auth.uid);
+      }
+    }
+
+    // Cuánto tarda cada clínica en contestar (sin datos personales)
+    match /tiempos_respuesta/{sid} {
+      allow read: if true;
+      allow create, update: if cuentaReal();
+      allow delete: if false;
+    }
+
+    // ---------- INVITACIONES DE LAS CLÍNICAS ----------
+    match /invitaciones/{iid} {
+      allow read: if cuentaReal()
+                  && (resource.data.clinicaId == request.auth.uid
+                      || resource.data.candidatoUid == request.auth.uid);
+      allow create: if cuentaReal() && request.resource.data.clinicaId == request.auth.uid;
+      allow update: if cuentaReal()
+                    && (resource.data.clinicaId == request.auth.uid
+                        || (resource.data.candidatoUid == request.auth.uid
+                            && cambia().hasOnly(['estado', 'respondida'])));
+      allow delete: if cuentaReal()
+                    && (resource.data.clinicaId == request.auth.uid
+                        || resource.data.candidatoUid == request.auth.uid);
+    }
+
+    // ---------- VALORACIONES Y CONDICIONES (anónimas) ----------
+    match /valoraciones/{vid} {
+      allow read: if cuentaReal();
+      allow create: if cuentaReal()
+                    && request.resource.data.n is int
+                    && request.resource.data.n >= 1 && request.resource.data.n <= 5;
+      allow update, delete: if false;
+    }
+    match /condiciones/{cid} {
+      allow read: if cuentaReal();
+      allow create: if cuentaReal();
+      allow update, delete: if false;
+    }
+
+    // ---------- DENUNCIAS (solo las lee CERCO desde la consola) ----------
+    match /denuncias/{did} {
+      allow create: if cuentaReal() && request.resource.data.de == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+
+    // Todo lo demás, cerrado
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

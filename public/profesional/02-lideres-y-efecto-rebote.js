@@ -339,7 +339,13 @@ function destacadasEsteMes(){
   return S.sols.filter(function(s){ return s.destacada && String(s.fecha || '').slice(0,7) === m; }).length;
 }
 var MAX_DESTACADAS = 2;
+/* Datos extra de una solicitud (y si ya preparaste la entrevista) (Fase 1: una sola versión) */
 function extrasSolicitud(o){
+  var r = _extrasSolicitudBase.apply(this, arguments);
+  if(((S.perfil||{}).ensayos || []).indexOf(String(o.id)) > -1) r.preparada = true;
+  return r;
+}
+function _extrasSolicitudBase(o){
   var x = {}, inv = invDeOferta(o.id), pr = propDeOferta(o.id), p = S.perfil || {};
   if(inv) x.invitada = true;
   if(pr) { x.origen = 'rebote'; x.rebote = {motivo:pr.motivoCl || '', motivoC:pr.motivo || '', n:pr.n || 1}; }
@@ -417,7 +423,23 @@ function enviarValoracion(id){
 }
 
 /* ---------- 10. inicio: lo nuevo ---------- */
+/* Bloques extra de Inicio; si toca, la pregunta de seguimiento de condiciones (Fase 1: una sola versión) */
 function bloqueInicioExtra(){
+  var r = _bloqueInicioExtraBase.apply(this, arguments);
+  // pregunta de seguimiento (salario y horario), de profesional/04-fallos-del-sector.js
+  if(typeof _segPaso === 'undefined') return r;
+  var h = r, pend = seguimientosPendientes()[0];
+  if(pend && _segPaso[pend.id]){
+    var card = '<div class="card seg-card"><div class="eyebrow">'+svg('users','currentColor',13)+'SEGUIMIENTO</div>'
+      + '<div style="font-size:15px;font-weight:800;margin-bottom:4px;">¿El salario y el horario fueron los de la oferta?</div>'
+      + '<p class="txt" style="font-size:13.5px;margin-bottom:12px;">En '+esc(pend.clinicaNombre||'la clínica')+'. Se guarda sin tu nombre.</p>'
+      + '<div class="prop-a"><button class="btn btn-p" onclick="responderCondiciones(\''+esc(pend.id)+'\', true)">Sí, lo que ponía</button><button class="btn btn-s" onclick="responderCondiciones(\''+esc(pend.id)+'\', false)">No coincidían</button></div></div>';
+    h = h.replace(/<div class="card seg-card">[\s\S]*?<\/div><\/div>/, card);
+  }
+  r = h;
+  return r;
+}
+function _bloqueInicioExtraBase(){
   var p = S.perfil || {}, h = '';
   // seguimiento a los 90 días
   seguimientosPendientes().slice(0,1).forEach(function(s){

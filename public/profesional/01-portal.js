@@ -348,7 +348,11 @@ var EJEMPLOS = [
    descripcion:'Llevarás la agenda de cuatro doctores, la relación con los pacientes y los presupuestos.', requisitos:'Experiencia en atención al paciente\nManejo de software de gestión clínica', fecha:new Date(Date.now()-86400000).toISOString()}
 ];
 
-function ofertasVisibles(){ return S.ofertas; }
+/* Ofertas que se ven: todas menos las de clínicas que la persona ha bloqueado (Fase 1: una sola versión) */
+function ofertasVisibles(){
+  var b = (S.perfil||{}).bloqueadas || [], l = S.ofertas;
+  return b.length ? l.filter(function(o){ return b.indexOf(String(o.clinicaId)) === -1; }) : l;
+}
 function hayReales(){ return S.ofertas.length > 0; }
 
 /* ---------- distancias ----------
@@ -984,7 +988,14 @@ function testLuego(){
   ir('inicio');
   toast('Sin el test no podrás enviar solicitudes. Hazlo cuando quieras.');
 }
-function testEmpezar(){ $('t-intro').style.display = 'none'; $('t-preg').style.display = ''; pintarPregunta(); window.scrollTo(0,0); }
+/* Empezar el test: antes, la casilla de consentimiento (Fase 1: una sola versión) */
+function testEmpezar(){
+  var c = $('t-consent');
+  if(c && !c.checked && !((S.perfil||{}).consentTest)){ error('t-cons-err', 'Marca la casilla para hacer el test. Si prefieres no hacerlo ahora, puedes seguir viendo las ofertas.'); try{ c.focus(); }catch(e){} return; }
+  error('t-cons-err', '');
+  if(S.perfil && !S.perfil.consentTest) S.perfil.consentTest = new Date().toISOString();
+  $('t-intro').style.display = 'none'; $('t-preg').style.display = ''; pintarPregunta(); window.scrollTo(0,0);
+}
 function pintarPregunta(){
   var r = T.resp[T.i], h = '';
   if(!T.ord || T.ord.length !== PREG.length) T.ord = CERCO_discBarajar(PREG.length);

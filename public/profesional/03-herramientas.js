@@ -386,8 +386,6 @@ function hEncajas(){
     if(S.vista === 'herramientas'){ var ae = document.activeElement; if(!(ae && /TEXTAREA|INPUT|SELECT/.test(ae.tagName))) pintarHerr(); }
   };
 // la solicitud lleva si la has preparado
-var _extHerr = window.extrasSolicitud;
-window.extrasSolicitud = function(o){ var x = _extHerr(o); if(((S.perfil||{}).ensayos || []).indexOf(String(o.id)) > -1) x.preparada = true; return x; };
 var _gpHerr = Nube.guardarPerfil;
 Nube.guardarPerfil = function(p){
   var self = this;

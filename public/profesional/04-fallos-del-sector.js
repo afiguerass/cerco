@@ -67,14 +67,6 @@ function tarjetaPlazo(s){
 }
 
 /* ---------- 2. consentimiento antes del test ---------- */
-var _testEmpezarOrig = window.testEmpezar;
-window.testEmpezar = function(){
-  var c = $('t-consent');
-  if(c && !c.checked && !((S.perfil||{}).consentTest)){ error('t-cons-err', 'Marca la casilla para hacer el test. Si prefieres no hacerlo ahora, puedes seguir viendo las ofertas.'); try{ c.focus(); }catch(e){} return; }
-  error('t-cons-err', '');
-  if(S.perfil && !S.perfil.consentTest) S.perfil.consentTest = new Date().toISOString();
-  return _testEmpezarOrig.apply(this, arguments);
-};
 var _gpSector = Nube.guardarPerfil;
 Nube.guardarPerfil = function(p){
   var self = this;
@@ -122,11 +114,6 @@ function bloquearClinica(cid, nombre){
 function desbloquearClinica(cid){
   guardarAjuste({ bloqueadas:((S.perfil||{}).bloqueadas || []).filter(function(x){ return x !== String(cid); }), ocultar:((S.perfil||{}).ocultar || []).filter(function(x){ return x !== String(cid); }) }, 'Vuelves a ver sus ofertas');
 }
-var _ofVisSector = window.ofertasVisibles;
-window.ofertasVisibles = function(){
-  var b = (S.perfil||{}).bloqueadas || [], l = _ofVisSector();
-  return b.length ? l.filter(function(o){ return b.indexOf(String(o.clinicaId)) === -1; }) : l;
-};
 
 /* ---------- 4. clínicas verificadas y condiciones cumplidas ---------- */
 S.verif = {}; S.condiciones = {};
@@ -227,18 +214,6 @@ function responderCondiciones(id, ok){
     .then(function(){ delete _segPaso[id]; toast('Gracias. Con esto los demás profesionales saben qué clínicas cumplen.'); refrescar(); })
     .catch(function(){ toast('No se ha podido guardar. Revisa tu conexión.'); });
 }
-var _extraSector = window.bloqueInicioExtra;
-window.bloqueInicioExtra = function(){
-  var h = _extraSector.apply(this, arguments), pend = seguimientosPendientes()[0];
-  if(pend && _segPaso[pend.id]){
-    var card = '<div class="card seg-card"><div class="eyebrow">'+svg('users','currentColor',13)+'SEGUIMIENTO</div>'
-      + '<div style="font-size:15px;font-weight:800;margin-bottom:4px;">¿El salario y el horario fueron los de la oferta?</div>'
-      + '<p class="txt" style="font-size:13.5px;margin-bottom:12px;">En '+esc(pend.clinicaNombre||'la clínica')+'. Se guarda sin tu nombre.</p>'
-      + '<div class="prop-a"><button class="btn btn-p" onclick="responderCondiciones(\''+esc(pend.id)+'\', true)">Sí, lo que ponía</button><button class="btn btn-s" onclick="responderCondiciones(\''+esc(pend.id)+'\', false)">No coincidían</button></div></div>';
-    h = h.replace(/<div class="card seg-card">[\s\S]*?<\/div><\/div>/, card);
-  }
-  return h;
-};
 
 /* ---------- 8. recordatorio de la entrevista ---------- */
 // Al refrescar: recordatorio de la cita 24 h antes. La usa refrescar (profesional/01-portal.js)

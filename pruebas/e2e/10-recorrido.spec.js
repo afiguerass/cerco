@@ -173,6 +173,9 @@ test('4. La profesional se registra y hace el test («sin perfil» y después su
     alPaso2: () => capturar(page, 'pro-04-alta-paso2'),
   });
   await capturar(page, 'pro-05-portada-test');
+  // Sin marcar la casilla de consentimiento no se puede empezar
+  await page.getByRole('button', { name: 'Empezar el test' }).click();
+  await expect(page.locator('#t-cons-err')).toContainText('Marca la casilla para hacer el test.');
   await page.check('#t-consent');
   await page.getByRole('button', { name: 'Empezar el test' }).click();
   await capturar(page, 'pro-06-pregunta-test');

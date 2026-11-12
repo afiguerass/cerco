@@ -72,7 +72,11 @@ test('1. La clínica se registra, configura su perfil y hace su test', async () 
   await capturar(page, 'clinica-02-bienvenida');
   await A.configurarClinica(page, {
     alPaso1: () => capturar(page, 'clinica-03-perfil-paso1'),
-    alPaso2: () => capturar(page, 'clinica-04-que-es-disc'),
+    alPaso2: async () => {
+      await expect(page.locator('#screen-2-onboarding')).toContainText('Puedes repetir número');
+      await expect(page.locator('#screen-2-onboarding')).not.toContainText('una sola vez');
+      await capturar(page, 'clinica-04-que-es-disc');
+    },
     alResultado: async () => {
       await expect(page.locator('#badge-onboarding')).toHaveText('Perfil D/C');
       await expect(page.locator('#result-name-onboarding')).toHaveText('Dominante con rasgo de concienzudo');

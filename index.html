@@ -2056,7 +2056,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
           <option>Gerente</option>
           <option>Director/a clínico</option>
           <option>Odontólogo/a</option>
-          <option value="Responsable de RRHH">Responsable de personal</option>
+          <option value="Responsable de RRHH">Coordinador/a de clínica</option>
           <option>Propietario/a</option>
         </select>
       </div>
@@ -7545,8 +7545,8 @@ function updateMcBadge(){
 
   if(letter && !(av && av.style.backgroundImage)) letter.textContent = nom ? nom.charAt(0).toUpperCase() : '?';
   if(heroName) heroName.textContent = nom || 'Tu nombre';
-  // El valor guardado sigue siendo «Responsable de RRHH»; en pantalla se dice «Responsable de personal»
-  if(heroRole) heroRole.textContent = (rol === 'Responsable de RRHH' ? 'Responsable de personal' : rol) + (clinica ? ' · ' + clinica : '');
+  // El valor guardado sigue siendo «Responsable de RRHH»; en pantalla se dice «Coordinador/a de clínica»
+  if(heroRole) heroRole.textContent = (rol === 'Responsable de RRHH' ? 'Coordinador/a de clínica' : rol) + (clinica ? ' · ' + clinica : '');
 
   // El rol elegido se guarda con el resto del perfil
   try {
@@ -9117,7 +9117,7 @@ function renderMiCuenta(){
   }
   var rol = rolSel ? rolSel.value : 'Gerente';
   set('mc-hero-name', nom || 'Tu nombre');
-  set('mc-hero-role', (rol === 'Responsable de RRHH' ? 'Responsable de personal' : rol) + (c.nom ? ' · ' + c.nom : ''));
+  set('mc-hero-role', (rol === 'Responsable de RRHH' ? 'Coordinador/a de clínica' : rol) + (c.nom ? ' · ' + c.nom : ''));
   set('mc-st-ofertas', r.activas);
   set('mc-st-cand', r.candidatos);
   set('mc-st-equipo', r.miembros);

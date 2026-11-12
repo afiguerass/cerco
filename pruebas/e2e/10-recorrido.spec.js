@@ -87,6 +87,15 @@ test('1. La clínica se registra, configura su perfil y hace su test', async () 
   await expect(page.locator('#screen-publicat')).toContainText('QUIÉN RESPONDE A LOS CANDIDATOS');
   await expect(page.locator('#screen-publicat')).not.toContainText(/responsable de contratación/i);
   await capturar(page, 'clinica-06-perfil-publicado');
+
+  // Mi cuenta: el rol se elige con el nombre «Coordinador/a de clínica», pero
+  // el dato que se guarda sigue siendo el de siempre («Responsable de RRHH»)
+  await page.evaluate(() => showScreen('mi-cuenta'));
+  await page.selectOption('#mc-rol', { label: 'Coordinador/a de clínica' });
+  await expect(page.locator('#mc-rol')).toHaveValue('Responsable de RRHH');
+  await expect(page.locator('#mc-hero-role')).toContainText('Coordinador/a de clínica');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('cerco_empresa') || '{}').rol)).toBe('Responsable de RRHH');
+  await capturar(page, 'clinica-06b-mi-cuenta');
 });
 
 test('2. Un trabajador hace el test con el enlace del equipo', async ({ browser }, testInfo) => {
@@ -221,6 +230,7 @@ test('4c. La profesional ve las ofertas con su % de encaje y solicita las dos', 
   await page.locator('.of-t', { hasText: /^Higienista dental de tarde$/ }).locator('visible=true').first().click();
   await seVe(page, 'Tu encaje');
   await seVe(page, 'A 3 km de Salt');
+  await expect(page.locator('body')).toContainText('Te responde Marta, coordinador/a de clínica.');
   await expect(page.locator('body')).not.toContainText('1 personas');
   await capturar(page, 'pro-13-oferta-detalle');
   await page.getByRole('button', { name: 'Solicitar esta oferta' }).click();

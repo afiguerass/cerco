@@ -215,11 +215,10 @@
   }
 
   /* ---------------- la ficha de una persona contratada ---------------- */
-  var _ficha = window.abrirFichaCandidato;
-  window.abrirFichaCandidato = function(id, modo){
-    var r = _ficha.apply(this, arguments);
+  // Ficha: asunto del correo y contrato. La usa abrirFichaCandidato (clinica/02-solicitudes-reales.js)
+  window.CERCO_fichaCorreoYContrato = function(id, modo){
     try{
-      var c = buscar(id), box = $('cand-acciones'); if(!c || !box) return r;
+      var c = buscar(id), box = $('cand-acciones'); if(!c || !box) return;
       // asunto del correo: así la persona sabe de qué va
       var mail = document.querySelector('#modal-cand a[href^="mailto:"]');
       if(mail && c.email) mail.setAttribute('href', 'mailto:' + c.email + '?subject=' + encodeURIComponent((c.ofertaTitulo || 'Tu solicitud') + ' · ' + (clinica() || 'CERCO')));
@@ -231,7 +230,6 @@
         if(p) p.insertAdjacentHTML('beforebegin', ct); else box.insertAdjacentHTML('beforeend', ct);
       }
     }catch(x){}
-    return r;
   };
 
   /* ---------------- 2. al contratar, a «Contratados» ---------------- */

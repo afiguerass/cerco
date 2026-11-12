@@ -248,10 +248,9 @@
   };
 
   /* ---------- la ficha: acciones según el momento ---------- */
-  var _fichaOrig = window.abrirFichaCandidato;
-  window.abrirFichaCandidato = function(id, modo){
-    var r = _fichaOrig.apply(this, arguments);
-    var c = buscar(id), box = document.getElementById('cand-acciones'); if(!c || !box) return r;
+  // Ficha: acciones según el estado (cita, contratar, descartar…). La usa abrirFichaCandidato (clinica/02-solicitudes-reales.js)
+  window.CERCO_fichaAcciones = function(id, modo){
+    var c = buscar(id), box = document.getElementById('cand-acciones'); if(!c || !box) return;
     marcarVistos(c);
     var extra = '';
     if(c.estado === 'entrevista'){
@@ -277,7 +276,6 @@
     }
     box.insertAdjacentHTML('afterend', bloqueMensajes(c));
     setTimeout(function(){ var b = document.getElementById('ficha-msgs'); if(b) b.scrollTop = b.scrollHeight; }, 20);
-    return r;
   };
   // "Invitar a entrevista" y "Proponer visita" pasan por el día y la hora
 

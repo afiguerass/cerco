@@ -66,7 +66,8 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - [x] **`showScreen`** (cambiar de pantalla): de 5 versiones a una sola. Pasos en orden: quitar la ficha provisional → llevar las entrevistas de ejemplo a la Agenda → mostrar la pantalla → ajustes de interfaz → pintar la Agenda → preparar «Nueva oferta».
   - [x] **`renderInicioReal`** (Inicio de la clínica): de 7 versiones a una sola. Se pinta la base y después cada bloque en el mismo orden (necesitan respuesta → citas y mensajes → plazos → seguimiento y valoraciones → confianza y plazos → agenda). Cada bloque es una pieza con nombre en su archivo.
   - [x] **`renderPortalReal`** («Candidatos»): de 7 versiones a una sola. Se pinta la base y después cada parte en el mismo orden: cabecera y solicitudes reales → tasa de respuesta → etiquetas → talento → agrupar por profesión → entrada a herramientas.
-  - Quedan: en la clínica, `abrirFichaCandidato` (7); en el profesional, 13 funciones.
+  - [x] **`abrirFichaCandidato`** (ficha del candidato): de 7 versiones a una sola. Pasos en orden: vaciar la ficha anterior → abrir → acciones según el estado → guardar → valorar y plan → «me interesa» y cita → correo y contrato → ficha a pantalla completa.
+  - **En la clínica ya no queda ninguna función de las detectadas con varias versiones.** Falta revisar otras formas de envolver que la herramienta no detectaba (`CDB.…`, `Nube.…`, bucles `window[fn]`) y, después, el lado del profesional (13 funciones).
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.

@@ -379,7 +379,20 @@
   window.cerrarFichaCandidato = cerrar;
   function waNum(t){ var n = String(t||'').replace(/[^\d]/g,''); if(n.length === 9) n = '34' + n; return n; }
 
+  /* Abrir la ficha de un candidato (Fase 1: una sola versión). Antes eran siete
+     versiones envueltas; los pasos van en el mismo orden. Si fallan las acciones
+     según el estado, se para ahí, igual que antes; las demás partes tienen su
+     propia protección. */
   window.abrirFichaCandidato = function(id, modo){
+    var antes = window.CERCO_fichaAntes ? CERCO_fichaAntes() : null;   // vaciar la ficha anterior (16)
+    var r = _abrirFichaBase.apply(this, arguments);
+    if(window.CERCO_fichaAcciones) CERCO_fichaAcciones(id, modo);       // acciones según el estado (04)
+    ['CERCO_fichaGuardar', 'CERCO_fichaValorarYPlan', 'CERCO_fichaInteresYCita', 'CERCO_fichaCorreoYContrato']   // 09, 10, 12, 14
+      .forEach(function(parte){ if(window[parte]) window[parte](id, modo); });
+    if(antes) CERCO_fichaDespues(id, modo, antes);                      // ficha a pantalla completa (16)
+    return r;
+  };
+  var _abrirFichaBase = function(id, modo){
     var c = buscar(id); if(!c) return;
     // Abrirla ya es "vista": el candidato lo sabe al momento
     if(c.estado === 'enviada' && !modo){

@@ -183,8 +183,10 @@
     b.innerHTML = iconoGuard(on).replace('#fff', '#1A56DB').replace('#fff','#1A56DB') + (on ? 'Guardado' : 'Guardar');
     b.onclick = function(){ alternarGuardado(id); };
   }
-  var _af2 = window.abrirFichaCandidato;
-  window.abrirFichaCandidato = function(id){ var r = _af2.apply(this, arguments); try{ pintarGuardFicha(id); }catch(x){} return r; };
+  // Ficha: botón «Guardar». La usa abrirFichaCandidato (clinica/02-solicitudes-reales.js)
+  window.CERCO_fichaGuardar = function(id){
+    try{ pintarGuardFicha(id); }catch(x){}
+  };
   window.CERCO_agruparCandidatos = agruparCandidatos;
   // Candidatos: agrupados por profesión. Lo usa renderPortalReal (clinica/01-panel.js)
   window.CERCO_candidatosPorProfesion = function(){

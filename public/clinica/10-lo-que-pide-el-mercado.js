@@ -275,15 +275,13 @@
   // Plan de acogida guardado solo en este navegador: lo usa CERCO_plan (clinica/14-correo-contrato-acogida.js) cuando no hay solicitud real
   window.CERCO_planLocal = function(id, i, on){ var t = leer('cerco_acogida'), h = (t[id] || []).slice(); h[i] = !!on; t[id] = h; guardar('cerco_acogida', t); var c = buscar(id), b = $('mk-plan'); if(c && b) b.outerHTML = bloquePlan(c); };
 
-  var _fichaOrig = window.abrirFichaCandidato;
-  window.abrirFichaCandidato = function(id, modo){
-    var r = _fichaOrig.apply(this, arguments);
+  // Ficha: valorar la entrevista y plan de acogida. La usa abrirFichaCandidato (clinica/02-solicitudes-reales.js)
+  window.CERCO_fichaValorarYPlan = function(id, modo){
     try{
-      var c = buscar(id), box = $('cand-acciones'); if(!c || !box || visita(c)) return r;
+      var c = buscar(id), box = $('cand-acciones'); if(!c || !box || visita(c)) return;
       if(c.estado === 'entrevista') box.insertAdjacentHTML('beforeend', bloqueValorar(c));
       if(c.estado === 'contratada') box.insertAdjacentHTML('beforeend', bloquePlan(c));
     }catch(x){}
-    return r;
   };
 
   /* =============== 5. COMPARAR CANDIDATOS =============== */

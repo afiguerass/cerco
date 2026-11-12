@@ -289,18 +289,16 @@
     marcarOcupadas: marcarOcupadas
   };
 
-  var _ficha = window.abrirFichaCandidato;
-  window.abrirFichaCandidato = function(id, modo){
-    var r = _ficha.apply(this, arguments);
+  // Ficha: «Me interesa» y datos de la cita. La usa abrirFichaCandidato (clinica/02-solicitudes-reales.js)
+  window.CERCO_fichaInteresYCita = function(id, modo){
     try{
-      var c = buscar(id), box = $('cand-acciones'); if(!c || !box) return r;
+      var c = buscar(id), box = $('cand-acciones'); if(!c || !box) return;
       if(abierta(c) && !visita(c) && !box.querySelector('.int-box')) box.insertAdjacentHTML('afterbegin', bloqueInteres(c));
       if(c.cita && c.estado === 'entrevista' && !box.querySelector('.cita-extra')){
         var ref = box.firstElementChild;
         if(ref) ref.insertAdjacentHTML('afterend', extraCita(c)); else box.insertAdjacentHTML('afterbegin', extraCita(c));
       }
     }catch(x){}
-    return r;
   };
 
   // Inicio: lo próximo de la agenda y quién tiene plazo en «Me interesan»

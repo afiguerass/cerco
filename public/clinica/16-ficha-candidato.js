@@ -238,15 +238,18 @@
     try{ var mn = document.querySelector('.shell-main'); if(mn && !vuelve) mn.scrollTop = 0; }catch(x){}
   }
 
-  var _ficha = window.abrirFichaCandidato;
-  window.abrirFichaCandidato = function(id, modo){
+  // Las usa abrirFichaCandidato (clinica/02-solicitudes-reales.js): antes de abrir,
+  // se vacía la ficha anterior; después, se pinta la ficha a pantalla completa.
+  window.CERCO_fichaAntes = function(){
     var y = window.scrollY || 0;
     // la página anterior se vacía antes: si no, sus ids (#cand-acciones, #mk-plan…) confundirían a la ficha nueva
     var s = $('screen-ficha'); if(s){ try{ CERCO_cerrarVisor && CERCO_cerrarVisor(); }catch(x){} if(s.firstChild){ s.style.minHeight = s.offsetHeight + 'px'; s.innerHTML = ''; } }
-    var r = _ficha.apply(this, arguments);
+    return { y: y, s: s };
+  };
+  window.CERCO_fichaDespues = function(id, modo, antes){
+    var s = antes.s, y = antes.y;
     if(s) s.style.minHeight = '';
     try{ pintar(id); if(modo && actual === id) window.scrollTo(0, y); }catch(x){ try{ console.error(x); }catch(z){} }
-    return r;
   };
   var _cerrar = window.cerrarFichaCandidato;
   window.cerrarFichaCandidato = function(){

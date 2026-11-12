@@ -31,7 +31,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Asish prueba la rama `profesional` (instrucciones en el README, apartado «Probar la rama profesional») y dice si se pasa a la **Fase 1** (ordenar el código sin cambiar nada). Todas las pruebas están en verde: 33 de reglas y 26 de navegador.
+**Fase 0 publicada** el 12 de noviembre de 2026: se fusionó el pull request #1 (`profesional` → `main`), y GitHub Pages la publicó sin errores. Asish prueba la web publicada y dice cuándo empezar la **Fase 1** (ordenar el código sin cambiar nada).
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

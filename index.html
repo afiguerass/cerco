@@ -10881,7 +10881,7 @@ h2, h3{ letter-spacing:-0.02em; font-weight:700; }
     var c = buscar(id); if(!c) return;
     var nombre = 'CV ' + (c.nombre || 'candidato') + '.pdf';
     var m = document.createElement('div'); m.id = 'cv-visor';
-    m.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(10,14,30,.6);display:flex;justify-content:center;';
+    m.style.cssText = 'position:fixed;inset:0;z-index:9900;background:rgba(10,14,30,.6);display:flex;justify-content:center;';
     m.innerHTML = '<div role="dialog" aria-modal="true" aria-label="'+e(nombre)+'" style="background:#F3F4F6;width:100%;max-width:900px;height:100%;display:flex;flex-direction:column;">'
       + '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;background:#fff;border-bottom:1px solid #EAECF0;">'+sv('file','#1A56DB',18)+'<b style="flex:1;min-width:0;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(nombre)+'</b>'
       + '<button type="button" onclick="descargarCVCandidato(\''+e(c.id)+'\')" style="background:#fff;border:1px solid #E5E7EB;border-radius:9px;padding:8px 12px;font:inherit;font-size:13px;font-weight:700;color:#1A56DB;cursor:pointer;">Descargar</button>'

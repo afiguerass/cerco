@@ -137,15 +137,14 @@
   };
 
   /* ---------- Inicio: confianza y plazos ---------- */
-  var _inicio6 = window.renderInicioReal;
-  window.renderInicioReal = function(){
-    var r; try{ r = _inicio6 && _inicio6.apply(this, arguments); }catch(x){}
+  // Inicio: «Confianza y plazos» (ofertas antiguas, verificación, vacaciones). Lo usa renderInicioReal (clinica/01-panel.js)
+  window.CERCO_inicioConfianza = function(){
     try{
       var box = document.getElementById('inicio-real'), v = document.getElementById('inicio-confianza');
       // no borrar lo que se está escribiendo
-      var ae = document.activeElement; if(v && ae && v.contains(ae) && /INPUT|TEXTAREA/.test(ae.tagName)) return r;
+      var ae = document.activeElement; if(v && ae && v.contains(ae) && /INPUT|TEXTAREA/.test(ae.tagName)) return;
       if(v) v.remove();
-      if(!box || box.style.display === 'none' || enDemo() || !uid()) return r;
+      if(!box || box.style.display === 'none' || enDemo() || !uid()) return;
       escucharVerificacion();
       var c = clinica(), vac = window._enVacaciones(), h = '';
       ofertasViejas().slice(0,2).forEach(function(o){
@@ -169,7 +168,6 @@
       el.innerHTML = '<div style="padding:14px 18px;font-size:13px;font-weight:800;color:#111827;letter-spacing:.3px;">CONFIANZA Y PLAZOS</div>' + h;
       box.appendChild(el);
     }catch(x){}
-    return r;
   };
   try{ CDB.renderTodo(); }catch(x){}
 })();

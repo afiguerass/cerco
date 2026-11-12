@@ -278,12 +278,11 @@
       try{ renderInicioReal(); }catch(x){}
     }).catch(function(){ if(typeof showToast === 'function') showToast('No se ha podido guardar.'); });
   };
-  var _inicio5 = window.renderInicioReal;
-  window.renderInicioReal = function(){
-    var r; try{ r = _inicio5 && _inicio5.apply(this, arguments); }catch(x){}
+  // Inicio: seguimiento a los 90 días, plazos y valoraciones. Lo usa renderInicioReal (clinica/01-panel.js)
+  window.CERCO_inicioLider = function(){
     try{
       var box = document.getElementById('inicio-real'); var v = document.getElementById('inicio-lider'); if(v) v.remove();
-      if(!box || box.style.display === 'none' || enDemo()) return r;
+      if(!box || box.style.display === 'none' || enDemo()) return;
       cargarValoraciones();
       var filas = [];
       var hoy = Date.now();
@@ -302,14 +301,13 @@
         filas.push('<div style="padding:12px 18px;border-top:1px solid #F3F4F6;"><div style="font-size:14px;font-weight:800;color:#111827;display:flex;align-items:center;gap:6px;">'+sv('star','#F0A000',16)+String(m).replace('.',',')+' de 5 <span style="font-size:12.5px;font-weight:600;color:#6B7280;">· así valoran tu proceso '+VAL.l.length+' profesionales (anónimo)</span></div>'
           + com.map(function(x){ return '<div style="font-size:12.5px;color:#4B5563;margin-top:6px;font-style:italic;">«'+e(x.t)+'»</div>'; }).join('') + '</div>');
       } else if(VAL.l && VAL.l.length) filas.push('<div style="padding:12px 18px;border-top:1px solid #F3F4F6;font-size:12.5px;color:#6B7280;">'+sv('star','#F0A000',14)+' Tienes '+VAL.l.length+' valoraci'+(VAL.l.length === 1 ? 'ón' : 'ones')+' de profesionales. Verás la media cuando haya al menos 5.</div>');
-      if(!filas.length) return r;
+      if(!filas.length) return;
       var el = document.createElement('div'); el.id = 'inicio-lider';
       el.style.cssText = 'background:white;border:1px solid #EAECF0;border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);';
       el.innerHTML = '<div style="padding:14px 18px;font-size:13px;font-weight:800;color:#111827;letter-spacing:.3px;">PARA HOY</div>' + filas.join('');
       var ref = document.getElementById('inicio-citas') || document.getElementById('inicio-solicitudes') || box.querySelector('.inicio-kpis');
       if(ref && ref.nextSibling) box.insertBefore(el, ref.nextSibling); else box.appendChild(el);
     }catch(x){}
-    return r;
   };
   try{ CDB.renderTodo(); }catch(x){}
 })();

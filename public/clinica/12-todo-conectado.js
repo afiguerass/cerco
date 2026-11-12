@@ -304,15 +304,14 @@
   };
 
   // Inicio: lo próximo de la agenda y quién tiene plazo en «Me interesan»
-  var _ini = window.renderInicioReal;
-  if(typeof _ini === 'function') window.renderInicioReal = function(){
-    var r = _ini.apply(this, arguments);
+  // Inicio: próximas entrevistas y «Me interesan». Lo usa renderInicioReal (clinica/01-panel.js)
+  window.CERCO_inicioAgenda = function(){
     try{
-      var box = $('inicio-real'); if(!box) return r;
+      var box = $('inicio-real'); if(!box) return;
       var v = $('inicio-agenda'); if(v) v.remove();
       var prox = citas().filter(function(c){ return new Date(c.cita.fecha).getTime() > Date.now() - 3600000; }).slice(0,3);
       var ints = cands().filter(function(c){ return abierta(c) && c.interesa && !visita(c); });
-      if(!prox.length && !ints.length) return r;
+      if(!prox.length && !ints.length) return;
       var el = document.createElement('div'); el.id = 'inicio-agenda';
       var h = '';
       if(prox.length){
@@ -331,7 +330,6 @@
       if(ref && ref.parentElement) ref.parentElement.insertBefore(el, ref.nextSibling);
       else box.insertBefore(el, box.querySelector('.inicio-kpis') ? box.querySelector('.inicio-kpis').nextSibling : box.firstChild);
     }catch(x){}
-    return r;
   };
 
   /* =============== 3. PANTALLAS DE MUESTRA =============== */

@@ -4500,7 +4500,15 @@ var ICO = {
 };
 
 /* ============================ INICIO ============================ */
+/* Inicio de la clínica (Fase 1: una sola versión). Antes eran siete versiones
+   envueltas; ahora se pinta la base y después cada bloque, en el mismo orden.
+   Un fallo en un bloque no impide pintar los demás, igual que antes. */
 function renderInicioReal(){
+  try{ _pintarInicioBase(); }catch(x){}
+  ['CERCO_inicioSolicitudes', 'CERCO_inicioCitas', 'CERCO_inicioPlazos', 'CERCO_inicioLider', 'CERCO_inicioConfianza', 'CERCO_inicioAgenda']
+    .forEach(function(bloque){ try{ if(window[bloque]) window[bloque](); }catch(x){} });
+}
+function _pintarInicioBase(){
   var box = document.getElementById('inicio-real');
   if(!box) return;
   if(CDB.demo()){ box.innerHTML=''; box.style.display='none'; return; }

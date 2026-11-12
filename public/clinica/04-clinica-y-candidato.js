@@ -321,17 +321,16 @@
   };
 
   /* ---------- Inicio: próxima cita y respuestas del candidato ---------- */
-  var _inicio = window.renderInicioReal;
-  window.renderInicioReal = function(){
-    var r; try{ r = _inicio && _inicio.apply(this, arguments); }catch(x){}
+  // Inicio: bloque «Próximas citas y mensajes». Lo usa renderInicioReal (clinica/01-panel.js)
+  window.CERCO_inicioCitas = function(){
     try{
-      var box = document.getElementById('inicio-real'); if(!box || box.style.display === 'none') return r;
+      var box = document.getElementById('inicio-real'); if(!box || box.style.display === 'none') return;
       var vell = document.getElementById('inicio-citas'); if(vell) vell.remove();
       var ahora = Date.now();
       var citas = lista().filter(function(c){ return c.estado === 'entrevista' && c.cita && new Date(c.cita.fecha).getTime() > ahora - 3600000; })
         .sort(function(a,b){ return new Date(a.cita.fecha) - new Date(b.cita.fecha); });
       var msgs = lista().filter(function(c){ return mensajesSinLeer(c) > 0; });
-      if(!citas.length && !msgs.length) return r;
+      if(!citas.length && !msgs.length) return;
       var el = document.createElement('div'); el.id = 'inicio-citas';
       el.style.cssText = 'background:white;border:1px solid #EAECF0;border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);';
       var h = '<div style="padding:14px 18px;border-bottom:1px solid #F3F4F6;font-size:13px;font-weight:800;color:#111827;letter-spacing:.3px;">PRÓXIMAS CITAS Y MENSAJES</div>';
@@ -353,15 +352,13 @@
       var ref = document.getElementById('inicio-solicitudes') || box.querySelector('.inicio-kpis');
       if(ref && ref.nextSibling) box.insertBefore(el, ref.nextSibling); else box.appendChild(el);
     }catch(x){}
-    return r;
   };
 
   /* ---------- 24 h en el bloque "Necesitan tu respuesta" ---------- */
-  var _inicio2 = window.renderInicioReal;
-  window.renderInicioReal = function(){
-    var r = _inicio2.apply(this, arguments);
+  // Inicio: etiquetas de plazo en «Necesitan tu respuesta». Lo usa renderInicioReal (clinica/01-panel.js)
+  window.CERCO_inicioPlazos = function(){
     try{
-      var bl = document.getElementById('inicio-solicitudes'); if(!bl) return r;
+      var bl = document.getElementById('inicio-solicitudes'); if(!bl) return;
       bl.querySelectorAll('[onclick^="abrirFichaCandidato"]').forEach(function(row){
         var m = row.getAttribute('onclick').match(/'([^']+)'/); var c = m && buscar(m[1]); if(!c) return;
         var hh = window._hHab ? _hHab(c) : (Date.now() - new Date(c.fecha)) / 3600000;
@@ -370,7 +367,6 @@
         if(hh >= 36){ var s = document.createElement('span'); s.className = 'sla-real'; s.style.cssText = 'margin-left:6px;background:'+(hh>=48?'#FEF2F2':'#FFFBEB')+';color:'+(hh>=48?'#B42318':'#8A5A00')+';border-radius:99px;padding:2px 7px;font-size:10.5px;font-weight:800;'; s.textContent = hh >= 24 ? 'Fuera de plazo' : 'Quedan ' + Math.max(1, Math.round(48-hh)) + ' h'; var nm = row.querySelector('div[style*="font-size:14px;font-weight:800"]'); if(nm) nm.appendChild(s); }
       });
     }catch(x){}
-    return r;
   };
 
   /* ---------- avisos cuando el candidato hace algo ---------- */

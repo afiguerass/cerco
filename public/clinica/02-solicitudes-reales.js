@@ -349,9 +349,8 @@
   window.CERCO_pintarSolicitudesReales = pintarReales; // la usa _cabeceraPortal (clinica/01-panel.js)
 
   /* ---------- Inicio: lo que necesita respuesta ---------- */
-  var _inicioOrig = window.renderInicioReal;
-  window.renderInicioReal = function(){
-    try{ _inicioOrig && _inicioOrig(); }catch(x){}
+  // Inicio: bloque «Necesitan tu respuesta». Lo usa renderInicioReal (clinica/01-panel.js)
+  window.CERCO_inicioSolicitudes = function(){
     var box = document.getElementById('inicio-real');
     if(!box || box.style.display === 'none') return;
     var vell = document.getElementById('inicio-solicitudes'); if(vell) vell.remove();

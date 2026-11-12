@@ -78,6 +78,10 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - [x] **Profesional, segundo grupo** (una sola versión cada una): `testEmpezar` (consentimiento antes del test), `ofertasVisibles` (sin las clínicas bloqueadas), `extrasSolicitud`, `bloqueInicioExtra`. Prueba ampliada: sin marcar la casilla de consentimiento no se puede empezar el test (igual con el código anterior y con el nuevo).
   - **Falta en el profesional:** `Nube.guardarPerfil` (3 capas), `verMiVideo` (3), `pintarMedia` y las del editor de vídeo (`abrirEditorVideo`, `evTab`, `evGuardar`, `usarVideo`).
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
+  - [x] **1.8a** Firebase (10.12.0, igual que antes) va dentro de la web compilada (`src/comun/firebase.js`), en su propio archivo (`firebase-….js`), en lugar de descargarse de www.gstatic.com al abrir la página.
+    - La versión de pruebas se conecta sola al Firebase falso. Comprobado que la versión publicable no tiene ningún rastro de él.
+    - Las pruebas ya no cambian archivos al vuelo: si la web volviera a pedir Firebase a Google, la petición estaría bloqueada y fallarían.
+  - [ ] **1.8b** Pasar las llamadas a la forma modular, archivo por archivo, y quitar *compat* al final.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.
 
@@ -109,7 +113,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Fase 1, paso 1.8: pasar Firebase del SDK *compat* al modular, sin cambiar datos ni rutas.
+Fase 1, paso 1.8b: pasar las llamadas a Firebase a la forma modular, archivo por archivo.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

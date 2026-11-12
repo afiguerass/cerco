@@ -213,21 +213,10 @@ var Nube = {
         try{ if(!firebase.apps.length) firebase.initializeApp(window.CERCO_FB); acaba(true); }
         catch(e){ acaba(false); }
       };
-      if(window.firebase && firebase.firestore && firebase.auth) return inicia();
-      var urls = [
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js'
-      ], i = 0;
-      var seg = function(){
-        if(i >= urls.length) return inicia();
-        var s = document.createElement('script');
-        s.src = urls[i++]; s.async = false;
-        s.onload = seg; s.onerror = function(){ acaba(false); };
-        document.head.appendChild(s);
-      };
+      // Firebase va dentro de la web (src/comun/firebase.js) y avisa cuando está listo
+      if(window.__cercoFirebaseListo) return inicia();
+      window.addEventListener('cerco-firebase-listo', inicia, { once: true });
       setTimeout(function(){ acaba(false); }, 12000);
-      seg();
     });
     return this._c;
   },

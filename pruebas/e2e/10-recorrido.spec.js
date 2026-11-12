@@ -219,7 +219,7 @@ test('4b. La profesional sube su vídeo y su CV', async () => {
     await expect(page.locator('#ev2-tab-' + t)).toHaveAttribute('aria-selected', 'true');
   }
   await page.locator('#ev2-tab-f').click();
-  await capturar(page, 'pro-10b-editor-de-video');
+  await capturar(page, 'pro-10b-editor-de-video', { tapar: [page.locator('#ev3-pres')] }); // las miniaturas son fotogramas del vídeo
   await page.locator('.ev2-top').getByRole('button', { name: 'Cancelar' }).click();
   await expect(page.locator('#ev2-t')).toHaveCount(0);
   await page.locator('input[onchange^="elegirCV"]').setInputFiles(A.archivo('cv-prueba.pdf'));

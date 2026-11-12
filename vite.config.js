@@ -16,6 +16,10 @@ export default defineConfig({
         index: resolve(import.meta.dirname, 'index.html'),
         candidato: resolve(import.meta.dirname, 'candidato.html'),
       },
+      output: {
+        // Firebase en su propio archivo: cambia poco y el navegador lo guarda
+        manualChunks(id) { if (id.includes('node_modules/firebase') || id.includes('node_modules/@firebase')) return 'firebase'; },
+      },
     },
   },
 });

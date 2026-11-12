@@ -3,9 +3,9 @@
 // La web (index.html y candidato.html) NO se modifica. Lo que hacemos es
 // interceptar lo que la web descarga de Internet y darle copias locales:
 //
-//  · Firebase 10.12.0 (www.gstatic.com) → copia idéntica del paquete oficial
-//    de npm, con un añadido al final que, al arrancar, conecta la web con el
-//    EMULADOR (Firebase falso en este ordenador) en vez del Firebase real.
+//  · Firebase ya va dentro de la web compilada. La versión de pruebas
+//    (npm run build:pruebas) se conecta sola al EMULADOR (Firebase falso en
+//    este ordenador), nunca al Firebase real: ver src/comun/firebase.js.
 //  · pdf.js 3.11.174 (cdnjs) → copia del paquete oficial de npm.
 //  · Tipografía Inter (Google Fonts) → copia guardada en pruebas/recursos.
 //
@@ -21,20 +21,6 @@ const PROYECTO = 'demo-cerco';
 const AUTH = 'http://127.0.0.1:9099';
 const FIRESTORE = { host: '127.0.0.1', port: 8080 };
 
-const PARCHE_EMULADOR = `
-;(function(){
-  if (!window.firebase || firebase.__emuladorCERCO) return;
-  firebase.__emuladorCERCO = true;
-  var original = firebase.initializeApp;
-  firebase.initializeApp = function(cfg, nombre){
-    cfg = Object.assign({}, cfg, { projectId: '${PROYECTO}', apiKey: 'clave-de-pruebas' });
-    var app = original.call(firebase, cfg, nombre);
-    try { app.auth().useEmulator('${AUTH}', { disableWarnings: true }); } catch (e) { console.error('emulador auth', e); }
-    try { app.firestore().useEmulator('${FIRESTORE.host}', ${FIRESTORE.port}); } catch (e) { console.error('emulador firestore', e); }
-    return app;
-  };
-})();
-`;
 
 function leer(ruta) { return fs.readFileSync(ruta); }
 
@@ -54,12 +40,7 @@ async function prepararContexto(context) {
     const u = new URL(url);
     if (['127.0.0.1', 'localhost'].includes(u.hostname)) return route.continue();
 
-    let m = url.match(/www\.gstatic\.com\/firebasejs\/10\.12\.0\/(firebase-(app|auth|firestore)-compat\.js)/);
-    if (m) {
-      let cuerpo = leer(path.join(NM, 'firebase', m[1])).toString();
-      if (m[2] === 'app') cuerpo += PARCHE_EMULADOR;
-      return route.fulfill({ status: 200, contentType: 'text/javascript', body: cuerpo });
-    }
+    let m;
     m = url.match(/cdnjs\.cloudflare\.com\/ajax\/libs\/pdf\.js\/3\.11\.174\/(pdf(\.worker)?\.min\.js)/);
     if (m) return route.fulfill({ status: 200, contentType: 'text/javascript', body: leer(path.join(NM, 'pdfjs-dist', 'build', m[1])) });
 

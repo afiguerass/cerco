@@ -5140,32 +5140,18 @@ window.Nube = {
     if(this._cargando) return this._cargando;
     var self = this;
     this._cargando = new Promise(function(res){
-      if(window.firebase && firebase.firestore){ self.lista = true; return res(true); }
-      var urls = [
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js'
-      ];
-      var i = 0;
-      var siguiente = function(){
-        if(i >= urls.length){
-          try {
-            firebase.initializeApp(window.CERCO_FB);
-            self.lista = true;
-            res(true);
-          } catch(e){ self.lista = false; res(false); }
-          return;
-        }
-        var s = document.createElement('script');
-        s.src = urls[i++];
-        s.async = false;
-        s.onload = siguiente;
-        s.onerror = function(){ self.lista = false; res(false); };
-        document.head.appendChild(s);
+      // Firebase va dentro de la web (src/comun/firebase.js) y avisa cuando está listo
+      var iniciar = function(){
+        try {
+          if(!firebase.apps.length) firebase.initializeApp(window.CERCO_FB);
+          self.lista = true;
+          res(true);
+        } catch(e){ self.lista = false; res(false); }
       };
+      if(window.__cercoFirebaseListo) return iniciar();
+      window.addEventListener('cerco-firebase-listo', iniciar, { once: true });
       // si en 8 segundos no ha cargado, seguimos sin nube
       setTimeout(function(){ if(!self.lista) res(false); }, 8000);
-      siguiente();
     });
     return this._cargando;
   },

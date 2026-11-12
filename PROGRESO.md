@@ -3,7 +3,7 @@
 Este archivo resume en qué punto está el trabajo. Se actualiza después de cada paso.
 Se trabaja en la rama `profesional`; la web publicada (rama `main`) no se toca sin el visto bueno de Asish.
 
-## Fase actual: Fase 0 — Preparar el terreno
+## Fase actual: Fase 0 — Preparar el terreno (terminada)
 
 ### Hecho
 - [x] **Paso 1** — Creada la rama `profesional` y este archivo `PROGRESO.md`.
@@ -18,12 +18,20 @@ Se trabaja en la rama `profesional`; la web publicada (rama `main`) no se toca s
   - **Profesional:** ve «¡Te han contratado!» y «Tu incorporación» con el plan (2 de 8, lo mismo que marcó la clínica). Confirma «Lo he recibido» y retira la otra solicitud. La clínica ve que lo ha confirmado.
   - Al final se comprueba que no ha habido ningún error de JavaScript en las páginas.
 - [x] **Paso 6** — 88 capturas de referencia (44 en ordenador y 44 en móvil) en `pruebas/capturas/`. Cada vez que se pasan las pruebas se comparan con estas. Para que salgan siempre igual: fecha y hora fijas (lunes 9 de noviembre de 2026, 10:00), y se tapan los vídeos, las frases del test (salen en orden aleatorio) y los avisos flotantes. En el móvil la web se desplaza por dentro, así que cada captura muestra lo que cabe en la pantalla.
+- [x] **Paso 7** — Todo en verde con `npm test` desde cero: 33 pruebas de reglas y 22 de navegador (11 en ordenador y 11 en móvil). Comprobado que `index.html`, `candidato.html` y `firestore.rules` siguen idénticos a los de `main`.
+
+## Fase 0 terminada — esperando el visto bueno de Asish
+
+### Lista corta para probar a mano
+La web publicada no ha cambiado. Lo que se ha añadido son solo pruebas y documentos. Aun así, conviene comprobar que todo sigue igual:
+1. **Clínica** (ventana normal, https://afiguerass.github.io/cerco/): entra con tu cuenta y mira que se vean tus ofertas, tus candidatos y «Mi equipo».
+2. **Profesional** (ventana de incógnito, https://afiguerass.github.io/cerco/candidato.html): entra con una cuenta de prueba y abre «Ofertas» y «Mis solicitudes».
+3. **Opcional, para ver uno de los fallos encontrados:** en el móvil, como clínica, abre la ficha de un candidato y pulsa «Ver CV completo». Comprueba si puedes cerrar el visor.
 
 ### Falta (Fase 0)
-- [ ] **Paso 7** — Todas las pruebas en verde y lista corta para que Asish pruebe a mano.
 
 ### Siguiente paso
-**Paso 7:** pasar todas las pruebas juntas desde cero y preparar la lista para que Asish pruebe a mano.
+Asish revisa la Fase 0 y los fallos apuntados abajo, y decide si se pasa a la **Fase 1** (ordenar el código sin cambiar nada).
 
 ## Avisos y fallos encontrados (no se arreglan en la Fase 0)
 - **`candidato.html` intenta registrar un archivo `sw.js` que no existe en el repositorio** (función `registrarSW`). El navegador recibe un «no encontrado» (error 404). Consecuencia probable: los avisos del portal del profesional cuando la app está en segundo plano no llegan como notificación del sistema. Dentro de la app se siguen viendo.

@@ -5,7 +5,7 @@
   "scripts": {
     "preparar": "node -e \"require('fs').mkdirSync('.reglas-copia',{recursive:true});require('fs').copyFileSync('../firestore.rules','.reglas-copia/firestore.rules')\"",
     "test": "npm run preparar && firebase emulators:exec --project demo-cerco --only auth,firestore \"npm run test:reglas && npm run test:web\"",
-    "test:reglas": "node --test reglas/",
+    "test:reglas": "node --test reglas/*.test.js",
     "test:web": "playwright test",
     "capturas:nuevas": "npm run preparar && firebase emulators:exec --project demo-cerco --only auth,firestore \"playwright test --update-snapshots\"",
     "emulador": "npm run preparar && firebase emulators:start --project demo-cerco --only auth,firestore"

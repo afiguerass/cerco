@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>CERCO — Prototipo interactivo</title>
+<script type="module" src="./src/comun/disc-global.js"></script>
 <link rel="stylesheet" href="./src/estilos/clinica.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2555,40 +2556,7 @@ function renderBlock_testdisc(){
 }
 
 
-/* ---- Test DISC con notas libres (se puede repetir número) ----
-   Cada frase cuenta por cuánto queda por encima o por debajo de la
-   media de SU pregunta. Así, poner un 4 a todo no sube nada: una
-   pregunta con las cuatro notas iguales no cuenta. Es lo que evita
-   la trampa sin obligar a ordenar. */
-function CERCO_discCalc(lista, letras){
-  var p = {D:0,I:0,S:0,C:0}, planas = 0, N = lista.length || 1, norm = {};
-  lista.forEach(function(r){
-    var m = (r[0]+r[1]+r[2]+r[3]) / 4;
-    if(r[0]===r[1] && r[1]===r[2] && r[2]===r[3]) planas++;
-    for(var k=0;k<4;k++) p[letras[k]] += r[k] - m;
-  });
-  letras.forEach(function(l){ norm[l] = Math.max(0, Math.min(100, Math.round(50 + 50 * p[l] / (1.5 * N)))); });
-  var v = letras.map(function(l){ return norm[l]; });
-  // Solo es «sin perfil» quien no ha distinguido entre frases. Un perfil equilibrado pero contestado de verdad es válido.
-  var definido = planas <= N/3;
-  // Orden de los perfiles. En un empate ya no gana la D por ir primera:
-  // decide quién tiene más 4, luego quién tiene menos 1 y, si aún empatan, el azar.
-  var n4 = {D:0,I:0,S:0,C:0}, n1 = {D:0,I:0,S:0,C:0}, az = {};
-  lista.forEach(function(r){ for(var k=0;k<4;k++){ if(r[k] === 4) n4[letras[k]]++; if(r[k] === 1) n1[letras[k]]++; } });
-  letras.forEach(function(l){ az[l] = Math.random(); });
-  var ord = letras.slice().sort(function(a,b){
-    if(Math.abs(p[b] - p[a]) > 1e-9) return p[b] - p[a];
-    return (n4[b] - n4[a]) || (n1[a] - n1[b]) || (az[b] - az[a]);
-  });
-  return { p:p, norm:norm, planas:planas, definido:definido, ord:ord };
-}
-/* Las 4 frases de cada pregunta salen en un orden distinto para cada persona,
-   para que nadie pueda aprenderse «la primera es siempre la misma». */
-function CERCO_discBarajar(n){
-  var o = [];
-  for(var q=0;q<n;q++){ var a = [0,1,2,3]; for(var i=3;i>0;i--){ var j = Math.floor(Math.random()*(i+1)); var t = a[i]; a[i] = a[j]; a[j] = t; } o.push(a); }
-  return o;
-}
+/* El cálculo del test DISC está en src/comun/disc.js (compartido por los dos lados). */
 var CERCO_DISC_PLANA = 'Has puesto la misma nota a las cuatro, así que esta pregunta no contará. Si alguna te describe un poco más, súbele la nota.';
 var CERCO_DISC_FLOJO = 'Tu resultado sale poco definido: has dado notas muy parecidas a casi todo. Si quieres, vuelve atrás y marca más la diferencia entre lo que es muy tú y lo que no.';
 
@@ -8148,11 +8116,7 @@ document.querySelectorAll('.shell-nav-item').forEach(item=>{
   /* ---------- encaje, con la misma regla que ve el candidato ---------- */
   function encaje(c){
     if(typeof c.encaje === 'number') return c.encaje;
-    var d = c.disc, ps = c.perfiles || [];
-    if(!d || !d.norm || !ps.length) return null;
-    var n = d.norm, s = 0; ps.forEach(function(l){ s += n[l]||0; });
-    var top = L.map(function(l){ return n[l]||0; }).sort(function(a,b){ return b-a; }).slice(0, ps.length).reduce(function(a,b){ return a+b; }, 0);
-    return top ? Math.max(30, Math.min(97, Math.round(100*s/top))) : null;
+    return CERCO_encaje(c.disc && c.disc.norm, c.perfiles || []);
   }
   function chip(l){ return '<span style="display:inline-flex;align-items:center;background:'+COL[l]+';color:white;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:800;">'+l+' · '+NOM[l]+'</span>'; }
   function esVisita(c){ return c && c.tipo === 'visita'; }

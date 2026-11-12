@@ -137,10 +137,14 @@ async function capturar(page, nombre, opciones = {}) {
   } else {
     // Si no, todo lo que se desplaza vuelve arriba del todo (en el móvil la web
     // se desplaza por dentro y cada vez quedaría a una altura distinta).
-    await page.evaluate(() => {
-      window.scrollTo(0, 0);
-      document.querySelectorAll('*').forEach((el) => { if (el.scrollTop > 0) el.scrollTop = 0; });
-    });
+    // Dos veces, por si algo acaba de cargar y mueve la página
+    for (let i = 0; i < 2; i++) {
+      await page.evaluate(() => {
+        window.scrollTo(0, 0);
+        document.querySelectorAll('*').forEach((el) => { if (el.scrollTop > 0) el.scrollTop = 0; });
+      });
+      await page.waitForTimeout(300);
+    }
   }
   await page.waitForTimeout(400);
   await base.expect(page).toHaveScreenshot(`${nombre}.png`, {

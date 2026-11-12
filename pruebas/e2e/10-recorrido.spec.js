@@ -431,3 +431,50 @@ test('8. El resto de pantallas del profesional se ven bien y sin errores', async
   await capturar(page, 'pro-33-seimian', { tapar: [page.locator('#sei-msgs')] });
   expect(page.erroresPagina).toEqual([]);
 });
+
+test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entrar', async () => {
+  const page = clinica.page;
+  // Se cierra la ventana de Seimian que quedó abierta en la prueba anterior
+  if (await page.locator('#global-chat-modal').count()) await page.locator('#global-chat-modal button[onclick*="remove()"]').first().click();
+  // «Recomendados para mi equipo» se activa y Candidatos se vuelve a pintar
+  await page.evaluate(() => showScreen('portal'));
+  await page.locator('#chip-recomanats').click();
+  await seVe(page, 'Laura Prueba');
+  await page.locator('#chip-recomanats').click();
+  // Elegir de la lista la dirección desde donde se miden los km
+  await page.fill('#clinic-address-portal', '');
+  await page.click('#clinic-address-portal');
+  await page.keyboard.type('Salt');
+  await page.locator(`div[onclick="pickLocation('clinic-address-portal','Salt')"]`).first().click();
+  await expect(page.locator('#clinic-address-portal')).toHaveValue('Salt');
+  await seVe(page, 'Laura Prueba');
+
+  // Cerrar sesión (Mi cuenta) y volver a entrar: los datos vuelven de la nube
+  await page.evaluate(() => showScreen('mi-cuenta'));
+  await page.getByRole('button', { name: 'Cerrar sesión' }).locator('visible=true').first().click();
+  await expect(page.locator('#screen-login')).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('cerco_candidaturas'))).toBeNull();
+  await capturar(page, 'clinica-50-tras-cerrar-sesion');
+  await page.fill('#login-email', correoClinica);
+  await page.fill('#login-pwd', A.CLINICA.pwd);
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await seVe(page, 'Buenos días, Marta');
+  await page.evaluate(() => showScreen('ofertes'));
+  await expect(page.locator('#screen-ofertes')).toContainText('Higienista dental de tarde');
+  await page.evaluate(() => showScreen('portal'));
+  await seVe(page, 'Laura Prueba');
+  expect(page.erroresPagina).toEqual([]);
+
+  // El profesional también: sale y vuelve a entrar
+  const p = pro.page;
+  await p.evaluate(() => salir());
+  await seVe(p, 'Tu futuro está en tus manos.', { exact: false });
+  await p.getByText('Ya tengo cuenta').locator('visible=true').first().click();
+  await capturar(p, 'pro-50-iniciar-sesion');
+  await p.locator('input[type="email"]').locator('visible=true').first().fill(correoPro);
+  await p.locator('input[type="password"]').locator('visible=true').first().fill(A.PROFESIONAL.pwd);
+  await p.locator('input[type="password"]').locator('visible=true').first().press('Enter');
+  await seVe(p, '¡Elegida!');
+  await seVe(p, 'Buenos días, Laura');
+  expect(p.erroresPagina).toEqual([]);
+});

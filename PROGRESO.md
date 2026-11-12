@@ -50,6 +50,9 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
     - `cambiarEstadoOferta` y `eliminarOferta`: con gente esperando respuesta, antes sale la ventana de cierre.
     - `editarOferta`: carga la oferta y rellena el salario.
     - Prueba nueva (`41-acciones-oferta`): editar, pausar, reactivar, cerrar y eliminar. Pasa igual con el código anterior y con el nuevo.
+  - [x] **Seis funciones más de la clínica**, una sola versión cada una (antes, dos):
+    - `_pintarPerfilPublico`, `cerrarSesion`, `pickLocation`, `renderStatsReal`, `_cabeceraPortal`, `alternarRecomendados`.
+    - Prueba nueva en el recorrido (paso 9): «Recomendados para mi equipo», elegir la dirección de la clínica, cerrar sesión y volver a entrar en los dos lados (los datos vuelven de la nube). Pasa igual con el código anterior y con el nuevo.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.

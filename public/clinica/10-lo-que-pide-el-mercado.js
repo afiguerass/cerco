@@ -399,18 +399,14 @@
     }
     return h;
   }
-  var _stOrig = window.renderStatsReal;
-  if(typeof _stOrig === 'function') window.renderStatsReal = function(){
-    var r = _stOrig.apply(this, arguments);
-    try{
-      var box = $('stats-real'), h = bloqueCifras();
-      if(box && h && box.firstElementChild){
-        var d = document.createElement('div'); d.id = 'mk-cifras'; d.innerHTML = h;
-        box.insertBefore(d, box.firstElementChild.nextSibling);
-        var v = box.querySelector('.cerco-empty h3'); if(v && /nada que medir/i.test(v.textContent)) v.textContent = 'Falta la parte de tu equipo';
-      }
-    }catch(x){}
-    return r;
+  // La usa renderStatsReal (clinica/01-panel.js)
+  window.CERCO_cifrasEstadisticas = function(){
+    var box = $('stats-real'), h = bloqueCifras();
+    if(box && h && box.firstElementChild){
+      var d = document.createElement('div'); d.id = 'mk-cifras'; d.innerHTML = h;
+      box.insertBefore(d, box.firstElementChild.nextSibling);
+      var v = box.querySelector('.cerco-empty h3'); if(v && /nada que medir/i.test(v.textContent)) v.textContent = 'Falta la parte de tu equipo';
+    }
   };
 
   function listo(){ try{ montarOferta(); }catch(x){} try{ entradaHerramientas(); }catch(x){} }

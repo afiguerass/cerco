@@ -148,16 +148,11 @@
       if(primero && primero.nextSibling) real.insertBefore(nuevo, primero.nextSibling); else real.appendChild(nuevo);
     }
   };
-  var _ppOrig = window._pintarPerfilPublico;
-  if(typeof _ppOrig === 'function'){
-    window._pintarPerfilPublico = function(){
-      // lo que estabas escribiendo no se pierde si la pantalla se repinta
-      try{ if(document.getElementById('pub-editor')) guardarLocal(leerEditor(pub())); }catch(x){}
-      var r = _ppOrig.apply(this, arguments);
-      try{ var demo = CDB.demo(); if(!demo) _pintarEditor(); }catch(x){}
-      return r;
-    };
-  }
+  // Las usa _pintarPerfilPublico (clinica/01-panel.js)
+  window.CERCO_perfilPublico = {
+    guardarBorrador: function(){ if(document.getElementById('pub-editor')) guardarLocal(leerEditor(pub())); },
+    pintarEditor: function(){ var demo = CDB.demo(); if(!demo) _pintarEditor(); }
+  };
 
   /* ---------- tu propia tasa de respuesta, en Candidatos ---------- */
   var _rpOrig = window.renderPortalReal;

@@ -119,12 +119,6 @@
   window._geoPrepReal = function(hay){
     rellenarOrigen();
   };
-  var _pickOrig = window.pickLocation;
-  if(typeof _pickOrig === 'function') window.pickLocation = function(id){
-    var r = _pickOrig.apply(this, arguments);
-    if(id === 'clinic-address-portal' && typeof applyFilters_portal === 'function') applyFilters_portal();
-    return r;
-  };
   // los chips de km de la pantalla llaman a su propio filtro (el de los ejemplos): después pasamos el nuestro
   document.addEventListener('click', function(ev){
     if(ev.target.closest && ev.target.closest('#screen-portal .radius-chip')) setTimeout(function(){ try{ window.applyFilters_portal(); }catch(x){} }, 0);

@@ -907,7 +907,13 @@ var _QUEAPORTA = {
   C: 'precisión y método, el que no se salta un protocolo'
 };
 
+/* Cabecera de Candidatos y, debajo, las solicitudes reales (Fase 1: una sola versión) */
 function _cabeceraPortal(){
+  var r = _cabeceraPortalBase.apply(this, arguments);
+  try{ CERCO_pintarSolicitudesReales(); }catch(x){}
+  return r;
+}
+function _cabeceraPortalBase(){
   var tit = document.getElementById('portal-titulo');
   var rec = document.getElementById('portal-recomendacion');
   var o = ofertaEnPortal;
@@ -1017,7 +1023,13 @@ function _ordenarPortal(){
   });
 }
 
+/* «Recomendados para mi equipo»: se activa o desactiva y se repinta Candidatos (Fase 1: una sola versión) */
 function alternarRecomendados(){
+  var r = _alternarRecomendadosBase.apply(this, arguments);
+  try{ renderPortalReal(); }catch(x){}
+  return r;
+}
+function _alternarRecomendadosBase(){
   var chip = document.getElementById('chip-recomanats');
   var d = null;
   try { d = CDB.perfilQueFalta(); } catch(e){}
@@ -2745,7 +2757,15 @@ function renderPerfilPublico(){
   return _perfilPublicoDemo();
 }
 
+/* Perfil público: guarda lo que se estaba escribiendo, lo repinta y pinta el editor (Fase 1: una sola versión) */
 function _pintarPerfilPublico(){
+  // lo que estabas escribiendo no se pierde si la pantalla se repinta
+  try{ CERCO_perfilPublico.guardarBorrador(); }catch(x){}
+  var r = _pintarPerfilPublicoBase.apply(this, arguments);
+  try{ CERCO_perfilPublico.pintarEditor(); }catch(x){}
+  return r;
+}
+function _pintarPerfilPublicoBase(){
   var pant = document.getElementById('screen-publicat');
   if(!pant) return;
   var demo = true; try { demo = CDB.demo(); } catch(e){}
@@ -3306,7 +3326,12 @@ function _entrarDespuesDeGoogle(u){
   }
 }
 
+/* Cerrar sesión: deja de escuchar las solicitudes, borra su copia local y cierra (Fase 1: una sola versión) */
 function cerrarSesion(){
+  CERCO_soltarCandidaturas();
+  return _cerrarSesionBase.apply(this, arguments);
+}
+function _cerrarSesionBase(){
   CAuth.salir();
   try{ if(window.Nube) Nube.salir(); }catch(e){}
   showScreen('login');
@@ -3954,7 +3979,13 @@ function initLocationPicker(inputId){
   });
   document.addEventListener('click', function(e){ if(!wrap.contains(e.target)) dd.style.display='none'; });
 }
+/* Elegir un municipio de la lista; si es la dirección de la clínica, se vuelven a filtrar los candidatos por km (Fase 1: una sola versión) */
 function pickLocation(inputId, value){
+  var r = _pickLocationBase.apply(this, arguments);
+  if(inputId === 'clinic-address-portal' && typeof applyFilters_portal === 'function') applyFilters_portal();
+  return r;
+}
+function _pickLocationBase(inputId, value){
   const input = document.getElementById(inputId);
   if(!input) return;
   input.value = value;
@@ -4589,7 +4620,13 @@ function _mensajeSeimian(r){
 }
 
 /* ========================== ESTADÍSTICAS ========================== */
+/* Estadísticas: las pinta y añade las cifras de contratación (Fase 1: una sola versión) */
 function renderStatsReal(){
+  var r = _renderStatsRealBase.apply(this, arguments);
+  try{ CERCO_cifrasEstadisticas(); }catch(x){}
+  return r;
+}
+function _renderStatsRealBase(){
   var box = document.getElementById('stats-real');
   if(!box) return;
   if(CDB.demo()){ box.innerHTML=''; box.style.display='none'; return; }

@@ -207,14 +207,11 @@
     }
   };
   // Al cerrar sesión, lo de esta clínica no se queda en el navegador
-  var _cerrarOrig = window.cerrarSesion;
-  if(typeof _cerrarOrig === 'function'){
-    window.cerrarSesion = function(){
-      if(_unsubC){ try{ _unsubC(); }catch(x){} _unsubC = null; }
-      try{ localStorage.removeItem(KCAND); }catch(x){}
-      return _cerrarOrig.apply(this, arguments);
-    };
-  }
+  // La usa cerrarSesion (clinica/01-panel.js)
+  window.CERCO_soltarCandidaturas = function(){
+    if(_unsubC){ try{ _unsubC(); }catch(x){} _unsubC = null; }
+    try{ localStorage.removeItem(KCAND); }catch(x){}
+  };
 
   /* ---------- encaje, con la misma regla que ve el candidato ---------- */
   function encaje(c){
@@ -373,10 +370,7 @@
       ch.addEventListener('click', function(){ setTimeout(function(){ try{ filtrarReales(); }catch(x){} }, 0); });
     });
   })();
-  var _cabOrig = window._cabeceraPortal;
-  if(typeof _cabOrig === 'function'){
-    window._cabeceraPortal = function(){ var r = _cabOrig.apply(this, arguments); try{ pintarReales(); }catch(x){} return r; };
-  }
+  window.CERCO_pintarSolicitudesReales = pintarReales; // la usa _cabeceraPortal (clinica/01-panel.js)
 
   /* ---------- Inicio: lo que necesita respuesta ---------- */
   var _inicioOrig = window.renderInicioReal;

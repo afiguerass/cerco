@@ -323,8 +323,6 @@
     }catch(x){}
     return r;
   };
-  var _altRec = window.alternarRecomendados;
-  if(typeof _altRec === 'function') window.alternarRecomendados = function(){ var r = _altRec.apply(this, arguments); try{ renderPortalReal(); }catch(x){} return r; };
 
   /* ---------- Inicio: próxima cita y respuestas del candidato ---------- */
   var _inicio = window.renderInicioReal;

@@ -380,3 +380,54 @@ test('6. La profesional ve el estado, «Tu incorporación», confirma el contrat
   expect(clinica.page.erroresPagina).toEqual([]);
   expect(pro.page.erroresPagina).toEqual([]);
 });
+
+test('7. El resto de pantallas de la clínica se ven bien y sin errores', async () => {
+  const page = clinica.page;
+  await page.reload();
+  const pantallas = [
+    ['inicio', 'Inicio'], ['ofertes', 'Mis ofertas'], ['portal', 'Candidatos'], ['agenda', 'Agenda'],
+    ['equipo', 'Mi equipo'], ['stats', 'Estadísticas'], ['herramientas', 'Herramientas'],
+    ['onboarding', 'Mi clínica'], ['publicat', 'Mi perfil público'], ['mi-cuenta', 'Mi cuenta'],
+  ];
+  for (const [id] of pantallas) {
+    await page.evaluate((x) => showScreen(x), id);
+    await expect(page.locator('#screen-' + id)).toBeVisible();
+    await capturar(page, 'clinica-30-pantalla-' + id);
+  }
+  // Seimian: se abre y contesta
+  await page.evaluate(() => showScreen('inicio'));
+  await page.locator('#ia-fab').click();
+  await expect(page.locator('#chat-input')).toBeVisible();
+  await page.fill('#chat-input', '¿Qué perfil le falta a mi equipo?');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#chat-messages')).toContainText('test', { timeout: 10_000 });
+  await capturar(page, 'clinica-31-seimian', { tapar: [page.locator('#chat-messages')] });
+  expect(page.erroresPagina).toEqual([]);
+});
+
+test('8. El resto de pantallas del profesional se ven bien y sin errores', async () => {
+  const page = pro.page;
+  await page.reload();
+  await seVe(page, 'Mis solicitudes'); // al recargar se queda en la pantalla donde estaba
+  for (const id of ['inicio', 'ofertas', 'solicitudes', 'perfil']) {
+    await page.evaluate((x) => ir(x), id);
+    await capturar(page, 'pro-30-pantalla-' + id);
+  }
+  // Centro de herramientas y cada herramienta
+  await page.evaluate(() => abrirHerramienta(null));
+  await capturar(page, 'pro-31-herramientas');
+  for (const h of ['ensayo', 'mensaje', 'revision', 'comparar', 'neto', 'mercado']) {
+    await page.evaluate((x) => abrirHerramienta(x), h);
+    await page.waitForTimeout(300);
+    await capturar(page, 'pro-32-herramienta-' + h);
+  }
+  // Seimian del profesional
+  await page.evaluate(() => { try { cerrarModal(); } catch (e) {} ir('inicio'); });
+  await page.evaluate(() => abrirSeimian());
+  await expect(page.locator('#sei-q')).toBeVisible();
+  await page.fill('#sei-q', '¿Cómo van mis solicitudes?');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#sei-msgs')).toContainText('Tienes 2 solicitudes', { timeout: 10_000 });
+  await capturar(page, 'pro-33-seimian', { tapar: [page.locator('#sei-msgs')] });
+  expect(page.erroresPagina).toEqual([]);
+});

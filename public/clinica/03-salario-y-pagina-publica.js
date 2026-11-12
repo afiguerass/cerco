@@ -65,7 +65,7 @@
   // Publicar la página pública de la clínica y, un momento después, sus vacaciones (Fase 1: una sola versión)
   window._publicarClinica = function(){
     var r; try{ r = _publicarClinicaBase.apply(this, arguments); }catch(x){}
-    setTimeout(function(){ CERCO_publicarVacaciones(); }, 1500);
+    setTimeout(function(){ if(window.CERCO_publicarVacaciones) CERCO_publicarVacaciones(); }, 1500);
     return r;
   };
   var _publicarClinicaBase = function(){
@@ -76,11 +76,6 @@
         .then(function(){ return true; }).catch(function(){ return false; });
     }catch(x){ return Promise.resolve(false); }
   };
-  // Se publica también cuando cambian los datos o el equipo
-  var _subC = window._subirClinica;
-  window._subirClinica = function(){ try{ _subC && _subC(); }catch(x){} try{ _publicarClinica(); }catch(x){} };
-  var _eqL = window._escucharEquipoEnDirecto;
-  window._escucharEquipoEnDirecto = function(){ try{ _eqL && _eqL(); }catch(x){} setTimeout(function(){ try{ _publicarClinica(); }catch(x){} }, 3000); };
 
   function bloqueEditor(){
     var c = pub(), fotos = c.pubFotos || [], ven = c.pubVentajas || [];

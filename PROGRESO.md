@@ -58,7 +58,12 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
     - `verVideoCandidato`, `_publicarClinica`, `programarCita`, `_citaSet`.
     - `CERCO_plan`: la versión solo local se llama ahora `CERCO_planLocal`.
     - Prueba nueva: el vídeo de la ficha se abre en grande y se cierra. Pasa igual con el código anterior y con el nuevo.
-  - Quedan las funciones con 3 o más capas. En la clínica: `_subirClinica`, `_escucharEquipoEnDirecto`, `applyFilters_portal`, `responderCandidato`, `showScreen`, `renderInicioReal`, `renderPortalReal`, `abrirFichaCandidato`. En el profesional, 13 funciones.
+  - [x] **Cuatro funciones de 3 capas de la clínica**, una sola versión cada una: `_subirClinica`, `_escucharEquipoEnDirecto`, `applyFilters_portal` y `responderCandidato`.
+    - Prueba nueva (`42-descartar-con-motivo`): una clínica descarta con motivo y el profesional lo ve en su solicitud. Pasa igual con el código anterior y con el nuevo.
+    - **Lección aprendida (y ya vigilada):** `clinica/01-panel.js` está envuelto en un bloque que, si algo falla mientras se carga, se calla y deja sin crear las funciones que vienen detrás. Una versión única llamaba durante la carga a una pieza de un archivo que aún no existía. La prueba nueva lo detectó.
+      - Arreglo: cada versión única comprueba que la pieza ya existe; si no, hace lo mismo que la original en ese momento.
+      - Prueba nueva (`01-todo-cargado`): al abrir cada página comprueba que **todas** las funciones de sus archivos existen.
+  - Quedan las funciones con más capas. En la clínica: `showScreen` (5), `renderInicioReal` (7), `renderPortalReal` (7) y `abrirFichaCandidato` (7). En el profesional, 13 funciones.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.

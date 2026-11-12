@@ -128,12 +128,6 @@
     var l = []; try{ l = getSavedOffers(); }catch(x){}
     l.forEach(function(x){ Nube.guardarOferta(x); });
   };
-  // Si cambia el nombre de la clínica, las ofertas públicas lo reflejan
-  var _subirCliOrig = window._subirClinica;
-  window._subirClinica = function(){
-    try{ _subirCliOrig && _subirCliOrig(); }catch(x){}
-    try{ if(Nube.activa) window._subirOferta(); }catch(x){}
-  };
 
   /* ---------- nube: solicitudes ---------- */
   Nube.escucharCandidaturas = function(fn){
@@ -193,18 +187,6 @@
       try{ CDB.renderTodo(); }catch(x){}
       try{ if(typeof pintarOfertasReales === 'function') pintarOfertasReales(); }catch(x){}
     });
-  };
-  // Se engancha cada vez que Firebase confirma la sesión del propietario
-  var _eqOrig = window._escucharEquipoEnDirecto;
-  var _publicadas = false;
-  window._escucharEquipoEnDirecto = function(){
-    try{ _eqOrig && _eqOrig(); }catch(x){}
-    try{ window._escucharCandidaturas(); }catch(x){}
-    // Las ofertas creadas antes de existir el portal del candidato también se publican
-    if(!_publicadas){
-      _publicadas = true;
-      setTimeout(function(){ try{ if(Nube.activa) window._subirOferta(); }catch(x){} }, 4000);
-    }
   };
   // Al cerrar sesión, lo de esta clínica no se queda en el navegador
   // La usa cerrarSesion (clinica/01-panel.js)
@@ -346,22 +328,16 @@
     }
     pintarReales();
   };
-  var _filtrosOrig = window.applyFilters_portal;
-  if(typeof _filtrosOrig === 'function'){
-    window.applyFilters_portal = function(){
-      var r; try{ r = _filtrosOrig.apply(this, arguments); }catch(x){}
-      try{
-        filtrarReales();
-        // El aviso "sin resultados" de los ejemplos no vale si hay reales visibles
-        if(activas().length){
-          var v = document.getElementById('portal-sin-resultados');
-          var vis = [].slice.call(document.querySelectorAll('#portal-reales .cand-real')).filter(function(c){ return c.style.display !== 'none'; }).length;
-          if(v && vis) v.remove();
-        }
-      }catch(x){}
-      return r;
-    };
-  }
+  // La usa applyFilters_portal (clinica/01-panel.js)
+  window.CERCO_filtrarSolicitudesReales = function(){
+    filtrarReales();
+    // El aviso "sin resultados" de los ejemplos no vale si hay reales visibles
+    if(activas().length){
+      var v = document.getElementById('portal-sin-resultados');
+      var vis = [].slice.call(document.querySelectorAll('#portal-reales .cand-real')).filter(function(c){ return c.style.display !== 'none'; }).length;
+      if(v && vis) v.remove();
+    }
+  };
   // El buscador y los chips llaman a su propia copia del filtro: escuchamos también
   (function(){
     var s = document.getElementById('search-portal');
@@ -588,7 +564,15 @@
     .then(function(){ if(b){ b.disabled = false; b.innerHTML = b.dataset.t; } });
   };
 
+  // Contestar a un candidato. «Invitar a entrevista» abre el programador de la cita;
+  // al descartar se añaden los motivos (Fase 1: una sola versión)
   window.responderCandidato = function(id, estado){
+    var r = estado === 'entrevista' ? programarCita(id) : _responderBase.apply(this, arguments);
+    window.__motivoDesc = '';
+    if(window.CERCO_motivosDescarte) CERCO_motivosDescarte(id, estado);
+    return r;
+  };
+  var _responderBase = function(id, estado){
     var c = buscar(id); if(!c) return;
     var box = document.getElementById('cand-acciones'); if(!box) return;
     var nom = String(c.nombre||'').trim().split(/\s+/)[0] || '';

@@ -192,8 +192,7 @@
   function luego(){ setTimeout(function(){ try{ agruparCandidatos(); }catch(x){} }, 30); }
   document.addEventListener('input', function(ev){ if(ev.target && ev.target.id === 'search-portal') luego(); });
   document.addEventListener('click', function(ev){ if(ev.target.closest && ev.target.closest('#screen-portal .filter-chip, #screen-portal .radius-chip')) luego(); });
-  var _af = window.applyFilters_portal;
-  if(typeof _af === 'function') window.applyFilters_portal = function(){ var r = _af.apply(this, arguments); luego(); return r; };
+  window.CERCO_agruparTrasFiltrar = luego; // la usa applyFilters_portal (clinica/01-panel.js)
 
   /* ---------- Mis ofertas ---------- */
   var PROF_O = '';

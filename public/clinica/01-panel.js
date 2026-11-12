@@ -837,7 +837,15 @@ function limpiarFiltrosPortal(){
   if(typeof showToast === 'function') showToast('Filtros quitados');
 }
 
+/* Filtros de «Candidatos»: los de ejemplo, las solicitudes reales y la
+   agrupación por profesión (Fase 1: una sola versión) */
 function applyFilters_portal(){
+  var r; try{ r = _filtrarCandidatosEjemplo.apply(this, arguments); }catch(x){}
+  try{ CERCO_filtrarSolicitudesReales(); }catch(x){}
+  if(window.CERCO_agruparTrasFiltrar) CERCO_agruparTrasFiltrar();
+  return r;
+}
+function _filtrarCandidatosEjemplo(){
   const q = (document.getElementById('search-portal')?.value || '').toLowerCase().trim();
   document.querySelectorAll('#screen-portal .candidate-card').forEach((card)=>{
     const c = candidates_portal[parseInt(card.dataset.idx, 10)];
@@ -2407,7 +2415,7 @@ function _pintarListaOfertas(){
 /* Pausar, reactivar o cerrar una oferta. Si se cierra con gente esperando
    respuesta, antes sale la ventana de cierre (Fase 1: una sola versión). */
 function cambiarEstadoOferta(id, estado){
-  if(estado === 'cerrada' && !window.__noAvisarCierre && CERCO_avisarCierreOferta(id, function(){ _aplicarEstadoOferta(id, estado); }, false)) return;
+  if(estado === 'cerrada' && !window.__noAvisarCierre && window.CERCO_avisarCierreOferta && CERCO_avisarCierreOferta(id, function(){ _aplicarEstadoOferta(id, estado); }, false)) return;
   return _aplicarEstadoOferta(id, estado);
 }
 function _aplicarEstadoOferta(id, estado){
@@ -2428,7 +2436,7 @@ function _aplicarEstadoOferta(id, estado){
 /* Eliminar una oferta. Si hay gente esperando respuesta, antes sale la
    ventana de cierre (Fase 1: una sola versión). */
 function eliminarOferta(id){
-  if(CERCO_avisarCierreOferta(id, function(){ _eliminarOfertaYa(id); }, true)) return;
+  if(window.CERCO_avisarCierreOferta && CERCO_avisarCierreOferta(id, function(){ _eliminarOfertaYa(id); }, true)) return;
   return _eliminarOfertaYa(id);
 }
 function _eliminarOfertaYa(id){
@@ -2459,7 +2467,7 @@ function toggleOfferStatus(btn, nuevo){
    rellena los campos de salario (Fase 1: una sola versión). */
 function editarOferta(id){
   var r = _cargarOfertaEnFormulario(id);
-  setTimeout(function(){ CERCO_llenarSalarioDesdeTexto((document.getElementById('co-salario')||{}).value); }, 120);
+  setTimeout(function(){ if(window.CERCO_llenarSalarioDesdeTexto) CERCO_llenarSalarioDesdeTexto((document.getElementById('co-salario')||{}).value); }, 120);
   return r;
 }
 function _cargarOfertaEnFormulario(id){
@@ -2525,7 +2533,7 @@ function submitNewOffer(){
   var titulo = $v('co-titulo').trim(), ubic = $v('co-ubicacion').trim();
 
   // 1. Palabras que un anuncio de empleo no puede usar (Ley 15/2022)
-  var v = window.CERCO_ofertaVetada([$v('co-titulo'), $v('co-descripcion'), $v('co-requisitos')].join(' \n '));
+  var v = window.CERCO_ofertaVetada ? CERCO_ofertaVetada([$v('co-titulo'), $v('co-descripcion'), $v('co-requisitos')].join(' \n ')) : null;
   if(v){
     if(err){ err.textContent = 'La oferta menciona «' + v.palabra + '». Un anuncio de empleo no puede pedir ni excluir por ' + v.motivo + ' (Ley 15/2022 y Estatuto de los Trabajadores). Describe las tareas y la titulación, y vuelve a publicar.'; if(window.verAviso) verAviso(err); }
     return;
@@ -3335,7 +3343,7 @@ function _entrarDespuesDeGoogle(u){
 
 /* Cerrar sesión: deja de escuchar las solicitudes, borra su copia local y cierra (Fase 1: una sola versión) */
 function cerrarSesion(){
-  CERCO_soltarCandidaturas();
+  if(window.CERCO_soltarCandidaturas) CERCO_soltarCandidaturas();
   return _cerrarSesionBase.apply(this, arguments);
 }
 function _cerrarSesionBase(){
@@ -5389,7 +5397,20 @@ window.Nube = {
 
   /* El propietario ve aparecer a su gente sin tocar nada */
   var _unsub = null;
+  // Al confirmar la sesión de la clínica: escuchar el equipo y las solicitudes,
+  // publicar una vez las ofertas antiguas y la página pública (Fase 1: una sola versión)
+  var _publicadas = false;
   window._escucharEquipoEnDirecto = function(){
+    try{ _escucharEquipoBase(); }catch(x){}
+    try{ window._escucharCandidaturas(); }catch(x){}
+    // Las ofertas creadas antes de existir el portal del candidato también se publican
+    if(!_publicadas){
+      _publicadas = true;
+      setTimeout(function(){ try{ if(Nube.activa) window._subirOferta(); }catch(x){} }, 4000);
+    }
+    setTimeout(function(){ try{ _publicarClinica(); }catch(x){} }, 3000);
+  };
+  var _escucharEquipoBase = function(){
     if(_unsub){ try{ _unsub(); }catch(e){} _unsub = null; }
     _unsub = Nube.escucharEquipo(function(eq){
       if(!Array.isArray(eq)) return;
@@ -5405,7 +5426,14 @@ window.Nube = {
   };
 
   /* Subir cambios locales, sin bloquear nunca la interfaz */
+  // Subir los datos de la clínica a la nube, actualizar sus ofertas públicas
+  // (por si ha cambiado el nombre) y su página pública (Fase 1: una sola versión)
   window._subirClinica = function(){
+    try{ _subirClinicaBase(); }catch(x){}
+    try{ if(Nube.activa) window._subirOferta(); }catch(x){}
+    try{ _publicarClinica(); }catch(x){}
+  };
+  var _subirClinicaBase = function(){
     if(!Nube.activa) return;
     _syncBadge('sync');
     var d = {};

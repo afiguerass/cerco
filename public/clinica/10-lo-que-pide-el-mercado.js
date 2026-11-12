@@ -195,18 +195,15 @@
     ['cubierta','Plaza cubierta','La plaza ya se ha cubierto.'],
     ['otro','Otro perfil encajaba más','Hemos seguido con otro perfil que encaja más con lo que necesitamos ahora.']
   ];
-  var _respOrig = window.responderCandidato;
-  window.responderCandidato = function(id, estado){
-    var r = _respOrig.apply(this, arguments);
-    window.__motivoDesc = '';
+  // La usa responderCandidato (clinica/02-solicitudes-reales.js): al descartar, botones con el motivo
+  window.CERCO_motivosDescarte = function(id, estado){
     var c = buscar(id), nota = $('cand-nota');
-    if(estado !== 'descartada' || !c || visita(c) || !nota) return r;
+    if(estado !== 'descartada' || !c || visita(c) || !nota) return;
     var div = document.createElement('div'); div.style.marginBottom = '10px';
     div.innerHTML = '<div style="font-size:13px;font-weight:800;color:#374151;margin-bottom:3px;">¿Por qué no sigue?</div>'
       + '<div style="font-size:12px;color:#6B7280;line-height:1.5;margin-bottom:8px;">Un «no» con motivo se agradece y te deja en buen lugar. Solo motivos del puesto: nunca edad, salud, familia u origen.</div>'
       + '<div class="mk-chips" id="mk-motivos" role="group" aria-label="Motivo">' + MOTIVOS.map(function(m){ return '<button type="button" class="mk-chip" aria-pressed="false" onclick="CERCO_motivo(\''+m[0]+'\',\''+e(id)+'\')">'+m[1]+'</button>'; }).join('') + '</div>';
     nota.parentElement.insertBefore(div, nota.previousElementSibling && /Nadie se queda/.test(nota.previousElementSibling.textContent) ? nota.previousElementSibling.previousElementSibling || nota : nota);
-    return r;
   };
   window.CERCO_motivo = function(k, id){
     var c = buscar(id) || {}, m = MOTIVOS.filter(function(x){ return x[0] === k; })[0]; if(!m) return;

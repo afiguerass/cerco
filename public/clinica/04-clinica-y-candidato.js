@@ -79,7 +79,7 @@
   function estBtn(on){ return 'border:1px solid '+(on?'#1A56DB':'#E5E7EB')+';background:'+(on?'#1A56DB':'white')+';color:'+(on?'white':'#374151')+';border-radius:9px;padding:8px 6px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;'; }
 
   window.programarCita = function(id){
-    CERCO_agendaCitas.alProgramar(id); // para marcar las horas ocupadas (clinica/12-todo-conectado.js)
+    if(window.CERCO_agendaCitas) CERCO_agendaCitas.alProgramar(id); // para marcar las horas ocupadas (clinica/12-todo-conectado.js)
     var c = buscar(id), box = document.getElementById('cand-acciones'); if(!c || !box) return;
     var pref = String(c.modo || '').toLowerCase();
     P = { id:id, dia:null, hora:null, editado:false,
@@ -120,7 +120,7 @@
       + '</div>';
     box.innerHTML = html;
   }
-  window._citaSet = function(k, v){ CERCO_agendaCitas.alElegir(k, v); P[k] = v; pintarProgramador(); CERCO_agendaCitas.marcarOcupadas(); };
+  window._citaSet = function(k, v){ var ag = window.CERCO_agendaCitas; if(ag) ag.alElegir(k, v); P[k] = v; pintarProgramador(); if(ag) ag.marcarOcupadas(); };
   window._citaCampo = function(k, v){ if(k === 'msg'){ P.msg = v; P.editado = true; } else { P[k] = v; if(!P.editado){ var t = document.getElementById('cita-msg'); var c = buscar(P.id); if(t && c && P.dia && P.hora) t.value = textoCita(c); } } };
   window.enviarCita = function(){
     var c = buscar(P.id); if(!c) return;
@@ -280,11 +280,6 @@
     return r;
   };
   // "Invitar a entrevista" y "Proponer visita" pasan por el día y la hora
-  var _respOrig = window.responderCandidato;
-  window.responderCandidato = function(id, estado){
-    if(estado === 'entrevista') return programarCita(id);
-    return _respOrig.apply(this, arguments);
-  };
 
   /* ---------- estados nuevos en las tarjetas ---------- */
   var _renderPortal = window.renderPortalReal;

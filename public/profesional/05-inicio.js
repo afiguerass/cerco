@@ -326,7 +326,14 @@ function durVideo(v, meta){ var d = v && isFinite(v.duration) && v.duration > 0 
    · Portada: un recuadro que recorre la tira; lo que queda dentro es la
      imagen que ve la clínica. También se puede subir una foto.
    ================================================================ */
+/* Abrir el editor de vídeo, con las pestañas del editor nuevo (filtros, encuadre, texto y sonido) (Fase 1: una sola versión) */
 function abrirEditorVideo(){
+  if(window.CERCO_editor2Antes) CERCO_editor2Antes();
+  var r = _abrirEditorVideoBase.apply(this, arguments);
+  if(window.CERCO_editor2Despues) CERCO_editor2Despues();
+  return r;
+}
+function _abrirEditorVideoBase(){
   var meta = (S.perfil||{}).video; if(!meta) return;
   cerrarModal();
   EV = { ini:0, fin:0, dur:0, poster:meta.poster || '', posterT:meta.posterT != null ? meta.posterT : null, frames:[], tab:'r', listo:false };
@@ -413,7 +420,12 @@ function evTiras(u){
   var empezar = function(){ v.removeEventListener('loadeddata', empezar); sacar(); };
   v.addEventListener('loadeddata', empezar); setTimeout(function(){ if(!i) empezar(); }, 2500);
 }
+/* Cambiar de pestaña en el editor: las nuevas las lleva el editor nuevo (profesional/07-editor-de-video.js) (Fase 1: una sola versión) */
 function evTab(t){
+  if(window.CERCO_editor2Pestana && CERCO_editor2Pestana.apply(this, arguments)) return;
+  return _evTabBase.apply(this, arguments);
+}
+function _evTabBase(t){
   EV.tab = t; var v = $('ev-vid');
   $('ev2-r').hidden = t !== 'r'; $('ev2-p').hidden = t !== 'p';
   $('ev2-tab-r').setAttribute('aria-selected', t === 'r'); $('ev2-tab-p').setAttribute('aria-selected', t === 'p');
@@ -479,7 +491,12 @@ function evPortadaFoto(inp){
   }; img.src = fr.result; };
   fr.readAsDataURL(f);
 }
+/* Guardar el vídeo editado: si hay filtros o texto, lo hace el editor nuevo (profesional/07-editor-de-video.js) (Fase 1: una sola versión) */
 function evGuardar(){
+  if(window.CERCO_editor2Guardar && CERCO_editor2Guardar.apply(this, arguments)) return;
+  return _evGuardarBase.apply(this, arguments);
+}
+function _evGuardarBase(){
   if(!unaVez('evG', 1200)) return;
   var p = Object.assign({}, S.perfil), recortado = EV.ini > 0.2 || EV.fin < EV.dur - 0.2;
   p.video = Object.assign({}, p.video, { ini: recortado ? Math.round(EV.ini*10)/10 : 0, fin: recortado ? Math.round(EV.fin*10)/10 : 0, poster: EV.poster || '', posterT: EV.posterFoto ? null : Math.round((EV.posterT||0)*10)/10 });
@@ -494,19 +511,16 @@ function aplicarRecorte(v, meta){
   v.addEventListener('loadedmetadata', function(){ try{ v.currentTime = ini; }catch(e){} });
   v.addEventListener('timeupdate', function(){ if(fin && v.currentTime >= fin){ v.pause(); try{ v.currentTime = ini; }catch(e){} } if(v.currentTime < ini - 0.3){ try{ v.currentTime = ini; }catch(e){} } });
 }
-var _verMiVideoOrig = window.verMiVideo;
-window.verMiVideo = function(){
-  _verMiVideoOrig.apply(this, arguments);
-  var meta = (S.perfil||{}).video, n = 0, iv = setInterval(function(){ var v = document.querySelector('#pf-vid video'); if(v){ clearInterval(iv); aplicarRecorte(v, meta); } else if(++n > 60) clearInterval(iv); }, 100);
-};
-var _mediaEditar = window.pintarMedia;
-window.pintarMedia = function(){
-  var r = _mediaEditar.apply(this, arguments);
-  try{
+// Ver mi vídeo: aplicar el recorte guardado. La usa verMiVideo (profesional/01-portal.js)
+  window.CERCO_videoRecorteAlVer = function(){
+    var meta = (S.perfil||{}).video, n = 0, iv = setInterval(function(){ var v = document.querySelector('#pf-vid video'); if(v){ clearInterval(iv); aplicarRecorte(v, meta); } else if(++n > 60) clearInterval(iv); }, 100);
+  };
+// Mi presentación: botón «Editar» y portada del vídeo. La usa pintarMedia (profesional/01-portal.js)
+  window.CERCO_mediaEditar = function(){
+    try{
     var v = (S.perfil||{}).video, fila = document.querySelector('#pf-media .pm-row'), caja = $('pf-vid');
     if(v && fila && !fila.querySelector('.pm-editar')) fila.insertAdjacentHTML('afterbegin', '<button class="btn btn-s pm-editar" onclick="abrirEditorVideo()">'+svg('pencil','currentColor',15)+'Editar</button>');
     if(v && v.poster && caja){ caja.style.backgroundImage = 'linear-gradient(rgba(15,28,63,.35),rgba(15,28,63,.55)), url("' + v.poster + '")'; caja.style.backgroundSize = 'cover'; caja.style.backgroundPosition = 'center'; }
   }catch(e){}
-  return r;
-};
+  };
 

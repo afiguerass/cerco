@@ -29,7 +29,7 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
 - [ ] **1.6 Código en carpetas:** clínica, profesional y común.
   - [x] **1.6a** Los 30 bloques de código que había dentro de las páginas están en archivos aparte, en el mismo orden: `public/clinica/` (16), `public/profesional/` (9) y `public/comun/` (los 2 que eran idénticos en las dos páginas, más los municipios). Las páginas pasan de 1,4 MB y 1,1 MB a 470 KB y 415 KB. Capturas idénticas.
   - [ ] **1.6b** Dividir los dos archivos grandes (`clinica/01-panel.js`, 281 KB, y `profesional/01-portal.js`, 206 KB), que mezclan Firebase, textos y pantallas. Se hará junto con el paso 1.7.
-- [ ] **1.7 Deshacer las «capas»:** cada función con una sola versión final.
+- [x] **1.7 Deshacer las «capas»:** cada función con una sola versión final.
   - Hay unas 45 funciones redefinidas de 2 a 7 veces en archivos distintos; por ejemplo, `abrirFichaCandidato`, `renderPortalReal` y `renderInicioReal` tienen 7 versiones cada una.
   - [x] **Antes de tocarlas, red de seguridad más grande.** Dos pruebas nuevas recorren el resto de pantallas con los datos del recorrido, en ordenador y en móvil:
     - Clínica: Inicio, Mis ofertas, Candidatos, Agenda, Mi equipo, Estadísticas, Herramientas, Mi clínica, Perfil público, Mi cuenta y Seimian.
@@ -109,7 +109,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Fase 1, paso 1.7: deshacer las capas, empezando por las funciones con 2 versiones.
+Fase 1, paso 1.8: pasar Firebase del SDK *compat* al modular, sin cambiar datos ni rutas.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

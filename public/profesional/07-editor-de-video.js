@@ -85,11 +85,11 @@
   function sugTexto(){ var p = S.perfil || {}, n = String(p.nombre || '').trim().split(/\s+/)[0]; return [n, p.profesion].filter(Boolean).join(' · '); }
 
   /* ---------- montar las pestañas nuevas dentro del editor ---------- */
-  var _abrir = window.abrirEditorVideo;
-  window.abrirEditorVideo = abrirEditorVideo = function(){
+  window.CERCO_editor2Antes = function(){
     X = Object.assign({}, NEUTRO);
-    var r = _abrir.apply(this, arguments);
-    var tabs = document.querySelector('.ev2-tabs'), err = $('m-err'); if(!tabs || !err) return r;
+  };
+  window.CERCO_editor2Despues = function(){
+    var tabs = document.querySelector('.ev2-tabs'), err = $('m-err'); if(!tabs || !err) return;
     [['f','Filtros'],['e','Encuadre'],['x','Texto'],['s','Sonido']].forEach(function(t){
       tabs.insertAdjacentHTML('beforeend', '<button role="tab" type="button" id="ev2-tab-' + t[0] + '" aria-selected="false" onclick="evTab(\'' + t[0] + '\')">' + ico(t[0]) + t[1] + '</button>');
     });
@@ -111,21 +111,20 @@
       arrastreZoom(w);
       pintar();
     }, 120);
-    return r;
   };
 
-  var _tab = window.evTab;
-  window.evTab = evTab = function(t){
+  window.CERCO_editor2Pestana = function(t){
     var nuevas = ['f','e','x','s'];
     if(nuevas.indexOf(t) === -1){
       nuevas.forEach(function(k){ var p = $('ev2-' + k), b = $('ev2-tab-' + k); if(p) p.hidden = true; if(b) b.setAttribute('aria-selected', 'false'); });
-      return _tab.apply(this, arguments);
+      return false;
     }
     EV.tab = t;
     ['r','p'].concat(nuevas).forEach(function(k){ var p = $('ev2-' + k), b = $('ev2-tab-' + k); if(p) p.hidden = k !== t; if(b) b.setAttribute('aria-selected', k === t ? 'true' : 'false'); });
     var pl = $('ev2-play'); if(pl) pl.style.visibility = '';
     pintar();
     if(t === 'x'){ var i = $('ev3-txt'); if(i && !i.value) setTimeout(function(){ try{ i.focus(); }catch(x){} }, 50); }
+    return true;
   };
 
   function slider(id, k, txt, min, max, suf){
@@ -307,10 +306,9 @@
     });
   }
 
-  var _guardar = window.evGuardar;
-  window.evGuardar = evGuardar = function(){
-    if(!cambiado()) return _guardar.apply(this, arguments);
-    if(!unaVez('evG3', 1500)) return;
+  window.CERCO_editor2Guardar = function(){
+    if(!cambiado()) return false;
+    if(!unaVez('evG3', 1500)) return true;
     var b = $('m-btn'); if(b){ b.disabled = true; b.textContent = 'Guardando…'; }
     error('m-err', '');
     var v = $('ev-vid'); try{ v && v.pause(); }catch(x){}
@@ -341,15 +339,14 @@
         : e === 'grande' ? 'El vídeo con los cambios pesa demasiado. Recórtalo un poco y vuelve a guardar.'
         : 'No se han podido guardar los cambios. Revisa tu conexión y vuelve a intentarlo.');
     });
+    return true;
   };
 
   // al subir o grabar un vídeo, el siguiente paso natural es editarlo
-  var _usar = window.usarVideo;
-  if(typeof _usar === 'function') window.usarVideo = usarVideo = function(){
-    var r = _usar.apply(this, arguments);
+  // Al usar un vídeo: aviso «Vídeo guardado. ¿Le pones filtro…?». La usa usarVideo (profesional/01-portal.js)
+  window.CERCO_videoGuardadoAviso = function(){
     var mira = setInterval(function(){ if($('gv-usar')) return; clearInterval(mira); setTimeout(function(){ if((S.perfil||{}).video) toast('Vídeo guardado. ¿Le pones filtro, texto o lo recortas?', 'Editar', function(){ abrirEditorVideo(); }); }, 400); }, 500);
     setTimeout(function(){ clearInterval(mira); }, 120000);
-    return r;
   };
 })();
 

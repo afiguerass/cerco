@@ -2266,7 +2266,13 @@ function gvPreparar(){
   }
   (arranque && arranque.then ? arranque : Promise.resolve()).then(empezar).catch(function(){ fin('parado'); });
 }
+/* Usar el vídeo grabado o subido y, después, avisar de que se puede editar (Fase 1: una sola versión) */
 function usarVideo(){
+  var r = _usarVideoBase.apply(this, arguments);
+  if(window.CERCO_videoGuardadoAviso) CERCO_videoGuardadoAviso.apply(this, arguments);
+  return r;
+}
+function _usarVideoBase(){
   if(!GV.blob || !unaVez('usarV', 1500)) return;
   var b = $('gv-usar'); if(b){ b.disabled = true; b.textContent = 'Preparando…'; }
   aDataUrl(GV.blob).then(function(url){
@@ -2313,7 +2319,13 @@ function urlMedia(tipo){
   if(!meta) return Promise.reject('sin');
   return Nube.leerMedia(Nube.uid, tipo, meta).then(function(b){ _mediaUrl[tipo] = URL.createObjectURL(b); return _mediaUrl[tipo]; });
 }
+/* Ver mi vídeo: se carga, se le aplica el recorte guardado y se abre en grande (Fase 1: una sola versión) */
 function verMiVideo(){
+  _verMiVideoBase.apply(this, arguments);
+  if(window.CERCO_videoRecorteAlVer) CERCO_videoRecorteAlVer.apply(this, arguments);
+  try{ CERCO_visor(document.getElementById('pf-vid')); }catch(x){}
+}
+function _verMiVideoBase(){
   var box = $('pf-vid'); if(!box) return;
   box.innerHTML = '<div class="cargando" style="padding:40px 10px;color:#fff;"><div class="spin"></div>Cargando vídeo…</div>';
   urlMedia('video').then(function(u){
@@ -2373,7 +2385,13 @@ function verMiCV(){
 }
 
 /* ---------- la tarjeta en Mi perfil ---------- */
+/* «Tu presentación»: vídeo y CV, con el botón «Editar» y la portada (Fase 1: una sola versión) */
 function pintarMedia(){
+  var r = _pintarMediaBase.apply(this, arguments);
+  if(window.CERCO_mediaEditar) CERCO_mediaEditar.apply(this, arguments);
+  return r;
+}
+function _pintarMediaBase(){
   var box = $('pf-media'); if(!box) return;
   var p = S.perfil || {}, v = p.video, c = p.cv;
   var h = '<h3>'+svg('video','currentColor',16)+'Tu presentación</h3>'

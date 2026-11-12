@@ -46,10 +46,4 @@
 
 (function(){
   // tu perfil: al darle a tu vídeo, se abre en grande, como lo verá la clínica
-  var _ver = window.verMiVideo;
-  if(typeof _ver === 'function') window.verMiVideo = verMiVideo = function(){
-    var r = _ver.apply(this, arguments);
-    try{ CERCO_visor(document.getElementById('pf-vid')); }catch(x){}
-    return r;
-  };
 })();

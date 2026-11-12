@@ -211,6 +211,17 @@ test('4b. La profesional sube su vídeo y su CV', async () => {
   await capturar(page, 'pro-10-video-vista-previa');
   await page.click('#gv-usar');
   await expect(page.getByText('Ver mi vídeo (0:16)')).toBeVisible({ timeout: 60_000 });
+  // Editor de vídeo: se abre, se recorren las pestañas (las antiguas y las nuevas) y se cancela
+  await page.locator('#pf-media .pm-editar').locator('visible=true').first().click();
+  await expect(page.locator('#ev2-t')).toHaveText('Editar vídeo');
+  for (const t of ['f', 'e', 'x', 's', 'p', 'r']) {
+    await page.locator('#ev2-tab-' + t).click();
+    await expect(page.locator('#ev2-tab-' + t)).toHaveAttribute('aria-selected', 'true');
+  }
+  await page.locator('#ev2-tab-f').click();
+  await capturar(page, 'pro-10b-editor-de-video');
+  await page.locator('.ev2-top').getByRole('button', { name: 'Cancelar' }).click();
+  await expect(page.locator('#ev2-t')).toHaveCount(0);
   await page.locator('input[onchange^="elegirCV"]').setInputFiles(A.archivo('cv-prueba.pdf'));
   await seVe(page, 'cv-prueba.pdf');
   await seVe(page, 'Tu perfil está al 86 %');

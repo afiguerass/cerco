@@ -1,0 +1,617 @@
+/* =======================================================
+   CERCO · PASSADA DE DISSENY
+   Tipografia, profunditat i ritme. No toca cap estructura:
+   nomes com es veu.
+   ======================================================= */
+
+:root{
+  --ink:      #0B1220;   /* negre amb una gota de blau, mai #000 */
+  --ink-2:    #3D4657;
+  --ink-3:    #6B7486;
+  --linia:    #E9EBF0;   /* vores de cabell, no grisos durs */
+  --fons:     #F6F7F9;
+  --blau:     #1A56DB;
+  --blau-fosc:#0F1C3F;
+  --om-1: 0 1px 2px rgba(11,18,32,.04);
+  --om-2: 0 2px 6px rgba(11,18,32,.05), 0 8px 24px rgba(11,18,32,.05);
+  --om-3: 0 4px 12px rgba(11,18,32,.07), 0 18px 46px rgba(11,18,32,.08);
+}
+
+html, body{
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-feature-settings:'cv11','ss01';
+  letter-spacing:-0.009em;
+  color:var(--ink);
+}
+button, input, select, textarea{ font-family:inherit; }
+
+/* Titols: mes ajustats i amb mes pes. El detall que fa que
+   una pantalla sembli feta per algu i no generada. */
+h1{ letter-spacing:-0.028em; font-weight:760; line-height:1.14; }
+h2, h3{ letter-spacing:-0.02em; font-weight:700; }
+
+/* Les xifres, amb amplada fixa: aixi no ballen quan canvien */
+.gp-val, .kpi-val, .stat-val, .metric-val,
+[class*="-val"], .match-badge{
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-0.02em;
+}
+
+/* Etiquetes en versaleta: mes obertes, que es llegeixin */
+[style*="letter-spacing:.5px"], [style*="letter-spacing:.6px"],
+[style*="letter-spacing:.8px"], .shell-section-label, .msheet-label{
+  letter-spacing:.09em !important;
+  font-weight:700;
+}
+
+/* ---------- PROFUNDITAT ----------
+   Abans: tot amb la mateixa vora d 1 px. Ara, ombres toves
+   en capes i vores de cabell. */
+.card, .board, .candidate-card, .offer-card, .tool-card{
+  border-color:var(--linia);
+  box-shadow:var(--om-2);
+  border-radius:16px;
+}
+.candidate-card:hover, .tool-card:hover, .offer-card:hover{
+  box-shadow:var(--om-3);
+  transform:translateY(-2px);
+}
+.candidate-card, .tool-card, .offer-card{
+  transition:transform .18s cubic-bezier(.2,.7,.3,1), box-shadow .18s ease;
+}
+
+/* ---------- BOTONS ----------
+   Un boma pla i saturat crida "framework". Un boto amb un
+   punt de profunditat i una reaccio al tacte, no. */
+.btn, .btn-submit, .btn-login, .btn-confirm, .btn-next{
+  border-radius:12px;
+  letter-spacing:-0.01em;
+  transition:transform .14s cubic-bezier(.2,.7,.3,1), box-shadow .18s ease, filter .18s ease;
+  box-shadow:0 1px 2px rgba(11,18,32,.06), 0 6px 16px rgba(26,86,219,.14);
+}
+.btn:active, .btn-submit:active, .btn-login:active,
+.btn-confirm:active, .btn-next:active{ transform:translateY(1px) scale(.995); }
+.btn:hover, .btn-submit:hover, .btn-login:hover{ filter:brightness(1.05); }
+
+/* Barres de progres: mes fines i amb el cap arrodonit */
+.progress-bar{ height:5px !important; background:#EDEFF4 !important; }
+.progress-fill{
+  background:linear-gradient(90deg,#2F6FED,#1A56DB) !important;
+  box-shadow:0 0 0 1px rgba(26,86,219,.12);
+}
+
+/* Els estats buits amb ratlleta discontinua es veuen barats */
+[style*="dashed"]{ border-style:solid !important; border-color:var(--linia) !important; }
+
+
+/* =======================================================
+   EL TEST DISC
+   Eren quatre caselles iguals. Un 1 i un 4 han de semblar
+   diferents: ara es una escala de veritat, amb el pes pujant.
+   ======================================================= */
+
+#screen-testdisc .card,
+#screen-onboarding .card{
+  border:1px solid var(--linia);
+  box-shadow:var(--om-2);
+  border-radius:20px;
+}
+
+#screen-testdisc .option,
+#screen-onboarding .option{
+  border:1px solid var(--linia);
+  border-radius:16px;
+  background:white;
+  box-shadow:var(--om-1);
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+#screen-testdisc .option:hover,
+#screen-onboarding .option:hover{
+  border-color:#D6DCEA;
+  box-shadow:var(--om-2);
+}
+
+#screen-testdisc .option-text,
+#screen-onboarding .option-text{
+  color:var(--ink);
+  font-weight:500;
+  letter-spacing:-0.012em;
+}
+
+/* La fila de numeros, amb una linia de fons: es llegeix com
+   una escala i no com quatre botons solts. */
+#screen-testdisc .option-controls,
+#screen-onboarding .option-controls{ position:relative; }
+#screen-testdisc .option-controls::before,
+#screen-onboarding .option-controls::before{
+  content:'';
+  position:absolute;
+  left:12%; right:12%; top:50%;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--linia) 18%, var(--linia) 82%, transparent);
+  pointer-events:none;
+}
+
+/* Els tokens: rodons, amb el pes pujant de l 1 al 4 */
+#screen-testdisc .tag-btn,
+#screen-onboarding .tag-btn{
+  position:relative;
+  border-radius:999px !important;
+  border:1.5px solid #E4E8F1;
+  background:white;
+  color:#8A93A6;
+  font-weight:700;
+  box-shadow:0 1px 2px rgba(11,18,32,.04);
+  transition:transform .16s cubic-bezier(.2,.7,.3,1), box-shadow .2s ease,
+             background .2s ease, color .2s ease, border-color .2s ease;
+}
+#screen-testdisc .tag-btn:nth-of-type(1),
+#screen-onboarding .tag-btn:nth-of-type(1){ transform:scale(.90); }
+#screen-testdisc .tag-btn:nth-of-type(2),
+#screen-onboarding .tag-btn:nth-of-type(2){ transform:scale(.95); }
+#screen-testdisc .tag-btn:nth-of-type(3),
+#screen-onboarding .tag-btn:nth-of-type(3){ transform:scale(1); }
+#screen-testdisc .tag-btn:nth-of-type(4),
+#screen-onboarding .tag-btn:nth-of-type(4){ transform:scale(1.05); border-color:#D3DBEC; color:#6B7486; }
+
+#screen-testdisc .tag-btn:hover,
+#screen-onboarding .tag-btn:hover{
+  border-color:#B9C6E8;
+  color:var(--blau);
+  box-shadow:0 2px 8px rgba(26,86,219,.12);
+}
+
+#screen-testdisc .tag-btn.active,
+#screen-onboarding .tag-btn.active{
+  background:linear-gradient(145deg,#2F6FED,#1A56DB) !important;
+  border-color:transparent !important;
+  color:white !important;
+  box-shadow:0 2px 6px rgba(26,86,219,.28), 0 10px 22px rgba(26,86,219,.22) !important;
+}
+#screen-testdisc .tag-btn:nth-of-type(1).active,
+#screen-onboarding .tag-btn:nth-of-type(1).active{ transform:scale(.98); }
+#screen-testdisc .tag-btn:nth-of-type(2).active,
+#screen-onboarding .tag-btn:nth-of-type(2).active{ transform:scale(1.02); }
+#screen-testdisc .tag-btn:nth-of-type(3).active,
+#screen-onboarding .tag-btn:nth-of-type(3).active{ transform:scale(1.07); }
+#screen-testdisc .tag-btn:nth-of-type(4).active,
+#screen-onboarding .tag-btn:nth-of-type(4).active{ transform:scale(1.12); }
+
+/* "Menos" i "Mas", discrets i en versaleta */
+#screen-testdisc .option-controls > span,
+#screen-onboarding .option-controls > span{
+  font-size:9.5px !important;
+  letter-spacing:.1em !important;
+  text-transform:uppercase;
+  color:#A8B0BF !important;
+  font-weight:700;
+}
+
+/* La caixa d instruccions.
+   Era un contenidor flex, i cada <b> es convertia en una columna:
+   la frase quedava partida en trossos. Ha de ser text corrent. */
+#screen-testdisc .instructions,
+#screen-onboarding .instructions{
+  display:block !important;
+  background:#F4F6FB !important;
+  border:1px solid #E7EBF5;
+  border-radius:14px !important;
+  color:var(--ink-2) !important;
+  line-height:1.6;
+  padding:13px 16px !important;
+}
+#screen-testdisc .instructions svg,
+#screen-onboarding .instructions svg{
+  display:inline-block !important;
+  vertical-align:-2px;
+  margin-right:6px;
+  flex-shrink:0;
+}
+#screen-testdisc .instructions b,
+#screen-onboarding .instructions b{ color:var(--ink); }
+
+/* El resultat: que el perfil llueixi */
+#screen-testdisc .color-badge,
+#screen-onboarding .color-badge{
+  border-radius:999px;
+  letter-spacing:.02em;
+  box-shadow:0 6px 20px rgba(11,18,32,.16);
+}
+#screen-testdisc .result-name,
+#screen-onboarding .result-name{ letter-spacing:-0.026em; font-weight:760; }
+#screen-testdisc .bars .bar-fill,
+#screen-onboarding .bars .bar-fill{ border-radius:999px; }
+
+/* Al mobil, els tokens una mica mes grans i sense escala:
+   la fila ha de quedar quadrada i alineada */
+@media (max-width: 600px){
+  #screen-testdisc .tag-btn,
+  #screen-onboarding .tag-btn{
+    height:52px !important;
+    border-radius:999px !important;
+    font-size:17px !important;
+    transform:none !important;
+  }
+  #screen-testdisc .tag-btn.active,
+  #screen-onboarding .tag-btn.active{ transform:none !important; }
+  #screen-testdisc .tag-btn:nth-of-type(1),
+  #screen-onboarding .tag-btn:nth-of-type(1){ opacity:.82; }
+  #screen-testdisc .tag-btn:nth-of-type(2),
+  #screen-onboarding .tag-btn:nth-of-type(2){ opacity:.9; }
+  #screen-testdisc .tag-btn.active{ opacity:1 !important; }
+  #screen-testdisc .option,
+  #screen-onboarding .option{ border-radius:18px; }
+}
+
+/* ===== EL TOUR AL MOBIL =====
+   Era una targeta flotant de 280 px que queia enmig de la pantalla,
+   tapava el que volia ensenyar i cobria el menu de baix. */
+@media (max-width: 600px){
+  .tour-card{
+    position:fixed !important;
+    left:12px !important;
+    right:12px !important;
+    bottom:calc(74px + env(safe-area-inset-bottom)) !important;
+    top:auto !important;
+    width:auto !important;
+    transform:none !important;
+    border-radius:20px !important;
+    padding:18px !important;
+    box-shadow:0 -2px 10px rgba(11,18,32,.06), 0 18px 50px rgba(11,18,32,.28) !important;
+    animation:tourPuja .28s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes tourPuja{ from{ transform:translateY(14px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+
+  .tour-card-text{ font-size:14.5px !important; line-height:1.55 !important; }
+  .tour-card-footer{ margin-top:14px !important; }
+  .tour-card-next{
+    min-height:46px !important;
+    padding:0 18px !important;
+    font-size:14px !important;
+    border-radius:12px !important;
+  }
+  .tour-card-close{ min-width:40px !important; min-height:40px !important; }
+
+  /* El menu de baix ha de seguir sent tocable mentre dura el tour */
+  body.tour-obert .mobile-bottom-nav,
+  body.tour-obert #mobile-bottom-nav,
+  body.tour-obert nav[class*="bottom"]{
+    z-index:9994 !important;
+  }
+  /* i la pagina no ha de saltar */
+  body.tour-obert{ overscroll-behavior:none; }
+
+  /* Durant el tour, espai de sobres al final: aixi els ultims
+     elements tambe poden pujar per sobre de la targeta */
+  body.tour-obert .shell-main,
+  body.tour-obert main{ padding-bottom:380px !important; }
+
+  /* A les pantalles mes estretes la fitxa del candidat s escapava
+     uns quants px de costat */
+  #screen-candidat .video-cv-row,
+  #screen-candidat .video-cv-row > *,
+  #screen-candidat .video-cv-row .card{
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+  #screen-candidat .video-info,
+  #screen-candidat .cv-card-header{ overflow-wrap:anywhere; }
+
+  /* La capcalera "CV resumido" es el que es toca per desplegar-lo */
+  #screen-candidat .cv-card-header{
+    min-height:42px !important;
+    padding:4px 0 !important;
+  }
+
+  /* El telefon i el correu del candidat: son el que mes es toca
+     i feien 15 px d alt */
+  #screen-candidat a[href^="tel:"],
+  #screen-candidat a[href^="mailto:"],
+  #screen-candidat-publica a[href^="tel:"],
+  #screen-candidat-publica a[href^="mailto:"]{
+    display:inline-flex !important;
+    align-items:center !important;
+    min-height:40px !important;
+    padding:6px 2px !important;
+  }
+
+  /* El cercle que marca l element, mes suau */
+  .tour-highlight{
+    border-radius:14px !important;
+    box-shadow:0 0 0 3px rgba(26,86,219,.55), 0 0 0 9999px rgba(11,18,32,.55) !important;
+    transition:top .25s cubic-bezier(.2,.7,.3,1), left .25s cubic-bezier(.2,.7,.3,1),
+               width .25s ease, height .25s ease !important;
+  }
+}
+
+/* ===== ELS INTERRUPTORS DE MI CUENTA =====
+   Com es veuen ho decideix la classe "on", no l etiqueta.
+   Amb !important perque el color escrit a ma dins l HTML no mani. */
+#screen-mi-cuenta .mc-toggle{
+  background:#E5E7EB !important;
+  transition:background .18s ease !important;
+  position:relative;
+}
+#screen-mi-cuenta .mc-toggle.on{ background:#1A56DB !important; }
+#screen-mi-cuenta .mc-toggle > div{
+  left:2px !important;
+  transform:translateX(0) !important;
+  transition:transform .2s cubic-bezier(.2,.7,.3,1) !important;
+}
+#screen-mi-cuenta .mc-toggle.on > div{ transform:translateX(17px) !important; }
+/* 23 px d alt es poc per al dit: ampliem la zona que respon */
+#screen-mi-cuenta .mc-toggle::after{
+  content:''; position:absolute; top:-11px; bottom:-11px; left:-10px; right:-10px;
+}
+
+/* ===== EL TELEFON GIRAT =====
+   844 px d ample pero nomes 390 d alt. Sense aixo l app es pensa
+   que es un ordinador: tot d extrem a extrem i res centrat. */
+@media (orientation:landscape) and (max-height:560px) and (max-width:1024px){
+
+  /* Una columna centrada, com en vertical */
+  .app-screen > div,
+  .app-screen .wrap{
+    max-width:660px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+
+  /* Hi ha poca alcada: tot mes arran */
+  .app-screen .wrap{ padding-top:14px !important; padding-bottom:40px !important; }
+  #screen-mi-cuenta [style*="height:88px"],
+  #mc-avatar-circle{ width:58px !important; height:58px !important; font-size:22px !important; margin-bottom:8px !important; }
+  h1{ font-size:21px !important; }
+
+  /* La barra de pestanyes, mes prima */
+  #mobile-tabbar{ padding:2px 4px calc(2px + env(safe-area-inset-bottom)) !important; }
+  .mtab{ padding:4px 2px !important; }
+  .mtab-ico{ font-size:16px !important; }
+  .mtab-lbl{ font-size:9px !important; }
+
+  /* Camps prou grans perque iOS no faci zoom sol */
+  input, select, textarea{ font-size:16px !important; }
+
+  /* El formulari d equip en 4 columnes no hi cap: el boto marxava fora */
+  .equipo-form{ grid-template-columns:1fr 1fr !important; }
+  .equipo-form > *{ min-width:0 !important; }
+  .equipo-form > button{ grid-column:1 / -1 !important; }
+  .paso-row{ flex-wrap:wrap !important; }
+  .stats-kpis, .inicio-kpis{ grid-template-columns:1fr 1fr !important; }
+  .stats-cols{ grid-template-columns:1fr !important; }
+
+  /* La tira de xifres quedava tallada per la dreta.
+     :not(.ejemplo) perque els blocs de mostra segueixin amagats. */
+  #screen-ofertes .glance-strip:not(.ejemplo){
+    display:grid !important;
+    grid-template-columns:repeat(4, 1fr) !important;
+    overflow-x:visible !important;
+    gap:8px !important;
+  }
+  #screen-ofertes .glance-pill{ min-width:0 !important; width:auto !important; }
+  body.solo-real .ejemplo{ display:none !important; }
+
+  /* La guia: al costat dret, no tapant el mig de la pantalla.
+     Nomes quan esta oberta (.show): si no, ha de seguir amagada. */
+  .tour-card{
+    position:fixed !important;
+    top:auto !important;
+    bottom:calc(10px + env(safe-area-inset-bottom)) !important;
+    left:auto !important;
+    right:10px !important;
+    width:min(330px, 42vw) !important;
+    max-height:calc(100dvh - 68px) !important;
+    transform:none !important;
+    border-radius:16px !important;
+    padding:14px !important;
+    animation:none !important;
+  }
+  .tour-card.show{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  /* El text pot fer scroll; el boto no es mou mai d aqui */
+  .tour-card .tour-card-text{
+    overflow-y:auto !important;
+    font-size:13px !important;
+    line-height:1.45 !important;
+  }
+  .tour-card .tour-card-footer{
+    flex:0 0 auto !important;
+    margin-top:10px !important;
+  }
+  .tour-card-text{ font-size:13.5px !important; line-height:1.5 !important; }
+  .tour-card-footer{ margin-top:12px !important; }
+  .tour-card-next{ min-height:40px !important; font-size:13px !important; }
+  body.tour-obert .shell-main,
+  body.tour-obert main{ padding-bottom:60px !important; }
+
+  /* Mentre dura la guia, el contingut s aparta de la targeta */
+  body.tour-obert .app-screen > div,
+  body.tour-obert .app-screen .wrap{
+    max-width:none !important;
+    margin-left:12px !important;
+    margin-right:calc(min(330px, 42vw) + 24px) !important;
+  }
+}
+
+/* =========================================================
+   QUALSEVOL PANTALLA TACTIL
+   Tant se val si es un telefon, una tauleta o un portatil amb
+   pantalla tactil: si es toca amb el dit, els botons han de ser
+   prou grans. Abans aixo nomes valia per sota de 600 px, i una
+   tauleta de 834 px es quedava amb botons de 15 px.
+   ========================================================= */
+@media (pointer: coarse){
+
+  /* Els dies del calendari de l entrevista */
+  #screen-entrevista .cal-day,
+  #cal-grid > div{
+    min-height:44px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+  #screen-entrevista .slot{ min-height:44px !important; }
+
+  /* El "← Volver" de dalt de tot */
+  .back{
+    min-height:42px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+  }
+
+  /* Els xips de filtre i el "por que" del portal */
+  .filter-chip, .radius-chip, .orden-chip{
+    min-height:38px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+  }
+  .why-link{
+    min-height:36px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+  }
+
+  /* Camps de formulari: prou alts i a 16 px perque iOS no faci zoom */
+  input:not([type=checkbox]):not([type=radio]),
+  select, textarea{
+    min-height:44px !important;
+    font-size:16px !important;
+  }
+  textarea{ min-height:100px !important; }
+
+  /* Telefon i correu: es el que mes es toca d una fitxa */
+  a[href^="tel:"], a[href^="mailto:"]{
+    display:inline-flex !important;
+    align-items:center !important;
+    min-height:40px !important;
+  }
+
+  /* Enllacets de text ("Cambiar", "+ Invitar", "Repetirlo"...) */
+  #screen-mi-cuenta [onclick],
+  #screen-inicio [onclick].link-accion{
+    min-height:40px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+  }
+
+  /* Les caselles van dins d una etiqueta: tocant el text ja van.
+     Nomes cal que la casella es vegi i que l etiqueta sigui alta. */
+  input[type=checkbox], input[type=radio]{
+    width:20px !important;
+    height:20px !important;
+    min-height:20px !important;
+    flex-shrink:0 !important;
+  }
+  label.remember,
+  label:has(> input[type=checkbox]){
+    min-height:42px !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+  }
+
+  /* Els enllacos de sota el formulari */
+  #screen-login a, #screen-registro a,
+  #screen-login span[onclick], #screen-registro span[onclick],
+  #screen-login [onclick], #screen-registro [onclick]{
+    min-height:36px !important;
+    display:inline-flex !important;
+    align-items:center !important;
+  }
+
+  /* L interruptor: la pastilla es veu igual, pero la vora
+     transparent li dona 37 px de zona sensible */
+  #screen-mi-cuenta .mc-toggle{
+    border:7px solid transparent !important;
+    background-clip:padding-box !important;
+    box-sizing:content-box !important;
+    margin:-7px !important;
+  }
+  #screen-mi-cuenta .mc-toggle::after{ content:none !important; }
+}
+
+/* candidatos reales: la misma rejilla y las mismas tarjetas de vídeo que los de ejemplo */
+#screen-portal .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:18px;}
+@media (max-width:900px){#screen-portal .rgrid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:600px){#screen-portal .rgrid{grid-template-columns:1fr;}}
+#screen-portal .cand-real .play-btn{cursor:pointer;width:38px;height:38px;font-size:15px;}
+#screen-portal .cand-real .play-btn:hover{background:rgba(255,255,255,.4);}
+#screen-portal .cand-real .sin-video{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.75);background:rgba(0,0,0,.25);border-radius:999px;padding:4px 9px;}
+#screen-portal .cand-real .disc-row{flex-wrap:wrap;}
+#screen-portal .cand-real .act-btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;}
+
+@media (max-width: 768px){
+  .tour-replay-btn{ bottom:calc(76px + env(safe-area-inset-bottom, 0px)) !important; right:84px !important; }
+  #global-toast{ bottom:calc(80px + env(safe-area-inset-bottom, 0px)) !important; max-width:calc(100vw - 32px); pointer-events:none; }
+}
+
+/* ===== Arreglos del test UI/UX (30-10-2026) ===== */
+/* 2. texto legible sobre los colores DISC (el color de las barras no cambia) */
+:is(.offer-disc,.disc-pill,.disc-tag,.mini-disc)[style*="#F0A800" i],
+[style*="background:#F0A800" i][style*="color:white"],[style*="background:#F0A800" i][style*="color:#fff" i]{color:#3D2A00 !important;}
+:is(.offer-disc,.disc-pill,.disc-tag,.mini-disc)[style*="#00B488" i],
+[style*="background:#00B488" i][style*="color:white"],[style*="background:#00B488" i][style*="color:#fff" i]{background:#007A5E !important;}
+:is(.offer-disc,.disc-pill,.disc-tag,.mini-disc)[style*="#FF5A5F" i],
+[style*="background:#FF5A5F" i][style*="color:white"],[style*="background:#FF5A5F" i][style*="color:#fff" i]{background:#D6363C !important;}
+[style*="background:#0E9F6E" i][style*="color:white"],[style*="background:#059669" i][style*="color:white"],
+[style*="background:#0E9F6E" i][style*="color:#fff" i],[style*="background:#059669" i][style*="color:#fff" i]{background:#047857 !important;}
+/* 4. se ve dónde está el foco con el teclado */
+:focus-visible{outline:2px solid #1A56DB !important;outline-offset:2px !important;}
+/* 16. respeta «reducir movimiento» */
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important;} }
+/* 1b. texto de color sobre blanco o sobre su tinte claro */
+[style^="color:#F0A800" i],[style*=";color:#F0A800" i],[style*="; color:#F0A800" i]{color:#7A5600 !important;}
+[style^="color:#00B488" i],[style*=";color:#00B488" i],[style*="; color:#00B488" i]{color:#006B52 !important;}
+[style^="color:#FF5A5F" i],[style*=";color:#FF5A5F" i],[style*="; color:#FF5A5F" i]{color:#B4232A !important;}
+[style^="color:#0E9F6E" i],[style*=";color:#0E9F6E" i],[style*=";color:#059669" i],[style^="color:#059669" i],
+[style^="color: rgb(14, 159, 110)"],[style*="; color: rgb(14, 159, 110)"],.published-pill{color:#047857 !important;}
+[style*=";color:#EF4444" i],[style^="color:#EF4444" i]{color:#C81E1E !important;}
+[style*=";color:#C1C7D0" i],[style^="color:#C1C7D0" i],.shell-section-label,.shell-footer{color:#6B7280 !important;}
+#screen-testdisc .option-controls > span,#screen-onboarding .option-controls > span{color:#6B7280 !important;}
+#screen-testdisc .tag-btn:not(.active),#screen-onboarding .tag-btn:not(.active){color:#374151 !important;}
+#screen-onboarding .eyebrow{color:#1A56DB !important;}
+@media (max-width: 768px){
+  /* 8. barra inferior legible */
+  .mtab-lbl{ font-size:11px !important; }
+  /* 9. zona de toque del avatar sin cambiar cómo se ve */
+  #mtop-avatar{ position:relative; }
+  #mtop-avatar::after{ content:""; position:absolute; inset:-8px; }
+  /* 7. Seimian y el tour se apartan al bajar, y nada queda tapado al final */
+  #ia-fab, .tour-replay-btn{ transition:opacity .2s, transform .2s; }
+  body.baja #ia-fab, body.baja .tour-replay-btn{ opacity:0; transform:translateY(12px); pointer-events:none; }
+  .app-screen.active:not(#screen-login):not(#screen-registro):not(#screen-benvinguda):not(#screen-invitado):not(#screen-gracias){ padding-bottom:calc(150px + env(safe-area-inset-bottom)) !important; }
+  /* 17. la bienvenida se ve entera en móviles pequeños */
+  body.en-bienvenida #mobile-tabbar, body.en-bienvenida #ia-fab, body.en-bienvenida .tour-replay-btn{ display:none !important; }
+  body.en-bienvenida{ padding-bottom:0 !important; }
+  #screen-benvinguda.active{ align-items:flex-start !important; padding-top:16px !important; padding-bottom:calc(24px + env(safe-area-inset-bottom)) !important; overflow-y:auto; }
+}
+@media (max-width: 360px){ .mtab-lbl{ font-size:10.5px !important; } }
+
+
+.guard-btn{position:absolute;right:10px;bottom:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(15,28,63,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;backdrop-filter:blur(4px);}
+.guard-btn:hover{background:rgba(15,28,63,.7);} .guard-btn.on{background:#fff;}
+.guard-btn:focus-visible{outline:3px solid #9FB6E8;outline-offset:2px;}
+.cand-real .card-top{position:relative;}
+.oculta-g{display:none!important;}
+.guard-chip{gap:6px;} .guard-chip svg{color:#B45309;} .guard-chip.on svg{color:#fff;}
+.ficha-guard{margin:12px 0 2px;display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #E5E7EB;border-radius:99px;padding:7px 13px;font:inherit;font-size:13px;font-weight:700;color:#1A56DB;cursor:pointer;z-index:2;}
+.ficha-guard.on{background:#FFF7E6;border-color:#F3D9A4;color:#8A5A00;}
+#guard-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#212529;color:#fff;padding:11px 18px;border-radius:999px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:10050;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+#guard-toast.on{opacity:1;transform:translateX(-50%);pointer-events:auto;}
+#guard-toast button{background:none;border:0;color:#9FC2FF;font:inherit;font-weight:800;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 0;}
+.prof-chips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px;}
+.prof-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #E5E7EB;border-radius:99px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;color:#374151;cursor:pointer;min-height:38px;}
+.prof-chip b{font-size:11.5px;font-weight:800;color:#1E40AF;background:#EEF3FE;border-radius:99px;padding:1px 7px;}
+.prof-chip:hover{border-color:#C9D6F5;}
+.prof-chip.on{background:#1A56DB;border-color:#1A56DB;color:#fff;} .prof-chip.on b{background:rgba(255,255,255,.22);color:#fff;}
+.prof-chip:focus-visible{outline:3px solid #9FB6E8;outline-offset:2px;}
+.prof-lista{display:block;}
+.grupo-prof{margin-bottom:8px;}
+.grupo-prof-h{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;color:#111827;margin:6px 0 12px;padding-bottom:8px;border-bottom:2px solid #EEF1F6;}
+.grupo-prof-h b{font-size:12px;font-weight:800;color:#1E40AF;background:#EEF3FE;border-radius:99px;padding:2px 9px;}
+.prof-sep{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#6B7280;margin:12px 2px 6px;}
+#portal-talento .prof-chips{margin:10px 0 0;}

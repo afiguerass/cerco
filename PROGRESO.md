@@ -13,7 +13,11 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - En cada pull request hacia `main`, pasa todas las pruebas.
   - Al llegar un cambio a `main`, pasa las pruebas y, solo si están en verde, compila y publica en las mismas direcciones.
   - **Cuando Asish apruebe publicar la Fase 1**, tendrá que cambiar en GitHub: Settings → Pages → Source → «GitHub Actions» (hoy está en «Deploy from a branch»). Sin ese cambio, `main` seguiría publicándose como hasta ahora, y con el código de la Fase 1 sin compilar la web no funcionaría.
-- [ ] **1.3 Estilos** en archivos aparte.
+- [x] **1.3 Estilos** en `src/estilos/`, con capturas idénticas:
+  - `clinica.css`: lo que estaba en la cabecera de `index.html`.
+  - `clinica-final.css`: lo que estaba dentro del cuerpo; se sigue aplicando al final, en el mismo orden que antes.
+  - `profesional.css`: los estilos de `candidato.html`.
+  - Curiosidad apuntada, sin tocar: la primera regla de `clinica.css` empieza con un resto (`__SCREENS_CSS__:root{…}`) que hace que el navegador la ignore. Se deja igual para que nada cambie.
 - [ ] **1.4 Test DISC y % de encaje** en un único módulo compartido por los dos lados, con pruebas propias. La puntuación de los tests ya hechos no puede cambiar.
 - [ ] **1.5 Municipios** en un archivo de datos aparte, cargado solo cuando hace falta.
 - [ ] **1.6 Código en carpetas:** clínica, profesional y común.
@@ -50,7 +54,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Fase 1, paso 1.3: estilos en archivos aparte.
+Fase 1, paso 1.4: el test DISC y el % de encaje en un módulo compartido, con pruebas propias.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

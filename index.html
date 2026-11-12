@@ -4514,8 +4514,8 @@ function CERCO_discSinPerfil(ctx, r){
   if(t) t.style.display = 'none'; if(res) res.style.display = 'block';
   if(ctx === 'onboarding'){ try{ setStepper_onboarding(3); }catch(x){} }
   var g = function(id){ return document.getElementById(id+'-'+ctx); };
-  var badge = g('badge'); if(badge){ badge.style.background = '#6B7280'; badge.textContent = 'Sin perfil definido'; }
-  if(g('result-name')) g('result-name').textContent = 'Todavía sin perfil definido';
+  var badge = g('badge'); if(badge){ badge.style.background = '#6B7280'; badge.textContent = '?'; }
+  if(g('result-name')) g('result-name').textContent = 'Perfil sin definir';
   if(g('result-desc')) g('result-desc').textContent = 'Has dado casi la misma nota a todo, y así no se ve qué te describe más. No es un fallo ni una nota: repasa solo las preguntas que dejaste iguales y tendrás tu perfil.';
   var bars = g('bars-container'); if(bars){ bars.innerHTML = ''; bars.style.display = 'none'; }
   var n = _discPlanas(ctx).length, inv = false; try{ inv = !!(window.esModoInvitado && esModoInvitado()); }catch(x){}
@@ -13338,7 +13338,7 @@ window.CGeo = (function(){
       + (min < 15 ? 'La forma de trabajar con menos presencia es ' + CDB.NOMBRE[fl] + ' (' + fl + ').' : 'Está bastante repartido, sin huecos claros.')
       + '<br><span style="color:#6B7280;font-size:12.5px;">Úsalo para preparar la conversación con un candidato, no para descartar a nadie: el test describe un estilo, no predice quién trabajará mejor.</span>';
   }
-  function rTest(){ return 'El test tiene 15 preguntas con 4 frases cada una; cada frase se puntúa del 1 al 4 y se puede repetir nota. Lo que cuenta es la diferencia entre frases, así que poner un 4 a todo no sube nada. Las frases salen en un orden distinto para cada persona. Si alguien deja casi todo igual, sale «Sin perfil definido» y no cuenta en el equipo hasta que lo repase.'; }
+  function rTest(){ return 'El test tiene 15 preguntas con 4 frases cada una; cada frase se puntúa del 1 al 4 y se puede repetir nota. Lo que cuenta es la diferencia entre frases, así que poner un 4 a todo no sube nada. Las frases salen en un orden distinto para cada persona. Si alguien deja casi todo igual, sale «Perfil sin definir» y no cuenta en el equipo hasta que lo repase.'; }
   function rGuardados(){ var n = 0; try{ n = (leer('cerco_cand_guardados', []) || []).length; }catch(x){} return (n ? 'Tienes ' + n + ' candidato' + (n === 1 ? '' : 's') + ' guardado' + (n === 1 ? '' : 's') + '.' : 'Aún no has guardado a nadie. En cada tarjeta y en la ficha tienes el marcador para guardar.') + '<br>' + btn('Ver guardados', cerrar() + "showScreen('portal');setTimeout(function(){try{verGuardados()}catch(x){}},350)"); }
 
   var _viejo = window.respuestaSeimian;

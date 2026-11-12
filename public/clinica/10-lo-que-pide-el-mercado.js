@@ -275,7 +275,8 @@
       + PLAN.map(function(p, i){ return '<label><input type="checkbox" '+(h[i] ? 'checked' : '')+' onchange="CERCO_plan(\''+e(c.id)+'\','+i+',this.checked)"><span><small>'+p[0]+'</small>'+e(p[1])+'</span></label>'; }).join('')
       + '</div>';
   }
-  window.CERCO_plan = function(id, i, on){ var t = leer('cerco_acogida'), h = (t[id] || []).slice(); h[i] = !!on; t[id] = h; guardar('cerco_acogida', t); var c = buscar(id), b = $('mk-plan'); if(c && b) b.outerHTML = bloquePlan(c); };
+  // Plan de acogida guardado solo en este navegador: lo usa CERCO_plan (clinica/14-correo-contrato-acogida.js) cuando no hay solicitud real
+  window.CERCO_planLocal = function(id, i, on){ var t = leer('cerco_acogida'), h = (t[id] || []).slice(); h[i] = !!on; t[id] = h; guardar('cerco_acogida', t); var c = buscar(id), b = $('mk-plan'); if(c && b) b.outerHTML = bloquePlan(c); };
 
   var _fichaOrig = window.abrirFichaCandidato;
   window.abrirFichaCandidato = function(id, modo){

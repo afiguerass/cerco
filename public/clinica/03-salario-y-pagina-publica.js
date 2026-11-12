@@ -62,7 +62,13 @@
       equipo: eq, actualizado: new Date().toISOString()
     };
   }
+  // Publicar la página pública de la clínica y, un momento después, sus vacaciones (Fase 1: una sola versión)
   window._publicarClinica = function(){
+    var r; try{ r = _publicarClinicaBase.apply(this, arguments); }catch(x){}
+    setTimeout(function(){ CERCO_publicarVacaciones(); }, 1500);
+    return r;
+  };
+  var _publicarClinicaBase = function(){
     try{
       if(!Nube.activa) return Promise.resolve(false);
       var d = Nube.db(); if(!d) return Promise.resolve(false);

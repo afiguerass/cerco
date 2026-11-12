@@ -46,10 +46,4 @@
 
 (function(){
   // la clínica: al darle al vídeo, se abre en grande
-  var _ver = window.verVideoCandidato;
-  if(typeof _ver === 'function') window.verVideoCandidato = function(id){
-    var r = _ver.apply(this, arguments);
-    try{ CERCO_visor(document.getElementById('ficha-video')); }catch(x){}
-    return r;
-  };
 })();

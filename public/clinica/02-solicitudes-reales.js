@@ -518,7 +518,13 @@
       return leerMedia(c.candidatoUid, tipo, meta);
     }).then(function(b){ _urls[k] = URL.createObjectURL(b); return _urls[k]; });
   }
+  // Ver el vídeo del candidato en su ficha y abrirlo en grande (Fase 1: una sola versión)
   window.verVideoCandidato = function(id){
+    var r = _verVideoEnFicha.apply(this, arguments);
+    try{ CERCO_visor(document.getElementById('ficha-video')); }catch(x){}
+    return r;
+  };
+  var _verVideoEnFicha = function(id){
     var c = buscar(id), box = document.getElementById('ficha-video'); if(!c || !box) return;
     box.innerHTML = '<div style="color:rgba(255,255,255,.8);font-size:13px;">Cargando vídeo…</div>';
     urlDe(c, 'video').then(function(u){

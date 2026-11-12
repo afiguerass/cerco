@@ -281,9 +281,13 @@
       if(!box.querySelector('.ocup-nota')){ var hh = box.querySelector('button.ocup'); if(hh && hh.parentElement) hh.parentElement.insertAdjacentHTML('afterend', '<div class="ocup-nota" style="font-size:12px;color:#6B7280;margin-top:6px;">Las horas tachadas ya las tienes ocupadas ese día.</div>'); }
     }catch(x){}
   }
-  var _pid = null, _prog = window.programarCita, _set = window._citaSet;
-  if(typeof _prog === 'function') window.programarCita = function(id){ _pid = id; _dia = null; return _prog.apply(this, arguments); };
-  if(typeof _set === 'function') window._citaSet = function(k, v){ if(k === 'dia') _dia = v; var r = _set.apply(this, arguments); marcarOcupadas(); return r; };
+  var _pid = null;
+  // Las usan programarCita y _citaSet (clinica/04-clinica-y-candidato.js)
+  window.CERCO_agendaCitas = {
+    alProgramar: function(id){ _pid = id; _dia = null; },
+    alElegir: function(k, v){ if(k === 'dia') _dia = v; },
+    marcarOcupadas: marcarOcupadas
+  };
 
   var _ficha = window.abrirFichaCandidato;
   window.abrirFichaCandidato = function(id, modo){

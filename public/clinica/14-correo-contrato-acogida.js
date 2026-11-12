@@ -184,9 +184,8 @@
     return { h: (a.h || loc[c.id] || []).slice(0, 8), f: (a.f || []).slice(0, 8) };
   }
   window.CERCO_acogidaDe = acogida;
-  var _plan = window.CERCO_plan;
   window.CERCO_plan = function(id, i, on){
-    var c = buscar(id); if(!c) return _plan && _plan.apply(this, arguments);
+    var c = buscar(id); if(!c) return CERCO_planLocal.apply(this, arguments);
     var a = acogida(c); a.h[i] = !!on; a.f[i] = on ? new Date().toISOString() : null;
     for(var j = 0; j < 8; j++){ if(a.h[j] == null) a.h[j] = false; if(a.f[j] === undefined) a.f[j] = null; }
     try{ var t = JSON.parse(localStorage.getItem('cerco_acogida') || '{}') || {}; t[id] = a.h; localStorage.setItem('cerco_acogida', JSON.stringify(t)); }catch(x){}

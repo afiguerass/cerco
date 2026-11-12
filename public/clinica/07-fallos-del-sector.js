@@ -39,8 +39,7 @@
     var d = db(); if(!d || !uid()) return;
     d.collection('clinicas_publicas').doc(uid()).set({ vacacionesHasta: clinica().vacacionesHasta || '' }, {merge:true}).catch(function(){});
   }
-  var _pubOrig = window._publicarClinica;
-  window._publicarClinica = function(){ var r; try{ r = _pubOrig && _pubOrig.apply(this, arguments); }catch(x){} setTimeout(publicarVacaciones, 1500); return r; };
+  window.CERCO_publicarVacaciones = publicarVacaciones; // la usa _publicarClinica (clinica/03-salario-y-pagina-publica.js)
   window.guardarVacaciones = function(){
     var v = (document.getElementById('vac-hasta')||{}).value || '';
     if(v && v < hoyIso()){ if(typeof showToast === 'function') showToast('Elige una fecha de hoy en adelante.'); return; }

@@ -1140,7 +1140,13 @@ let chatTyping = false;
 
 /* Seimian respon segons el que te el propietari en aquest moment,
    no amb frases fetes que no encaixen amb la seva situacio. */
+/* Abrir Seimian y, un momento después, saludar con lo pendiente de hoy (Fase 1: una sola versión) */
 function abrirSeimian(){
+  var r = _abrirSeimianBase.apply(this, arguments);
+  setTimeout(function(){ try{ CERCO_seimianSaludo(); }catch(x){} }, 120);
+  return r;
+}
+function _abrirSeimianBase(){
   if(typeof openChat !== 'function'){ if(typeof showToast==='function') showToast('Seimian no está disponible'); return; }
   window.__chatSeimian = true;
   var vell = document.getElementById('global-chat-modal');
@@ -1386,7 +1392,8 @@ function addChatMsg(text, who){
 
 /* Seimian contesta amb el que sap de la clinica. No inventa xifres:
    si no te dades, ho diu. */
-function respuestaSeimian(pregunta){
+/* Respuestas antiguas de Seimian: solo se usan de respaldo si las nuevas fallan (clinica/11-seimian.js) */
+function _respuestaSeimianAntigua(pregunta){
   var q = (pregunta||'').toLowerCase();
   var r;
   try { r = CDB.resumen(); } catch(e){ r = null; }

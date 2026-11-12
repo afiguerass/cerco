@@ -53,6 +53,12 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - [x] **Seis funciones más de la clínica**, una sola versión cada una (antes, dos):
     - `_pintarPerfilPublico`, `cerrarSesion`, `pickLocation`, `renderStatsReal`, `_cabeceraPortal`, `alternarRecomendados`.
     - Prueba nueva en el recorrido (paso 9): «Recomendados para mi equipo», elegir la dirección de la clínica, cerrar sesión y volver a entrar en los dos lados (los datos vuelven de la nube). Pasa igual con el código anterior y con el nuevo.
+  - [x] **Seimian, vídeo, citas, página pública y plan de acogida**, una sola versión cada una:
+    - `abrirSeimian` y `respuestaSeimian`: la antigua queda solo como respaldo, con su propio nombre (`_respuestaSeimianAntigua`).
+    - `verVideoCandidato`, `_publicarClinica`, `programarCita`, `_citaSet`.
+    - `CERCO_plan`: la versión solo local se llama ahora `CERCO_planLocal`.
+    - Prueba nueva: el vídeo de la ficha se abre en grande y se cierra. Pasa igual con el código anterior y con el nuevo.
+  - Quedan las funciones con 3 o más capas. En la clínica: `_subirClinica`, `_escucharEquipoEnDirecto`, `applyFilters_portal`, `responderCandidato`, `showScreen`, `renderInicioReal`, `renderPortalReal`, `abrirFichaCandidato`. En el profesional, 13 funciones.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.

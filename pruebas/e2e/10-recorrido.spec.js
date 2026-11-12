@@ -279,6 +279,13 @@ test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y
   await seVe(page, correoPro);
   await capturar(page, 'clinica-13-ficha-candidata');
 
+  // El vídeo de presentación se abre en grande y se cierra
+  await page.getByRole('button', { name: 'Ver su vídeo de presentación (0:16)' }).locator('visible=true').first().click();
+  await expect(page.locator('#ficha-video video')).toBeAttached({ timeout: 20_000 });
+  await expect(page.locator('#ficha-video')).toHaveClass(/vid-visor/);
+  await page.locator('button.visor-x').click();
+  await expect(page.locator('#ficha-video')).not.toHaveClass(/vid-visor/);
+
   // Menú «Correo» del contacto: iconos de trazo, sin emojis
   await page.locator('a[href^="mailto:"]').locator('visible=true').last().click();
   await seVe(page, 'Abrir en Gmail');

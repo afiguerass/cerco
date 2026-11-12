@@ -155,7 +155,6 @@
   function rTest(){ return 'El test tiene 15 preguntas con 4 frases cada una; cada frase se puntúa del 1 al 4 y se puede repetir nota. Lo que cuenta es la diferencia entre frases, así que poner un 4 a todo no sube nada. Las frases salen en un orden distinto para cada persona. Si alguien deja casi todo igual, sale «Perfil sin definir» y no cuenta en el equipo hasta que lo repase.'; }
   function rGuardados(){ var n = 0; try{ n = (leer('cerco_cand_guardados', []) || []).length; }catch(x){} return (n ? 'Tienes ' + n + ' candidato' + (n === 1 ? '' : 's') + ' guardado' + (n === 1 ? '' : 's') + '.' : 'Aún no has guardado a nadie. En cada tarjeta y en la ficha tienes el marcador para guardar.') + '<br>' + btn('Ver guardados', cerrar() + "showScreen('portal');setTimeout(function(){try{verGuardados()}catch(x){}},350)"); }
 
-  var _viejo = window.respuestaSeimian;
   window.respuestaSeimian = function(pregunta){
     var q = norm(pregunta);
     try{
@@ -180,7 +179,7 @@
       if(/^(hola|buenas|hey|que tal)/.test(q)) return 'Hola. ' + rHoy();
       if(/gracias|perfecto|vale|ok\b/.test(q)) return 'A ti. Aquí sigo.';
       if(/quien eres|eres (una )?(ia|persona|robot)|que (eres|sabes|puedes)/.test(q)) return capacidades();
-    }catch(x){ try{ return _viejo(pregunta); }catch(y){} }
+    }catch(x){ try{ return _respuestaSeimianAntigua(pregunta); }catch(y){} }
     return 'Eso no lo sé contestar con seguridad, y prefiero decírtelo a inventarlo.<br>' + capacidades();
   };
   function capacidades(){ return 'Soy el asistente automático de CERCO (no una persona) y solo leo los datos de tu clínica. Puedo decirte:<br>• <b>qué hacer hoy</b> y quién espera respuesta<br>• <b>a quién entrevistar primero</b> y por qué<br>• <b>qué preguntar</b> en la entrevista y qué no se puede preguntar<br>• <b>qué le falta a tus ofertas</b> y sueldos de referencia<br>• <b>tus cifras</b>, tu equipo y el plan de acogida<br>También puedes escribir el nombre de un candidato.'; }
@@ -200,22 +199,16 @@
     cont.appendChild(caixa); cont.scrollTop = cont.scrollHeight;
   };
   // al abrir: primero lo urgente
-  var _abrir = window.abrirSeimian;
-  if(typeof _abrir === 'function') window.abrirSeimian = function(){
-    var r = _abrir.apply(this, arguments);
-    setTimeout(function(){
-      try{
-        var cont = document.getElementById('chat-messages'); if(!cont || !window.__chatSeimian) return;
-        if(esperan().length || sinValorar().length || activas().some(function(o){ return faltaOferta(o).length; })){
-          var dr = document.getElementById('seimian-dreceres'); if(dr) dr.remove();
-          var ult = cont.lastElementChild; if(ult && /^\s*Hola/.test(ult.textContent || '')) ult.remove();
-          addChatMsg('Hola. ' + rHoy(), 'them');
-        }
-        window._dreceresSeimian(cont);
-        var i = document.getElementById('chat-input'); if(i) i.placeholder = 'Pregunta o escribe el nombre de un candidato';
-      }catch(x){}
-    }, 120);
-    return r;
+  // La usa abrirSeimian (clinica/01-panel.js), un momento después de abrir el chat
+  window.CERCO_seimianSaludo = function(){
+    var cont = document.getElementById('chat-messages'); if(!cont || !window.__chatSeimian) return;
+    if(esperan().length || sinValorar().length || activas().some(function(o){ return faltaOferta(o).length; })){
+      var dr = document.getElementById('seimian-dreceres'); if(dr) dr.remove();
+      var ult = cont.lastElementChild; if(ult && /^\s*Hola/.test(ult.textContent || '')) ult.remove();
+      addChatMsg('Hola. ' + rHoy(), 'them');
+    }
+    window._dreceresSeimian(cont);
+    var i = document.getElementById('chat-input'); if(i) i.placeholder = 'Pregunta o escribe el nombre de un candidato';
   };
 })();
 

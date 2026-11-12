@@ -20,6 +20,8 @@ test('Clínica: resultado plano → «Perfil sin definir»', async ({ browser },
   await expect(res).not.toContainText('%');                                    // sin porcentajes
   await expect(res.getByRole('button', { name: 'Finalizar' })).toBeHidden();   // no se puede terminar
   await expect(res.getByRole('button', { name: /Repasar/ })).toBeVisible();    // solo repasar
+  await expect(page.locator('#result-desc-onboarding')).toBeHidden();         // sin párrafo de explicación
+  await expect(res).not.toContainText('Hasta que lo repases');
   await capturar(page, 'clinica-21-test-perfil-sin-definir');
   await context.close();
 });

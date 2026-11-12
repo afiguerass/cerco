@@ -171,7 +171,10 @@ test('4. La profesional se registra y hace el test («sin perfil» y después su
   // Primero lo contesta todo con la misma nota → no hay perfil
   await A.contestarTestProfesional(page, { plano: true });
   await seVe(page, 'Perfil sin definir', { exact: true });
-  await seVe(page, 'Hasta que lo repases no hay colores ni perfil, y no puedes enviar solicitudes.');
+  // Solo la frase y la opción de repasar: sin párrafos de explicación
+  await expect(page.locator('#tr-desc')).toBeHidden();
+  await expect(page.locator('#tr-h')).toBeHidden();
+  await expect(page.locator('body')).not.toContainText('Has dado casi la misma nota');
   await expect(page.getByText('Concienzudo (C)')).toHaveCount(0); // sin barras ni porcentajes
   await capturar(page, 'pro-07-test-sin-perfil');
 

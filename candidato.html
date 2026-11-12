@@ -2623,10 +2623,10 @@ function testSinPerfil(){
   var n = testPlanas().length;
   $('tr-big').style.background = '#6B7280'; $('tr-big').textContent = '?';
   $('tr-nom').textContent = 'Perfil sin definir';
-  $('tr-desc').textContent = 'Has dado casi la misma nota a todo, y así no se ve qué te describe más. No es un fallo ni una nota: repasa solo las preguntas que dejaste iguales y tendrás tu perfil.';
-  $('tr-h').textContent = 'Qué hacer ahora';
-  $('tr-bars').innerHTML = '<div class="hint" style="margin:0 0 4px;">Hasta que lo repases no hay colores ni perfil, y no puedes enviar solicitudes.</div>'
-    + '<button type="button" class="btn btn-p btn-block" style="margin-top:12px;" onclick="testRepasar()">'+(n ? 'Repasar '+n+' pregunta'+(n === 1 ? '' : 's')+(n <= 8 ? ' · 2 minutos' : '') : 'Repasar mis respuestas')+'</button>';
+  // Solo la frase «Perfil sin definir» y la opción de repasar (sin párrafos de explicación)
+  $('tr-desc').textContent = ''; $('tr-desc').style.display = 'none';
+  $('tr-h').style.display = 'none';
+  $('tr-bars').innerHTML = '<button type="button" class="btn btn-p btn-block" onclick="testRepasar()">'+(n ? 'Repasar '+n+' pregunta'+(n === 1 ? '' : 's')+(n <= 8 ? ' · 2 minutos' : '') : 'Repasar mis respuestas')+'</button>';
   $('tr-btn').textContent = 'Ahora no'; $('tr-btn').className = 'btn btn-block';
   error('tr-err', '');
   $('t-preg').style.display = 'none'; $('t-res').style.display = '';
@@ -2644,8 +2644,8 @@ function testSeguir(){
   var d = T.res;
   $('tr-big').style.background = COLOR[d.dom]; $('tr-big').textContent = d.dom;
   $('tr-nom').textContent = NOMBRE[d.dom] + ' con rasgo ' + NOMBRE[d.sec].toLowerCase();
-  $('tr-desc').textContent = DESC[d.dom];
-  $('tr-bars').innerHTML = barras(d.norm); $('tr-h').textContent = 'Cómo te repartes'; $('tr-btn').className = 'btn btn-p btn-block';
+  $('tr-desc').textContent = DESC[d.dom]; $('tr-desc').style.display = '';
+  $('tr-bars').innerHTML = barras(d.norm); $('tr-h').textContent = 'Cómo te repartes'; $('tr-h').style.display = ''; $('tr-btn').className = 'btn btn-p btn-block';
   $('tr-btn').textContent = T.repetir ? 'Guardar resultado' : 'Ir a mi panel';
   error('tr-err', '');
   $('t-preg').style.display = 'none'; $('t-res').style.display = '';

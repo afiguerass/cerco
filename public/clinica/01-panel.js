@@ -203,11 +203,6 @@ function showResults_onboarding(){
   document.getElementById('insight-box-onboarding').innerHTML =
     `<b>Tu perfil como responsable:</b> ${PROFILE_onboarding[dominant].name} (${dominant}) con rasgos de ${PROFILE_onboarding[secondary].name} (${secondary}). Cuando tu equipo complete el test, te mostraremos qué color le falta para estar equilibrado y recomendaremos candidatos en consecuencia.`;
 }
-function copyLink_onboarding(btn){
-  navigator.clipboard?.writeText('cerco.app/equipo/dental-madrid-centro');
-  btn.textContent = '¡Copiado!';
-  setTimeout(()=>btn.textContent='Copiar', 1500);
-}
 
 
 // ===== testdisc =====
@@ -1810,16 +1805,6 @@ function regenQuestions_entrevista(){
 
 
 // ===== ofertas =====
-function toggleOfferStatus(btn, newStatus){
-  const card = btn.closest('.offer-card');
-  if(newStatus === 'pausada'){
-    showToast('Oferta pausada — ya no recibirá candidatos nuevos');
-  } else {
-    showToast('Oferta reactivada — volverá a recibir candidatos');
-  }
-  card.style.opacity = '0.4';
-  setTimeout(()=>{ card.style.opacity = '1'; }, 600);
-}
 
 
 
@@ -4177,7 +4162,6 @@ function copyInviteLink(btn){
     if(inp){ inp.select(); document.execCommand('copy'); done(); }
   }
 }
-function copyLink_onboarding(btn){ copyInviteLink(btn); }
 
 // Detectar si alguien llega por un enlace de invitación
 function detectarInvitacion(){
@@ -4406,9 +4390,6 @@ window.CDB = {
 /* ---------- utilidades de pintado ---------- */
 function _ini(nombre){
   return (nombre||'?').trim().split(/\s+/).map(function(p){ return p.charAt(0).toUpperCase(); }).join('').slice(0,2) || '?';
-}
-function _esc(t){
-  return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function _svg(d, color, size){
   return '<svg xmlns="http://www.w3.org/2000/svg" width="'+(size||16)+'" height="'+(size||16)+'" viewBox="0 0 24 24" fill="none" stroke="'+(color||'currentColor')+'" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;">'+d+'</svg>';

@@ -35,6 +35,10 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
     - Clínica: Inicio, Mis ofertas, Candidatos, Agenda, Mi equipo, Estadísticas, Herramientas, Mi clínica, Perfil público, Mi cuenta y Seimian.
     - Profesional: Inicio, Ofertas, Solicitudes, Mi perfil, el centro de herramientas con sus 6 herramientas, y Seimian.
     - Son 46 capturas nuevas y se comprueba que no hay errores. En total, 30 pruebas de navegador.
+  - [x] **Duplicados en el mismo archivo** (`clinica/01-panel.js`):
+    - `toggleOfferStatus`: tenía dos versiones y solo funcionaba la segunda. Se quita la primera.
+    - `copyLink_onboarding`: ninguna de sus dos versiones se usaba. Se quitan las dos.
+    - `_esc`: funcionaba la **primera**, porque la segunda estaba fuera del bloque y nunca llegaba a usarse (comprobado en el navegador). Se deja la que funcionaba.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.
@@ -93,6 +97,7 @@ Cada uno tiene su propio commit en la rama `profesional`:
 - [x] El rol «Responsable de personal» se llama «Coordinador/a de clínica». El dato guardado sigue siendo el mismo.
 
 ## Pendiente para más adelante
+- **Seguridad, para la Fase 3:** la función que protege los textos antes de ponerlos en la página (`_esc`, lado clínica) no protege las comillas («"»). Un nombre con comillas, por ejemplo el de una clínica, podría romper un trozo de la página. Ya había una versión corregida, pero nunca llegaba a usarse. No se ha cambiado para que todo funcione igual.
 - **Cosas vistas en las capturas nuevas (sin tocar; decide Asish):**
   - **Agenda** de la clínica: dice «Todavía no tienes entrevistas» aunque hubo una entrevista programada para el 12 de noviembre. Puede ser a propósito, porque después esa persona fue contratada.
   - **Seimian del profesional:** a Laura le dice «Eres concienzudo con rasgo influyente», en masculino.

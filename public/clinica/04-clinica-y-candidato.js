@@ -399,22 +399,15 @@
   };
 
   /* ---------- cerrar o borrar una oferta con gente esperando ---------- */
-  var _estadoOrig = window.cambiarEstadoOferta;
-  window.cambiarEstadoOferta = function(id, estado){
-    if(estado === 'cerrada' && !window.__noAvisarCierre){
-      var pend = lista().filter(function(x){ return x.ofertaId === id && ['enviada','vista','entrevista'].indexOf(x.estado) > -1; });
-      if(pend.length) return modalCierre(id, pend, function(){ _estadoOrig.call(window, id, estado); });
-    }
-    return _estadoOrig.apply(this, arguments);
+  // La usan cambiarEstadoOferta y eliminarOferta (clinica/01-panel.js): si hay
+  // gente esperando respuesta en esa oferta, enseña la ventana de cierre y
+  // devuelve true; «seguir» se hace cuando la clínica confirma.
+  window.CERCO_avisarCierreOferta = function(id, seguir, borrar){
+    var pend = lista().filter(function(x){ return x.ofertaId === id && ['enviada','vista','entrevista'].indexOf(x.estado) > -1; });
+    if(!pend.length) return false;
+    modalCierre(id, pend, seguir, borrar);
+    return true;
   };
-  var _elimOrig = window.eliminarOferta;
-  if(typeof _elimOrig === 'function'){
-    window.eliminarOferta = function(id){
-      var pend = lista().filter(function(x){ return x.ofertaId === id && ['enviada','vista','entrevista'].indexOf(x.estado) > -1; });
-      if(pend.length) return modalCierre(id, pend, function(){ _elimOrig.call(window, id); }, true);
-      return _elimOrig.apply(this, arguments);
-    };
-  }
   function modalCierre(id, pend, seguir, borrar){
     var vell = document.getElementById('modal-cierre'); if(vell) vell.remove();
     var of = null; try{ of = getSavedOffers().filter(function(o){ return o.id === id; })[0]; }catch(x){}

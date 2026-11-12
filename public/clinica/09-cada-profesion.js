@@ -226,7 +226,5 @@
     if(h) board.insertAdjacentHTML('beforebegin', h);
   }
   window.CERCO_agruparOfertas = agruparOfertas;
-  var _po = window.pintarOfertasReales;
-  if(typeof _po === 'function') window.pintarOfertasReales = function(){ var r = _po.apply(this, arguments); try{ agruparOfertas(); }catch(x){} return r; };
   try{ agruparOfertas(); agruparCandidatos(); }catch(x){}
 })();

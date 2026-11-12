@@ -39,14 +39,7 @@
     if(el) el.addEventListener('input', function(){ var n = num(el.value); el.value = n ? miles(n) : ''; });
   });
 
-      var _editOrig = window.editarOferta;
-  if(typeof _editOrig === 'function'){
-    window.editarOferta = function(id){
-      var r = _editOrig.apply(this, arguments);
-      setTimeout(function(){ llenarDesdeTexto((document.getElementById('co-salario')||{}).value); }, 120);
-      return r;
-    };
-  }
+  window.CERCO_llenarSalarioDesdeTexto = llenarDesdeTexto; // la usa editarOferta (clinica/01-panel.js)
 
   /* ---------- página pública ---------- */
   var VENTAJAS = ['Formación pagada','Horario sin partir','Plan de carrera','Tecnología digital','Buen ambiente de equipo','Tratamiento dental gratis','Parking','Flexibilidad de turnos'];

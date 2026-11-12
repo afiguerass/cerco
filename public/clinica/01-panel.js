@@ -2299,7 +2299,13 @@ function saveOfferToStorage(offer){
 
 /* Pinta les ofertes reals a la columna que els toca segons el seu estat.
    Es torna a executar sencer cada vegada, aixi mai queden restes. */
+/* «Mis ofertas»: pinta las ofertas y las agrupa por profesión (Fase 1: una sola versión). */
 function pintarOfertasReales(){
+  var r = _pintarListaOfertas();
+  try{ CERCO_agruparOfertas(); }catch(x){}
+  return r;
+}
+function _pintarListaOfertas(){
   var board = document.querySelector('#screen-ofertes .board');
   if(!board) return;
   var esc = (typeof _esc === 'function') ? _esc : function(t){
@@ -2379,7 +2385,13 @@ function pintarOfertasReales(){
   if(window.CDB && typeof renderOfertasReal === 'function') renderOfertasReal();
 }
 
+/* Pausar, reactivar o cerrar una oferta. Si se cierra con gente esperando
+   respuesta, antes sale la ventana de cierre (Fase 1: una sola versión). */
 function cambiarEstadoOferta(id, estado){
+  if(estado === 'cerrada' && !window.__noAvisarCierre && CERCO_avisarCierreOferta(id, function(){ _aplicarEstadoOferta(id, estado); }, false)) return;
+  return _aplicarEstadoOferta(id, estado);
+}
+function _aplicarEstadoOferta(id, estado){
   var list = getSavedOffers();
   var n = 0;
   list.forEach(function(o){ if(o.id === id){ o.estado = estado; n++; } });
@@ -2394,7 +2406,13 @@ function cambiarEstadoOferta(id, estado){
   if(typeof showToast === 'function') showToast(msg);
 }
 
+/* Eliminar una oferta. Si hay gente esperando respuesta, antes sale la
+   ventana de cierre (Fase 1: una sola versión). */
 function eliminarOferta(id){
+  if(CERCO_avisarCierreOferta(id, function(){ _eliminarOfertaYa(id); }, true)) return;
+  return _eliminarOfertaYa(id);
+}
+function _eliminarOfertaYa(id){
   var list = getSavedOffers();
   var o = list.filter(function(x){ return x.id === id; })[0];
   if(!o) return;
@@ -2418,7 +2436,14 @@ function toggleOfferStatus(btn, nuevo){
 
 /* Editar una oferta ja publicada: carrega les seves dades al formulari
    i en desar substitueix l original en lloc de crear-ne una de nova. */
+/* Editar una oferta: carga sus datos en el formulario y, un momento después,
+   rellena los campos de salario (Fase 1: una sola versión). */
 function editarOferta(id){
+  var r = _cargarOfertaEnFormulario(id);
+  setTimeout(function(){ CERCO_llenarSalarioDesdeTexto((document.getElementById('co-salario')||{}).value); }, 120);
+  return r;
+}
+function _cargarOfertaEnFormulario(id){
   var l = getSavedOffers();
   var o = null;
   for(var i=0;i<l.length;i++){ if(String(l[i].id) === String(id)) o = l[i]; }

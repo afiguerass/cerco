@@ -4421,6 +4421,8 @@ window.CDB = {
   },
 
   candidatosRecibidos: function(){
+    // con solicitudes reales se cuentan personas (clinica/02-solicitudes-reales.js)
+    if(!(this.demo && this.demo()) && window.CERCO_contarCandidatosReales) return CERCO_contarCandidatosReales();
     var n = 0;
     this.ofertas().forEach(function(o){ n += (parseInt(o.candidatos,10) || 0); });
     return n;
@@ -4430,7 +4432,7 @@ window.CDB = {
     var eq = this.equipoCompleto();
     var est = this.ofertasPorEstado();
     var pl = this.plantilla();
-    return {
+    var r = {
       clinica: this.nombreClinica(),
       responsable: (this.clinica().nomResp || '').trim(),
       miembros: eq.length,
@@ -4444,6 +4446,9 @@ window.CDB = {
       miDiscHecho: !!this.miDisc(),
       dias: this.diasDesdeAlta()
     };
+    // contratados: de las solicitudes reales (clinica/04-clinica-y-candidato.js)
+    try{ if(!this.demo() && window.CERCO_contarContratados) r.contratados = CERCO_contarContratados(); }catch(x){}
+    return r;
   },
 
   /* --- código de resultado del test: MG-IC-08 --- */
@@ -4468,6 +4473,8 @@ window.CDB = {
   },
 
   renderTodo: function(){
+    // avisos de lo que ha hecho el candidato desde la última vez (clinica/04-clinica-y-candidato.js)
+    try{ if(window.CERCO_avisosCandidatos) CERCO_avisosCandidatos(); }catch(x){}
     try{ if(typeof renderInicioReal==='function') renderInicioReal(); }catch(e){}
     try{ if(typeof renderStatsReal==='function') renderStatsReal(); }catch(e){}
     try{ if(typeof renderEquipo==='function') renderEquipo(); }catch(e){}
@@ -5297,6 +5304,9 @@ window.Nube = {
     return r.collection('ofertas').doc(o.id).set(doc).then(function(){ return true; }).catch(function(){ return false; });
   },
   borrarOferta: function(id){
+    // también la oferta pública, la que ven los profesionales
+    var d = this.db();
+    try{ if(d && this.uid) d.collection('ofertas_publicas').doc(String(id)).delete().catch(function(){}); }catch(x){}
     var r = this.refClinica();
     if(!r) return Promise.resolve(false);
     return r.collection('ofertas').doc(id).delete().then(function(){ return true; }).catch(function(){ return false; });

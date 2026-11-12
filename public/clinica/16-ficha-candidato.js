@@ -251,11 +251,9 @@
     if(s) s.style.minHeight = '';
     try{ pintar(id); if(modo && actual === id) window.scrollTo(0, y); }catch(x){ try{ console.error(x); }catch(z){} }
   };
-  var _cerrar = window.cerrarFichaCandidato;
-  window.cerrarFichaCandidato = function(){
-    var r = _cerrar && _cerrar.apply(this, arguments);
+  // La usa cerrarFichaCandidato (clinica/02-solicitudes-reales.js)
+  window.CERCO_fichaVolverSiAbierta = function(){
     if($('screen-ficha') && $('screen-ficha').classList.contains('active')) CERCO_fichaVolver();
-    return r;
   };
   // si se va a otra pantalla, la ficha deja de estar «abierta»
   // La usa showScreen (clinica/01-panel.js): al salir de la ficha se quita la provisional

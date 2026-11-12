@@ -205,6 +205,8 @@
   }
   function hace2(iso){ var m = Math.round((Date.now() - new Date(iso))/60000); if(m < 1) return 'ahora'; if(m < 60) return 'hace ' + m + ' min'; var h = Math.round(m/60); if(h < 24) return 'hace ' + h + ' h'; var d = Math.round(h/24); return d === 1 ? 'ayer' : 'hace ' + d + ' días'; }
   window.enviarMensajeClinica = function(id){
+    // preguntas que la ley no permite en un proceso de selección (clinica/07-fallos-del-sector.js)
+    if(window.CERCO_preguntaProhibida && CERCO_preguntaProhibida()) return;
     var c = buscar(id), i = document.getElementById('ficha-msg-in'); if(!c || !i) return;
     var t = (i.value || '').trim(); if(!t || !window._unaSolaVez('msgC', 600)) return;
     var m = (c.mensajes || []).concat([{de:'clinica', t:t.slice(0,600), f:new Date().toISOString()}]).slice(-100);
@@ -367,21 +369,18 @@
 
   /* ---------- avisos cuando el candidato hace algo ---------- */
   var _prev = null;
-  var _renderTodo = CDB.renderTodo;
-  CDB.renderTodo = function(){
-    try{
-      var ahora = {}; lista().forEach(function(c){ ahora[c.id] = { m:(c.mensajes||[]).length, ult:((c.mensajes||[]).slice(-1)[0]||{}).de, cita:c.cita ? c.cita.estado + '|' + c.cita.v : '', nombre:c.nombre, msgC:c.cita && c.cita.msgCambio }; });
-      if(_prev && typeof showToast === 'function'){
-        Object.keys(ahora).forEach(function(id){
-          var a = ahora[id], b = _prev[id]; if(!b) return;
-          if(a.m > b.m && a.ult === 'candidato') showToast(a.nombre + ' te ha escrito');
-          else if(a.cita !== b.cita && a.cita.indexOf('confirmada|') === 0) showToast(a.nombre + ' ha confirmado la cita');
-          else if(a.cita !== b.cita && a.cita.indexOf('cambio|') === 0) showToast(a.nombre + ' pide otro día');
-        });
-      }
-      _prev = ahora;
-    }catch(x){}
-    return _renderTodo.apply(this, arguments);
+  // La usa CDB.renderTodo (clinica/01-panel.js)
+  window.CERCO_avisosCandidatos = function(){
+    var ahora = {}; lista().forEach(function(c){ ahora[c.id] = { m:(c.mensajes||[]).length, ult:((c.mensajes||[]).slice(-1)[0]||{}).de, cita:c.cita ? c.cita.estado + '|' + c.cita.v : '', nombre:c.nombre, msgC:c.cita && c.cita.msgCambio }; });
+    if(_prev && typeof showToast === 'function'){
+      Object.keys(ahora).forEach(function(id){
+        var a = ahora[id], b = _prev[id]; if(!b) return;
+        if(a.m > b.m && a.ult === 'candidato') showToast(a.nombre + ' te ha escrito');
+        else if(a.cita !== b.cita && a.cita.indexOf('confirmada|') === 0) showToast(a.nombre + ' ha confirmado la cita');
+        else if(a.cita !== b.cita && a.cita.indexOf('cambio|') === 0) showToast(a.nombre + ' pide otro día');
+      });
+    }
+    _prev = ahora;
   };
 
   /* ---------- cerrar o borrar una oferta con gente esperando ---------- */
@@ -417,7 +416,6 @@
   }
 
   /* ---------- cifras: contratados ---------- */
-  var _res = CDB.resumen;
-  CDB.resumen = function(){ var r = _res.apply(this, arguments); try{ if(!this.demo()) r.contratados = lista().filter(function(c){ return c.estado === 'contratada'; }).length; }catch(x){} return r; };
+  window.CERCO_contarContratados = function(){ return lista().filter(function(c){ return c.estado === 'contratada'; }).length; }; // la usa CDB.resumen (clinica/01-panel.js)
   try{ CDB.renderTodo(); }catch(x){}
 })();

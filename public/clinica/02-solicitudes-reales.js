@@ -70,11 +70,8 @@
   window.CERCO_candidaturas = lista;
 
   CDB.candidaturas = activas;
-  var _recibOrig = CDB.candidatosRecibidos;
-  CDB.candidatosRecibidos = function(){
-    if(this.demo && this.demo()) return _recibOrig.call(this);
-    return unaPorPersona(activas()).length;
-  };
+  // La usa CDB.candidatosRecibidos (clinica/01-panel.js)
+  window.CERCO_contarCandidatosReales = function(){ return unaPorPersona(activas()).length; };
 
   function perfilesOferta(o){
     if(!o) return [];
@@ -114,12 +111,6 @@
       r.collection('ofertas').doc(String(o.id)).set(doc),
       d.collection('ofertas_publicas').doc(String(o.id)).set(pub)
     ]).then(function(){ return true; }).catch(function(){ return false; });
-  };
-  var _borrarOrig = Nube.borrarOferta;
-  Nube.borrarOferta = function(id){
-    var d = this.db();
-    try{ if(d && this.uid) d.collection('ofertas_publicas').doc(String(id)).delete().catch(function(){}); }catch(x){}
-    return _borrarOrig.call(this, id);
   };
   // Sin argumento (al editar) se suben todas: así nunca queda una a medias
   window._subirOferta = function(o){
@@ -376,7 +367,12 @@
 
   /* ---------- ficha del candidato ---------- */
   function cerrar(){ var m = document.getElementById('modal-cand'); if(m) m.remove(); document.body.style.overflow = ''; }
-  window.cerrarFichaCandidato = cerrar;
+  // Cerrar la ficha y, si estaba a pantalla completa, volver a la lista (Fase 1: una sola versión)
+  window.cerrarFichaCandidato = function(){
+    var r = cerrar.apply(this, arguments);
+    if(window.CERCO_fichaVolverSiAbierta) CERCO_fichaVolverSiAbierta();
+    return r;
+  };
   function waNum(t){ var n = String(t||'').replace(/[^\d]/g,''); if(n.length === 9) n = '34' + n; return n; }
 
   /* Abrir la ficha de un candidato (Fase 1: una sola versión). Antes eran siete

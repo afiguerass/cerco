@@ -38,6 +38,13 @@ test('Descartar con motivo: la clínica lo elige y el profesional lo ve', async 
   await c.locator('#screen-ofertes').getByRole('button', { name: 'Ver candidatos' }).first().click();
   await c.locator('[onclick^="abrirFichaCandidato"]', { hasText: 'Laura Prueba' }).locator('visible=true').first().click();
   await c.waitForTimeout(1500);
+  // Mensajes: una pregunta prohibida por ley no se envía; un mensaje normal, sí
+  await c.fill('#ficha-msg-in', '¿Tienes hijos?');
+  await c.locator('#ficha-msg-in').locator('xpath=following-sibling::button').first().click();
+  await expect(c.locator('#global-toast')).toContainText('No se puede preguntar por «Tienes hijos» en un proceso de selección.');
+  await c.fill('#ficha-msg-in', '¿Puedes venir el jueves?');
+  await c.locator('#ficha-msg-in').locator('xpath=following-sibling::button').first().click();
+  await expect(c.locator('body')).toContainText('¿Puedes venir el jueves?');
   await c.getByRole('button', { name: 'Descartar' }).locator('visible=true').first().click();
   await expect(c.locator('#mk-motivos')).toBeVisible();
   await c.locator('#mk-motivos').getByRole('button', { name: 'Buscamos más experiencia' }).click();
@@ -51,6 +58,7 @@ test('Descartar con motivo: la clínica lo elige y el profesional lo ve', async 
   await expect(p.locator('main')).toContainText(/No han seguido|Descartada|No seguimos/, { timeout: 15_000 });
   await p.locator('main').getByText(nombreClinica, { exact: false }).locator('visible=true').first().click();
   await expect(p.locator('body')).toContainText('más experiencia');
+  await expect(p.locator('body')).toContainText('¿Puedes venir el jueves?'); // el mensaje de la clínica le llega
   await capturar(p, 'pro-42-descartada-con-motivo');
   expect(c.erroresPagina).toEqual([]);
   expect(p.erroresPagina).toEqual([]);

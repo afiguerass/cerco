@@ -83,15 +83,13 @@
     
   /* ---------- 4. mensajes sin preguntas prohibidas ---------- */
   var PREG_NO = /(embaraz|quedarte embarazada|tener hijos|tienes hijos|planes? de familia|qué edad|que edad|cuántos años tienes|cuantos años tienes|estás casad|estas casad|tienes pareja|enfermedad|baja médica|baja medica|religi|de dónde eres|de donde eres|nacionalidad|sindicat)/i;
-  ['enviarMensajeClinica'].forEach(function(fn){
-    var orig = window[fn]; if(typeof orig !== 'function') return;
-    window[fn] = function(){
-      var i = document.getElementById('ficha-msg-in'), t = i ? i.value : '';
-      var m = String(t).match(PREG_NO);
-      if(m){ if(typeof showToast === 'function') showToast('No se puede preguntar por «' + m[0] + '» en un proceso de selección. Cambia el mensaje.'); return; }
-      return orig.apply(this, arguments);
-    };
-  });
+  // La usa enviarMensajeClinica (clinica/04-clinica-y-candidato.js): true si el mensaje pregunta algo prohibido
+  window.CERCO_preguntaProhibida = function(){
+    var i = document.getElementById('ficha-msg-in'), t = i ? i.value : '';
+    var m = String(t).match(PREG_NO);
+    if(m){ if(typeof showToast === 'function') showToast('No se puede preguntar por «' + m[0] + '» en un proceso de selección. Cambia el mensaje.'); return true; }
+    return false;
+  };
 
   /* ---------- 5. denunciar desde la ficha ---------- */
   var MOTIVOS = ['Los datos o la titulación parecen falsos','No se presentó a la entrevista sin avisar','Trato inadecuado o mensajes ofensivos','Se hace pasar por otra persona','Otro motivo'];

@@ -67,7 +67,14 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - [x] **`renderInicioReal`** (Inicio de la clínica): de 7 versiones a una sola. Se pinta la base y después cada bloque en el mismo orden (necesitan respuesta → citas y mensajes → plazos → seguimiento y valoraciones → confianza y plazos → agenda). Cada bloque es una pieza con nombre en su archivo.
   - [x] **`renderPortalReal`** («Candidatos»): de 7 versiones a una sola. Se pinta la base y después cada parte en el mismo orden: cabecera y solicitudes reales → tasa de respuesta → etiquetas → talento → agrupar por profesión → entrada a herramientas.
   - [x] **`abrirFichaCandidato`** (ficha del candidato): de 7 versiones a una sola. Pasos en orden: vaciar la ficha anterior → abrir → acciones según el estado → guardar → valorar y plan → «me interesa» y cita → correo y contrato → ficha a pantalla completa.
-  - **En la clínica ya no queda ninguna función de las detectadas con varias versiones.** Falta revisar otras formas de envolver que la herramienta no detectaba (`CDB.…`, `Nube.…`, bucles `window[fn]`) y, después, el lado del profesional (13 funciones).
+  - [x] **Otras formas de envolver en la clínica**, ahora una sola versión cada una:
+    - `CDB.candidatosRecibidos`, `CDB.resumen` y `CDB.renderTodo`.
+    - `Nube.borrarOferta`.
+    - `enviarMensajeClinica`: bloquea las preguntas prohibidas.
+    - `cerrarFichaCandidato`.
+    - Prueba ampliada: una pregunta prohibida («¿Tienes hijos?») no se envía; un mensaje normal sí, y le llega al profesional. Pasa igual con el código anterior y con el nuevo.
+  - **Lado clínica terminado: ninguna función con varias versiones.**
+  - **Falta el lado profesional:** `Nube.guardarPerfil` (3 capas), `refrescar` (4), `pintarSolicitud` (3), `verMiVideo` (3) y otras diez de 2 versiones.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.

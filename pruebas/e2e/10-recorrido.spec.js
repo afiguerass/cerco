@@ -208,6 +208,7 @@ test('4c. La profesional ve las ofertas con su % de encaje y solicita las dos', 
   await page.locator('.of-t', { hasText: /^Higienista dental de tarde$/ }).locator('visible=true').first().click();
   await seVe(page, 'Tu encaje');
   await seVe(page, 'A 3 km de Salt');
+  await expect(page.locator('body')).not.toContainText('1 personas');
   await capturar(page, 'pro-13-oferta-detalle');
   await page.getByRole('button', { name: 'Solicitar esta oferta' }).click();
   await capturar(page, 'pro-14-solicitar');
@@ -233,7 +234,8 @@ test('4c. La profesional ve las ofertas con su % de encaje y solicita las dos', 
 test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y contrata', async () => {
   const page = clinica.page;
   await page.evaluate(() => showScreen('ofertes'));
-  await expect(page.locator('#screen-ofertes')).toContainText('1 candidatos');
+  await expect(page.locator('#screen-ofertes')).toContainText(/\b1 candidato\b/);
+  await expect(page.locator('#screen-ofertes')).not.toContainText('1 candidatos');
   await capturar(page, 'clinica-11-ofertas-con-solicitudes');
   await page.locator('#screen-ofertes').getByRole('button', { name: 'Ver candidatos' }).first().click();
   await seVe(page, 'Tienes 2 solicitudes sin abrir');
@@ -243,6 +245,7 @@ test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y
   // Ficha grande: resumen arriba, vídeo + CV resumido, personalidad, contacto, acciones
   await page.locator('[onclick^="abrirFichaCandidato"]', { hasText: 'Laura Prueba' }).locator('visible=true').first().click();
   await seVe(page, 'RESUMEN DEL CANDIDATO');
+  await expect(page.locator('body')).toContainText('Higienista dental con entre 3 y 5 años de experiencia');
   await seVe(page, 'Ver su vídeo de presentación (0:16)');
   await seVe(page, 'CV resumido');
   await seVe(page, 'Perfil de personalidad');

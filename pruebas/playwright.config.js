@@ -5,7 +5,7 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './e2e',
   timeout: 120_000,
-  expect: { timeout: 15_000, toHaveScreenshot: { maxDiffPixels: 100, animations: 'disabled' } },
+  expect: { timeout: 15_000, toHaveScreenshot: { maxDiffPixels: 10, animations: 'disabled' } },
   fullyParallel: false,
   workers: 1,
   retries: 0,

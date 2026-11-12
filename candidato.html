@@ -3151,7 +3151,7 @@ function tarjetaClinica(o, cl, d){
   var eq = cl.equipo;
   if(eq && eq.fiable && eq.comp){
     var c = eq.comp;
-    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:10px;">CÓMO ES EL EQUIPO'+(eq.personas ? ' · '+eq.personas+' PERSONAS' : '')+'</div>'
+    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:10px;">CÓMO ES EL EQUIPO'+(eq.personas ? ' · '+eq.personas+(eq.personas == 1 ? ' PERSONA' : ' PERSONAS') : '')+'</div>'
       + '<div class="cl-barra">' + LETRAS.map(function(l){ return c[l] ? '<span style="width:'+c[l]+'%;background:'+COLOR[l]+'" title="'+NOMBRE[l]+' '+c[l]+' %"></span>' : ''; }).join('') + '</div>'
       + '<div class="cl-ley">' + LETRAS.map(function(l){ return '<span><i style="background:'+COLOR[l]+'"></i>'+NOMBRE[l]+' '+(c[l]||0)+' %</span>'; }).join('') + '</div>';
     var fa = eq.falta;
@@ -3164,7 +3164,7 @@ function tarjetaClinica(o, cl, d){
     }
     h += '</div>';
   } else if(eq && eq.personas){
-    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:6px;">CÓMO ES EL EQUIPO</div><p class="txt" style="font-size:13.5px;color:#6B7280;">Equipo de '+eq.personas+' personas. El perfil del equipo aparecerá cuando al menos 3 hayan hecho el test.</p></div>';
+    h += '<div class="cl-eq"><div class="eyebrow" style="margin-bottom:6px;">CÓMO ES EL EQUIPO</div><p class="txt" style="font-size:13.5px;color:#6B7280;">Equipo de '+eq.personas+(eq.personas == 1 ? ' persona' : ' personas')+'. El perfil del equipo aparecerá cuando al menos 3 hayan hecho el test.</p></div>';
   }
   return h + '</div>';
 }

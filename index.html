@@ -6568,7 +6568,7 @@ function pintarOfertasReales(){
       + (letra ? '<span class="offer-disc" style="background:'+_discColor(letra)+';">'+esc(disc)+'</span>' : '')
       + '</div>'
       + '<div class="offer-meta-row">' + esc(o.ubicacion||'') + (o.jornada? ' · '+esc(o.jornada):'') + (fecha? ' · publicada '+fecha : '') + '</div>'
-      + '<div class="offer-cand-count">' + (parseInt(o.candidatos,10)||0) + ' candidatos</div>'
+      + '<div class="offer-cand-count">' + (parseInt(o.candidatos,10)||0) + ((parseInt(o.candidatos,10)||0) === 1 ? ' candidato' : ' candidatos') + '</div>'
       + '<div class="offer-actions">' + acciones + '</div>';
 
     var header = col.querySelector('.board-col-header');
@@ -14518,10 +14518,17 @@ window.CGeo = (function(){
     var d = c.disc || null, est = c.estado === 'vista' && c.interesa ? 'interesa' : c.estado, E = ESTADO[est] || ESTADO.enviada;
     var nombre = c.nombre || 'Candidato', prof = c.profesion || '';
     var exp = c.experiencia ? String(c.experiencia).toLowerCase() : '';
+    // «De 3 a 5 años» → «con entre 3 y 5 años de experiencia» (antes salía «con de 3 a 5 años»)
+    var _textoExp = function(x){
+      var T = { 'sin experiencia (prácticas)':', sin experiencia en clínica (prácticas)', 'menos de 1 año':' con <b>menos de 1 año</b> de experiencia',
+                'de 1 a 3 años':' con <b>entre 1 y 3 años</b> de experiencia', 'de 3 a 5 años':' con <b>entre 3 y 5 años</b> de experiencia',
+                'más de 5 años':' con <b>más de 5 años</b> de experiencia' };
+      return T[x] || (' con <b>' + e(x) + '</b> de experiencia');
+    };
 
     // resumen de arriba
     var resumen = '<b>' + e(prof || 'Profesional') + '</b>'
-      + (c.sinExperiencia && !(c.trabajos || []).length ? ', todavía sin experiencia en clínica' : (exp ? ' con <b>' + e(exp) + '</b> de experiencia' : ''))
+      + (c.sinExperiencia && !(c.trabajos || []).length ? ', todavía sin experiencia en clínica' : (exp ? _textoExp(exp) : ''))
       + (d && d.dom ? ', perfil <b>' + NOM[d.dom] + ' (' + d.dom + ')</b> — ' + RASGO[d.dom] : '')
       + '.' + (c.disponibilidad ? ' Incorporación: ' + e(String(c.disponibilidad).toLowerCase()) + '.' : '')
       + (pct !== null ? ' Encaje con tu oferta: <b>' + pct + '%</b>.' : '');

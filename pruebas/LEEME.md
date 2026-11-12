@@ -8,7 +8,7 @@ Esta carpeta **no forma parte de la web**. Sirve para comprobar, después de cad
 | --- | --- |
 | `reglas/` | Pruebas de las **reglas de seguridad** (`../firestore.rules`): quién puede leer y escribir cada dato. |
 | `e2e/` | Pruebas «de punta a punta»: un navegador automático usa la web como lo haría una persona, en ordenador (1400 px) y móvil (390 px). |
-| `capturas/` | **Capturas de referencia** de cada pantalla (ordenador y móvil). Después de cada cambio se comparan con las nuevas: si algo se ve distinto, la prueba falla. Se tapan los vídeos, las frases del test (orden aleatorio), los avisos flotantes y los enlaces con números internos. Se admiten como mucho 100 píxeles distintos por captura: cambiar una sola palabra ya lo supera. |
+| `capturas/` | **Capturas de referencia** de cada pantalla (ordenador y móvil). Después de cada cambio se comparan con las nuevas: si algo se ve distinto, la prueba falla. Se tapan los vídeos, las frases del test (orden aleatorio), los avisos flotantes y los enlaces con números internos. Se admiten como mucho 10 píxeles distintos por captura: cambiar una sola letra ya lo supera. |
 | `apoyo/` | Piezas comunes: el servidor web de pruebas y la conexión con el emulador. |
 | `recursos/` | Copia local de la tipografía Inter, para que las capturas no dependan de Internet. |
 | `firebase.json` | Configuración del **emulador**: un Firebase falso que vive solo en este ordenador. |

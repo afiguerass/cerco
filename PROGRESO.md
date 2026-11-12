@@ -113,7 +113,14 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Fase 1, paso 1.8b: pasar las llamadas a Firebase a la forma modular, archivo por archivo.
+**Esperando una decisión de Asish.** Queda lo más delicado de la Fase 1:
+- **1.8b:** reescribir unas 80 llamadas a la base de datos y 26 de inicio de sesión por cada lado.
+- **1.9:** leer de Firestore lo que hoy se lee de `localStorage`.
+
+Las dos tocan cómo se leen y guardan los datos reales. Opciones:
+- **(A)** Seguir ahora con todo.
+- **(B)** Pasarlas al principio de la Fase 2, que reescribe esa misma parte (vídeos y CV a Storage, Functions), con una copia de seguridad de los datos reales antes.
+- **(C) Recomendada.** Hacer ahora lo que no toca datos (dividir los archivos grandes por pantallas y cargar los municipios solo cuando hagan falta) y dejar 1.8b y 1.9 para el principio de la Fase 2.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

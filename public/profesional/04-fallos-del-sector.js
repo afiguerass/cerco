@@ -178,31 +178,26 @@ function modalEncaje(){
   document.body.appendChild(m);
 }
 function anadirPie(boxId, html){ var b = $(boxId); if(!b || !html) return; var v = b.querySelector('.pie-seg'); if(v) v.remove(); b.insertAdjacentHTML('beforeend', html); }
-var _detSector = window.pintarDetalle;
-window.pintarDetalle = function(){
-  var r = _detSector.apply(this, arguments);
-  try{
-    var o = buscarOferta(S.actual); if(!o) return r;
+// Detalle de oferta: confianza, vacaciones y pie. La usa pintarDetalle (profesional/01-portal.js)
+  window.CERCO_detalleConfianza = function(){
+    try{
+    var o = buscarOferta(S.actual); if(!o) return;
     var cab = document.querySelector('#od .det-h'); if(cab && !document.querySelector('#od .confi')) cab.insertAdjacentHTML('afterend', bloqueConfianza(o));
     var vac = vacacionesDe(o.clinicaId);
     if(vac && cab && !document.querySelector('#od .vac-av')) cab.insertAdjacentHTML('afterend', '<div class="aviso aviso-info vac-av">'+svg('cal','#1E3A8A',16)+'<span>La clínica está de vacaciones hasta el '+esc(fechaCorta(vac))+'. Puedes solicitar ya: te contestará a la vuelta.</span></div>');
     anadirPie('od', pieOferta(o)); pintarIconos($('od'));
   }catch(e){}
-  return r;
-};
-var _solSector = window.pintarSolicitud;
-window.pintarSolicitud = function(){
-  var r = _solSector.apply(this, arguments);
-  try{ var s = buscarSol(S.actualSol); if(s){ anadirPie('sd', pieSolicitud(s)); pintarIconos($('sd')); } }catch(e){}
-  return r;
-};
+  };
+// Solicitud: pie con denunciar y cómo calculamos el encaje. La usa pintarSolicitud (profesional/01-portal.js)
+  window.CERCO_solicitudPie = function(){
+    try{ var s = buscarSol(S.actualSol); if(s){ anadirPie('sd', pieSolicitud(s)); pintarIconos($('sd')); } }catch(e){}
+  };
 
 /* ---------- 5. quién puede ver tu perfil completo ---------- */
-var _ajSector = window.pintarAjustes;
-window.pintarAjustes = function(){
-  var r = _ajSector.apply(this, arguments);
-  try{
-    var box = $('pf-ajustes'); if(!box || box.querySelector('#aj-quien')) return r;
+// Ajustes: quién puede ver tu perfil completo. La usa pintarAjustes (profesional/02-lideres-y-efecto-rebote.js)
+  window.CERCO_ajustesQuienTeVe = function(){
+    try{
+    var box = $('pf-ajustes'); if(!box || box.querySelector('#aj-quien')) return;
     var vis = {}, filas = [];
     S.sols.slice().sort(function(a,b){ return String(a.fecha).localeCompare(String(b.fecha)); }).forEach(function(s){
       if(vis[s.clinicaId]) return; vis[s.clinicaId] = 1;
@@ -217,8 +212,7 @@ window.pintarAjustes = function(){
     var datos = box.lastElementChild; if(datos) datos.insertAdjacentHTML('beforebegin', h); else box.insertAdjacentHTML('beforeend', h);
     pintarIconos(box);
   }catch(e){}
-  return r;
-};
+  };
 
 /* ---------- 7. seguimiento: ¿te dieron lo que prometía la oferta? ---------- */
 var _segPaso = {};
@@ -247,10 +241,9 @@ window.bloqueInicioExtra = function(){
 };
 
 /* ---------- 8. recordatorio de la entrevista ---------- */
-var _refSector = window.refrescar;
-window.refrescar = function(){
-  var r = _refSector.apply(this, arguments);
-  try{
+// Al refrescar: recordatorio de la cita 24 h antes. La usa refrescar (profesional/01-portal.js)
+  window.CERCO_refrescarRecordatorios = function(){
+    try{
     S.sols.forEach(function(s){
       if(s.estado !== 'entrevista' || !s.cita) return;
       var falta = new Date(s.cita.fecha).getTime() - Date.now(), k = 'cerco_rec_' + s.id + '_' + s.cita.v;
@@ -260,6 +253,5 @@ window.refrescar = function(){
       }
     });
   }catch(e){}
-  return r;
-};
+  };
 

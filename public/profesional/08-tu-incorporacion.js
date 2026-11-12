@@ -94,17 +94,15 @@ function bloqueIncorporacion(s){
   return html + '</div>';
 }
 (function(){
-  var _pintar = window.pintarSolicitud;
-  window.pintarSolicitud = function(){
-    var r = _pintar.apply(this, arguments);
+  // Solicitud contratada: «Tu incorporación». La usa pintarSolicitud (profesional/01-portal.js)
+  window.CERCO_solicitudIncorporacion = function(){
     try{
-      var s = buscarSol(S.actualSol), box = $('sd'); if(!s || !box || s.estado !== 'contratada') return r;
+      var s = buscarSol(S.actualSol), box = $('sd'); if(!s || !box || s.estado !== 'contratada') return;
       var g = box.querySelector('.gana-card'), html = bloqueIncorporacion(s);
       if(html){ if(g) g.insertAdjacentHTML('afterend', html); else box.insertAdjacentHTML('beforeend', html); pintarIconos(box); }
       // ya lo has visto: el «¡Enhorabuena!» deja de ocupar Inicio
       if(!s.ganVista && S.vista === 'solicitud' && document.visibilityState !== 'hidden') Nube.cambiar(s, {ganVista: new Date().toISOString()}).catch(function(){});
     }catch(e){}
-    return r;
   };
 })();
 

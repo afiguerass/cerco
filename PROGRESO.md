@@ -74,7 +74,8 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
     - `cerrarFichaCandidato`.
     - Prueba ampliada: una pregunta prohibida («¿Tienes hijos?») no se envía; un mensaje normal sí, y le llega al profesional. Pasa igual con el código anterior y con el nuevo.
   - **Lado clínica terminado: ninguna función con varias versiones.**
-  - **Falta el lado profesional:** `Nube.guardarPerfil` (3 capas), `refrescar` (4), `pintarSolicitud` (3), `verMiVideo` (3) y otras diez de 2 versiones.
+  - [x] **Profesional, primer grupo** (una sola versión cada una): `refrescar` (antes 4 versiones), `ir`, `pintarDetalle`, `pintarSolicitud` (antes 3) y `pintarAjustes`.
+  - **Falta en el profesional:** `Nube.guardarPerfil` (3 capas), `verMiVideo` (3), `testEmpezar`, `ofertasVisibles`, `extrasSolicitud`, `bloqueInicioExtra`, `pintarMedia` y las del editor de vídeo (`abrirEditorVideo`, `evTab`, `evGuardar`, `usarVideo`).
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.

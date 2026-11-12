@@ -427,7 +427,13 @@ function solsActivas(){ return S.sols.filter(function(s){ return s.estado !== 'r
    ================================================================ */
 var VISTAS_APP = ['inicio','descubrir','ofertas','oferta','solicitudes','solicitud','perfil','herramientas'];
 var _saltant = false;
+/* Ir a una pantalla del portal (y pintar Herramientas al entrar) (Fase 1: una sola versión) */
 function ir(v, arg, noHist){
+  var r = _irBase.apply(this, arguments);
+  if(window.CERCO_irHerramientas) CERCO_irHerramientas.apply(this, arguments);
+  return r;
+}
+function _irBase(v, arg, noHist){
   if(VISTAS_APP.indexOf(v) > -1 && !Nube.uid) v = 'login';
   if(v === 'oferta') S.actual = arg;
   if(v === 'solicitud') S.actualSol = arg;
@@ -720,7 +726,15 @@ function refrescarBadge(){
   var n = Nube.uid ? pendientesC() : 0;
   ['nav-cnt','tab-cnt'].forEach(function(id){ var e = $(id); if(!e) return; e.textContent = n; e.style.display = n ? '' : 'none'; });
 }
+/* Repintar lo que se ve: base, ajustes y rebote, herramientas y recordatorios de cita (Fase 1: una sola versión) */
 function refrescar(){
+  var r = _refrescarBase.apply(this, arguments);
+  if(window.CERCO_refrescarRebote) CERCO_refrescarRebote.apply(this, arguments);
+  if(window.CERCO_refrescarHerramientas) CERCO_refrescarHerramientas.apply(this, arguments);
+  if(window.CERCO_refrescarRecordatorios) CERCO_refrescarRecordatorios.apply(this, arguments);
+  return r;
+}
+function _refrescarBase(){
   var n = Nube.uid ? pendientesC() : 0;
   [['nav-cnt'],['tab-cnt']].forEach(function(a){ var e = $(a[0]); if(!e) return; e.textContent = n; e.style.display = n ? '' : 'none'; });
   if(S.vista === 'inicio') pintarInicio();
@@ -1352,7 +1366,13 @@ function cellUbic(o){
     + (k !== null ? '<div class="km-sub'+(fuera ? ' lejos' : '')+'">'+(k < 1 ? 'En tu misma zona' : 'A '+k+' km de '+esc(p.geo.n))+(fuera ? ' · más lejos de lo que marcaste ('+esc(txtRadioCorto(p.radio||25))+')' : '')+'</div>' : '')
     + '</div>';
 }
+/* Detalle de una oferta, con el bloque de confianza (Fase 1: una sola versión) */
 function pintarDetalle(){
+  var r = _pintarDetalleBase.apply(this, arguments);
+  if(window.CERCO_detalleConfianza) CERCO_detalleConfianza.apply(this, arguments);
+  return r;
+}
+function _pintarDetalleBase(){
   var o = buscarOferta(S.actual);
   var box = $('od');
   if(!o){
@@ -1606,7 +1626,14 @@ function fechaDe(s, e){
   for(var i=h.length-1;i>=0;i--) if(h[i].estado === e) return h[i].fecha;
   return e === 'enviada' ? s.fecha : null;
 }
+/* Detalle de una solicitud, con el pie y «Tu incorporación» (Fase 1: una sola versión) */
 function pintarSolicitud(){
+  var r = _pintarSolicitudBase.apply(this, arguments);
+  if(window.CERCO_solicitudPie) CERCO_solicitudPie.apply(this, arguments);
+  if(window.CERCO_solicitudIncorporacion) CERCO_solicitudIncorporacion.apply(this, arguments);
+  return r;
+}
+function _pintarSolicitudBase(){
   var s = buscarSol(S.actualSol), box = $('sd');
   var back = '<button class="back" onclick="ir(\'solicitudes\')">'+svg('left','currentColor',16)+'Mis solicitudes</button>';
   if(!s){ box.innerHTML = back + (S.solsCargadas ? '<div class="vacio"><b>No encontramos esta solicitud</b><p>Vuelve a tu lista de solicitudes.</p></div>' : '<div class="cargando"><div class="spin"></div></div>'); return; }

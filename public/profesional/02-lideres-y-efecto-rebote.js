@@ -464,7 +464,13 @@ function clinicasConocidas(){
   S.sols.forEach(function(s){ if(s.clinicaId) m[s.clinicaId] = s.clinicaNombre || m[s.clinicaId] || 'Clínica'; });
   return m;
 }
+/* Ajustes del perfil, con quién puede ver tu perfil (Fase 1: una sola versión) */
 function pintarAjustes(){
+  var r = _pintarAjustesBase.apply(this, arguments);
+  if(window.CERCO_ajustesQuienTeVe) CERCO_ajustesQuienTeVe.apply(this, arguments);
+  return r;
+}
+function _pintarAjustesBase(){
   var box = $('pf-ajustes'); if(!box) return;
   // no borrar lo que estás escribiendo si llega un cambio mientras tanto
   var ae = document.activeElement;
@@ -578,13 +584,12 @@ function eliminarCuenta(){
 }
 
 /* ---------- 12. enganches con el resto de la app ---------- */
-var _refOrig = window.refrescar;
-window.refrescar = function(){
-  _refOrig.apply(this, arguments);
-  if(S.vista === 'perfil') pintarAjustes();
+// Al refrescar: ajustes, solicitudes caducadas y efecto rebote. La usa refrescar (profesional/01-portal.js)
+  window.CERCO_refrescarRebote = function(){
+    if(S.vista === 'perfil') pintarAjustes();
   try{ procesarCaducadas(); }catch(e){}
   try{ procesarRebotes(); }catch(e){}
-};
+  };
 registrarSW();
 
 /* ---------- 13. tu cuenta: menú del avatar y salir en cualquier momento ---------- */

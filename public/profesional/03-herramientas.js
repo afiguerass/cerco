@@ -377,10 +377,14 @@ function hEncajas(){
 }
 
 /* ---------- enganches ---------- */
-var _irHerr = window.ir;
-window.ir = function(v, arg, noHist){ var r = _irHerr.apply(this, arguments); if(v === 'herramientas'){ pintarHerr(); } return r; };
-var _refHerr = window.refrescar;
-window.refrescar = function(){ var r = _refHerr.apply(this, arguments); if(S.vista === 'herramientas'){ var ae = document.activeElement; if(!(ae && /TEXTAREA|INPUT|SELECT/.test(ae.tagName))) pintarHerr(); } return r; };
+// Al ir a Herramientas, pintarlas. La usa ir (profesional/01-portal.js)
+  window.CERCO_irHerramientas = function(v, arg, noHist){
+    if(v === 'herramientas'){ pintarHerr(); }
+  };
+// Al refrescar: repintar Herramientas si está abierta. La usa refrescar (profesional/01-portal.js)
+  window.CERCO_refrescarHerramientas = function(){
+    if(S.vista === 'herramientas'){ var ae = document.activeElement; if(!(ae && /TEXTAREA|INPUT|SELECT/.test(ae.tagName))) pintarHerr(); }
+  };
 // la solicitud lleva si la has preparado
 var _extHerr = window.extrasSolicitud;
 window.extrasSolicitud = function(o){ var x = _extHerr(o); if(((S.perfil||{}).ensayos || []).indexOf(String(o.id)) > -1) x.preparada = true; return x; };

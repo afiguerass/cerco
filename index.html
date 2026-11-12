@@ -14397,5 +14397,84 @@ window.CGeo = (function(){
   };
 })();
 </script>
+<script>
+/* ================================================================
+   LA FICHA DEL CANDIDATO, EN PÁGINA GRANDE
+   Como la ficha de antes: se abre ocupando la parte derecha de la
+   app (el menú sigue a la izquierda), con «← Candidatos» arriba.
+   Izquierda: el vídeo en vertical, su nombre y cómo contactarle.
+   Derecha: su mensaje, el test, el CV y lo que puedes hacer.
+   ================================================================ */
+(function(){
+  var st = document.createElement('style');
+  st.textContent = ''
+    + '#modal-cand.ficha-pag{position:fixed !important;top:0 !important;right:0 !important;bottom:0 !important;left:var(--fp-left,0px) !important;inset:auto;background:#F4F6F9 !important;display:block !important;padding:0 !important;overflow-y:auto !important;z-index:10002;}'
+    + '#modal-cand.ficha-pag > .fp-card{max-width:none !important;width:100% !important;max-height:none !important;overflow:visible !important;background:transparent !important;box-shadow:none !important;border-radius:0 !important;}'
+    + '.fp-top{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #E5E7EB;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}'
+    + '.fp-top button{background:none;border:0;font:inherit;font-size:14px;font-weight:600;color:#374151;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 4px;}'
+    + '.fp-top button:hover{color:#1A56DB;}'
+    + '.fp-top span{font-size:13px;color:#6B7280;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}'
+    + '.fp-grid{max-width:1100px;margin:0 auto;padding:22px 20px 60px;display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:18px;align-items:start;}'
+    + '.fp-a, .fp-b{background:#fff;border:1px solid #E5E7EB;border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);min-width:0;}'
+    + '.fp-a{overflow:hidden;}'
+    + '@media (min-width:861px){.fp-a #ficha-video{margin:0 !important;border-radius:0 !important;width:100% !important;}}'
+    + '@media (max-width:860px){.fp-a #ficha-video{margin:12px auto 0 !important;}}'
+    + '.fp-a .fp-head{padding:16px 18px 0 !important;}'
+    + '.fp-a .fp-head > button[aria-label="Cerrar"]{display:none !important;}'
+    + '.fp-a .fp-contacto{padding:0 18px 18px;}'
+    + '.fp-a .fp-extra{margin:10px 18px 0 !important;}'
+    + '.fp-b{padding:20px 22px;}'
+    + '.fp-b > :first-child{margin-top:0 !important;}'
+    + '@media (max-width:860px){.fp-grid{grid-template-columns:1fr;padding:14px 12px 40px;}.fp-a{position:static;}.fp-top{padding:12px 14px;}}';
+  document.head.appendChild(st);
+
+  function izquierda(){
+    var n = document.querySelector('.shell-nav'), x = 0;
+    if(n){ var r = n.getBoundingClientRect(), cs = getComputedStyle(n); if(cs.display !== 'none' && cs.visibility !== 'hidden' && r.width > 0 && r.width < window.innerWidth * 0.5 && r.left <= 0) x = Math.round(r.right); }
+    document.documentElement.style.setProperty('--fp-left', x + 'px');
+  }
+  window.addEventListener('resize', izquierda);
+
+  function enPagina(id){
+    var m = document.getElementById('modal-cand'); if(!m || m.classList.contains('ficha-pag')) return;
+    var card = m.firstElementChild; if(!card || card.children.length < 2) return;
+    var hijos = [].slice.call(card.children), head = hijos[0];
+    var body = hijos.filter(function(x){ return x.querySelector && x.querySelector('#cand-acciones'); })[0] || hijos[hijos.length - 1];
+    var extras = hijos.filter(function(x){ return x !== head && x !== body; }); // p. ej. «Guardar»
+    var c = null; try{ c = (window.CERCO_candidaturas ? CERCO_candidaturas() : []).filter(function(x){ return x.id === id; })[0]; }catch(x){}
+    izquierda();
+    m.classList.add('ficha-pag'); card.classList.add('fp-card');
+    m.onclick = null; // en página no se cierra al tocar el fondo
+    var top = document.createElement('div'); top.className = 'fp-top';
+    top.innerHTML = '<button type="button" onclick="cerrarFichaCandidato()">← Candidatos</button><span></span>';
+    top.querySelector('span').textContent = c ? ((c.ofertaTitulo ? c.ofertaTitulo : '') ) : '';
+    var grid = document.createElement('div'); grid.className = 'fp-grid';
+    var a = document.createElement('div'); a.className = 'fp-a';
+    var b = document.createElement('div'); b.className = 'fp-b';
+    var vid = body.querySelector('#ficha-video');
+    // el bloque de contacto: los botones Llamar / WhatsApp / Correo
+    var contacto = null;
+    [].slice.call(body.children).some(function(el){ if(el.querySelector && el.querySelector('a[href^="tel:"], a[href^="mailto:"], a[href*="wa.me"]') && !el.id){ contacto = el; return true; } return false; });
+    if(vid) a.appendChild(vid);
+    head.classList.add('fp-head'); a.appendChild(head);
+    extras.forEach(function(x){ x.classList.add('fp-extra'); a.appendChild(x); });
+    if(contacto){ contacto.classList.add('fp-contacto'); a.appendChild(contacto); }
+    while(body.firstChild) b.appendChild(body.firstChild);
+    body.remove();
+    grid.appendChild(a); grid.appendChild(b);
+    card.appendChild(top); card.appendChild(grid);
+    m.scrollTop = 0;
+  }
+
+  var _ficha = window.abrirFichaCandidato;
+  window.abrirFichaCandidato = function(id, modo){
+    var y = 0, prev = document.getElementById('modal-cand'); if(prev) y = prev.scrollTop; // al refrescar la ficha, sin saltar arriba
+    var r = _ficha.apply(this, arguments);
+    try{ enPagina(id); var m = document.getElementById('modal-cand'); if(m && y && modo) m.scrollTop = y; }catch(x){}
+    return r;
+  };
+})();
+
+</script>
 </body>
 </html>

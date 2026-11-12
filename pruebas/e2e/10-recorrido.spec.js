@@ -271,7 +271,8 @@ test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y
   await seVe(page, 'Abrir en Gmail');
   await expect(page.locator('#correo-menu svg')).toHaveCount(4);
   await capturar(page, 'clinica-13b-menu-correo', { centrar: page.locator('#correo-menu') });
-  await page.getByText('RESUMEN DEL CANDIDATO').locator('visible=true').first().click();
+  // Se cierra con Esc (y la ficha tiene que seguir funcionando: se comprueba después con «Me interesa»)
+  await page.keyboard.press('Escape');
   await expect(page.locator('#correo-menu')).toHaveCount(0);
 
 

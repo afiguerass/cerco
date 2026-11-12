@@ -14075,7 +14075,8 @@ window.CGeo = (function(){
 
   /* ---------------- 1. CORREO ---------------- */
   function cerrarMenuCorreo(){ var m = $('correo-menu'); if(m) m.remove(); document.removeEventListener('keydown', escCorreo, true); }
-  function escCorreo(ev){ if(ev.key === 'Escape') cerrarMenuCorreo(); }
+  // Esc cierra solo el menú: se queda la tecla para que no cierre también la ficha que hay debajo
+  function escCorreo(ev){ if(ev.key === 'Escape'){ ev.stopPropagation(); cerrarMenuCorreo(); } }
   function abrirMenuCorreo(a){
     cerrarMenuCorreo();
     var href = a.getAttribute('href') || '', resto = href.replace(/^mailto:/i, ''), q = resto.indexOf('?');

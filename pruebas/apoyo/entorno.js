@@ -156,6 +156,8 @@ async function capturar(page, nombre, opciones = {}) {
       page.locator('video'),
       page.locator('#t-ops, [id^="options-container-"]'),
       page.locator('#invite-link-input, #invite-link-stats, #invite-link-equipo, #cita-sala'),
+      // textos que dependen de cuánto tarda la prueba («Ahora mismo», «Hace 2 min»…)
+      page.getByText(/Ahora mismo|Hace \d+ (min|h)\b/),
       ...(opciones.tapar || []),
     ],
     stylePath: CSS_CAPTURA,

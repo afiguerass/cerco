@@ -108,7 +108,22 @@ async function nuevaVentana(browser, testInfo, extra = {}) {
 // guarda; las siguientes se compara con la guardada. Se tapan los vídeos
 // (cada fotograma es distinto) y los avisos flotantes que desaparecen solos.
 const CSS_CAPTURA = path.join(__dirname, 'captura.css');
+
+// Palabras que el encargo prohíbe en la interfaz. Se comprueban en cada
+// pantalla de la que se hace captura.
+const PROHIBIDAS = [
+  /responsable de contrataci[oó]n/i, /\bRRHH\b/, /\bIA\b/, /tik ?tok/i,
+  /\bmatching\b/i, /\bkanban\b/i, /caja negra/i,
+];
+async function sinPalabrasProhibidas(page, nombre) {
+  const texto = await page.evaluate(() => document.body.innerText);
+  for (const p of PROHIBIDAS) {
+    const m = texto.match(p);
+    base.expect(m, `«${m && m[0]}» aparece en la pantalla ${nombre}`).toBeNull();
+  }
+}
 async function capturar(page, nombre, opciones = {}) {
+  await sinPalabrasProhibidas(page, nombre);
   if (process.env.SIN_CAPTURAS) return;
   // Si se pide, se coloca un elemento en el centro de la pantalla antes de
   // la captura, para que el desplazamiento sea siempre el mismo.

@@ -31,7 +31,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Asish prueba la rama `profesional` (instrucciones en el README, apartado «Probar la rama profesional») y decide si se pasa a la **Fase 1** (ordenar el código sin cambiar nada).
+Asish prueba la rama `profesional` (instrucciones en el README, apartado «Probar la rama profesional») y dice si se pasa a la **Fase 1** (ordenar el código sin cambiar nada). Todas las pruebas están en verde: 33 de reglas y 26 de navegador.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:
@@ -44,14 +44,20 @@ Cada uno tiene su propio commit en la rama `profesional`:
 - [x] En el móvil, el visor del CV queda por encima de la barra superior y del botón de Seimian: se ven el nombre, «Descargar» y la «×».
 - [x] Pruebas más finas: las capturas admiten como mucho 10 píxeles distintos (una letra ya se nota). En cada pantalla capturada se comprueba que no salgan palabras prohibidas (IA, RRHH, responsable de contratación, TikTok, matching, Kanban, caja negra) ni emojis. Hay una prueba nueva del caso «Perfil sin definir» en el lado clínica.
 
-## Fallos que siguen pendientes (no se han tocado; decide Asish)
-- **Visor del CV en el ordenador:** si la clínica lo cierra con la tecla **Esc**, la ficha deja de actualizarse. Con la «×» funciona bien.
-- **Una persona que solicita dos ofertas de la misma clínica:** en «Candidatos» de una oferta concreta la cabecera cuenta las solicitudes de todas las ofertas («2 candidatos han aplicado»).
-- **Trabajador del equipo (enlace del test):** el botón «Guardar y continuar» se puede pulsar mientras el resultado aún se está enviando. Si la persona cierra la página en ese momento, el resultado puede perderse.
-- **Más emojis** en el menú «Correo» de la ficha del candidato (lado clínica): ✉️ 📨 💻 📋.
-- **«Perfil sin definir»:** el encargo dice «solo la frase y la opción de repasar». Hoy, además de la frase, sale un párrafo que explica por qué y cómo repasar. Se ha dejado; si sobra, se quita.
-- **Seguimiento del profesional:** cuando le contratan, la entrevista aparece en pasado («Fue el jueves 12 de noviembre…») aunque la fecha todavía no haya llegado.
-- **Reglas de seguridad: puntos mejorables** (para la Fase 3):
+## Segunda tanda de arreglos (pedidos por Asish)
+Cada uno tiene su propio commit en la rama `profesional`:
+- [x] Cerrar el visor del CV con **Esc** ya no deja la ficha sin actualizar. El mismo fallo estaba también en el menú «Correo» y está arreglado en su propio commit.
+- [x] Una persona que solicita dos ofertas ya no se cuenta dos veces:
+  - Dentro de una oferta, la cabecera y los filtros cuentan solo esa oferta.
+  - En la vista general y en «Candidatos totales» se cuentan personas.
+- [x] «Guardar y continuar» del test del equipo espera a que el resultado llegue de verdad (mientras tanto dice «Enviando…»). Si no llega, la persona se queda con su código de reserva.
+- [x] El menú «Correo» lleva iconos de trazo (sobre, bandeja, portátil, copiar) en lugar de emojis.
+- [x] «Perfil sin definir» enseña solo la frase y la opción de repasar. Se mantienen los botones de salir («Ahora no» / «Atrás»).
+- [x] El seguimiento del profesional dice «Será el…» si la entrevista aún no ha llegado y «Fue el…» si ya pasó.
+- [x] El rol «Responsable de personal» se llama «Coordinador/a de clínica». El dato guardado sigue siendo el mismo.
+
+## Pendiente para más adelante
+- **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.
   - `tiempos_respuesta`, `condiciones` y `valoraciones` no comprueban bien quién escribe ni qué escribe.
   - La clínica puede devolver una solicitud a un estado anterior.

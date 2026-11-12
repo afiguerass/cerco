@@ -113,14 +113,31 @@ async function capturar(page, nombre, opciones = {}) {
   // Si se pide, se coloca un elemento en el centro de la pantalla antes de
   // la captura, para que el desplazamiento sea siempre el mismo.
   if (opciones.centrar) {
-    await opciones.centrar.evaluate((el) => { if (document.activeElement) document.activeElement.blur(); el.scrollIntoView({ block: 'start' }); });
+    // Dos veces: lo que hay encima puede acabar de cargar y mover la página.
+    for (let i = 0; i < 2; i++) {
+      await opciones.centrar.evaluate((el) => { if (document.activeElement) document.activeElement.blur(); el.scrollIntoView({ block: 'start' }); });
+      await page.waitForTimeout(600);
+    }
+  } else {
+    // Si no, todo lo que se desplaza vuelve arriba del todo (en el móvil la web
+    // se desplaza por dentro y cada vez quedaría a una altura distinta).
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+      document.querySelectorAll('*').forEach((el) => { if (el.scrollTop > 0) el.scrollTop = 0; });
+    });
   }
   await page.waitForTimeout(400);
   await base.expect(page).toHaveScreenshot(`${nombre}.png`, {
     fullPage: true,
     // Se tapan: los vídeos (cada fotograma es distinto) y las frases del test
     // DISC, que salen en orden aleatorio a propósito.
-    mask: [page.locator('video'), page.locator('#t-ops, [id^="options-container-"]'), ...(opciones.tapar || [])],
+    // y los enlaces que llevan números internos distintos en cada ejecución.
+    mask: [
+      page.locator('video'),
+      page.locator('#t-ops, [id^="options-container-"]'),
+      page.locator('#invite-link-input, #invite-link-stats, #invite-link-equipo, #cita-sala'),
+      ...(opciones.tapar || []),
+    ],
     stylePath: CSS_CAPTURA,
     timeout: 20_000,
   });

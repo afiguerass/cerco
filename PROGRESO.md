@@ -7,7 +7,7 @@ Se trabaja en la rama `profesional`; la web publicada (rama `main`) no se toca s
 
 ### Hecho
 - [x] **Paso 1** — Creada la rama `profesional` y este archivo `PROGRESO.md`.
-- [x] Comprobado que `firestore.rules` ya está en el repositorio (reglas del 11 de noviembre de 2026). *Pendiente: que Asish confirme que son las que están publicadas en Firebase.*
+- [x] Comprobado que `firestore.rules` ya está en el repositorio (reglas del 11 de noviembre de 2026). Asish ha confirmado que son las que están publicadas en Firebase.
 
 ### Falta (Fase 0)
 - [ ] **Paso 2** — `README.md` en español que explique qué es cada archivo.

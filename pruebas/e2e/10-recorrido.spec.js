@@ -80,6 +80,8 @@ test('1. La clínica se registra, configura su perfil y hace su test', async () 
     },
   });
   await expect(page.locator('#screen-publicat')).toContainText(A.CLINICA.clinica);
+  await expect(page.locator('#screen-publicat')).toContainText('QUIÉN RESPONDE A LOS CANDIDATOS');
+  await expect(page.locator('#screen-publicat')).not.toContainText(/responsable de contratación/i);
   await capturar(page, 'clinica-06-perfil-publicado');
 });
 

@@ -2056,7 +2056,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
           <option>Gerente</option>
           <option>Director/a clínico</option>
           <option>Odontólogo/a</option>
-          <option>Responsable de RRHH</option>
+          <option value="Responsable de RRHH">Responsable de personal</option>
           <option>Propietario/a</option>
         </select>
       </div>
@@ -3831,7 +3831,7 @@ __SCREENS_CSS__/* ===== onboarding ===== */
       </div>
 
       <div class="card">
-        <h3><span style="display:inline-flex;align-items:center;gap:7px;"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Responsable de contratación</span></h3>
+        <h3><span style="display:inline-flex;align-items:center;gap:7px;"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-0.15em;flex-shrink:0;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Quién responde a los candidatos</span></h3>
         <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
           <div id="pub-owner-avatar" style="width:48px;height:48px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#1A56DB;flex-shrink:0;">?</div>
           <div style="flex:1;">
@@ -6926,7 +6926,7 @@ function _pintarPerfilPublico(){
   h += '<div style="background:white;border:1px solid #EAECF0;border-radius:16px;padding:18px;margin-bottom:14px;">'
      + '<div style="display:flex;align-items:center;gap:12px;">'
      + '<div style="width:42px;height:42px;border-radius:50%;background:#EEF2FF;color:#1A56DB;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;">' + _esc(inicial) + '</div>'
-     + '<div><div style="font-size:11px;letter-spacing:.5px;color:#6B7280;">RESPONSABLE DE CONTRATACIÓN</div>'
+     + '<div><div style="font-size:11px;letter-spacing:.5px;color:#6B7280;">QUIÉN RESPONDE A LOS CANDIDATOS</div>'
      + '<div style="font-size:14.5px;font-weight:700;color:#111827;">' + (c.nomResp ? _esc(c.nomResp) : falta('Sin completar')) + '</div></div></div></div>';
 
   h += '<div style="background:white;border:1px solid #EAECF0;border-radius:16px;padding:18px;margin-bottom:14px;">'
@@ -7527,7 +7527,8 @@ function updateMcBadge(){
 
   if(letter && !(av && av.style.backgroundImage)) letter.textContent = nom ? nom.charAt(0).toUpperCase() : '?';
   if(heroName) heroName.textContent = nom || 'Tu nombre';
-  if(heroRole) heroRole.textContent = rol + (clinica ? ' · ' + clinica : '');
+  // El valor guardado sigue siendo «Responsable de RRHH»; en pantalla se dice «Responsable de personal»
+  if(heroRole) heroRole.textContent = (rol === 'Responsable de RRHH' ? 'Responsable de personal' : rol) + (clinica ? ' · ' + clinica : '');
 
   // El rol elegido se guarda con el resto del perfil
   try {
@@ -9098,7 +9099,7 @@ function renderMiCuenta(){
   }
   var rol = rolSel ? rolSel.value : 'Gerente';
   set('mc-hero-name', nom || 'Tu nombre');
-  set('mc-hero-role', rol + (c.nom ? ' · ' + c.nom : ''));
+  set('mc-hero-role', (rol === 'Responsable de RRHH' ? 'Responsable de personal' : rol) + (c.nom ? ' · ' + c.nom : ''));
   set('mc-st-ofertas', r.activas);
   set('mc-st-cand', r.candidatos);
   set('mc-st-equipo', r.miembros);

@@ -1027,6 +1027,11 @@ body.en-dx .tab.active .ico{background:rgba(255,255,255,.16);}
 .inc-mk{width:20px;height:20px;border-radius:6px;border:2px solid #D1D5DB;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;}
 .inc-pasos li.ok .inc-mk{background:#059669;border-color:#059669;}
 .inc-otras{margin-top:14px;background:#FFFBEB;border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.5;color:#5C3D00;}
+
+/* nombre de archivo largo: se corta con «…» y los botones bajan si no caben */
+.pm-line{flex-wrap:wrap;row-gap:10px;}
+.pm-line > div[style*="flex:1"]{flex:1 1 170px !important;}
+.pm-line > div[style*="flex:1"] b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 </style>
 </head>
 <body class="sin-nav">
@@ -2883,7 +2888,7 @@ function pintarInicio(){
   if(!p.resumen) falta.push('<li>Presentarte en pocas líneas</li>');
   if(!(p.trabajos||[]).length && p.experiencia && p.experiencia.indexOf('Sin experiencia') !== 0) falta.push('<li>Añadir dónde has trabajado</li>');
   if(!(p.fuertes||[]).length) falta.push('<li>Elegir tus puntos fuertes</li>');
-  if(!p.video) falta.unshift('<li>Grabar un vídeo de 30 segundos (lo primero que ve la clínica)</li>');
+  if(!p.video) falta.unshift('<li>Grabar tu vídeo de presentación (lo primero que ve la clínica)</li>');
   if(!p.foto) falta.push('<li>Poner una foto de perfil</li>');
   if(!p.cv) falta.push('<li>Subir tu CV completo en PDF</li>');
   var total = 10, hechos = total - falta.length;
@@ -3530,19 +3535,27 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') cerrarM
    dentro de la base de datos (candidatos/{uid}/media) y solo los
    pueden leer las clínicas a las que has enviado algo.
    ================================================================ */
-var TROZO = 700000;          // caracteres por trozo, por debajo del límite de 1 MB por documento
-var VIDEO_MAX_S = 30, VIDEO_MIN_S = 15, VIDEO_MAX_MB = 12, CV_MAX_MB = 3;
+var TROZO = 400000;          // caracteres por trozo, por debajo del límite de 1 MB por documento
+var VIDEO_MAX_S = 60, VIDEO_MIN_S = 15, VIDEO_MAX_MB = 15, CV_MAX_MB = 3;
 
 Nube.subirMedia = function(tipo, dataUrl, avance){
   var coma = dataUrl.indexOf(','), mime = dataUrl.slice(5, dataUrl.indexOf(';'));
   var b64 = dataUrl.slice(coma + 1), n = Math.ceil(b64.length / TROZO);
   var col = this.db().collection('candidatos').doc(this.uid).collection('media');
-  var i = 0;
+  var i = 0, avisado = false;
+  function conTiempo(p, ms){ return new Promise(function(ok, ko){ var t = setTimeout(function(){ ko('tiempo'); }, ms); p.then(function(x){ clearTimeout(t); ok(x); }, function(e){ clearTimeout(t); ko(e); }); }); }
   var sig = function(){
     if(i >= n) return Promise.resolve();
-    var k = i++;
+    var k = i, intento = 0;
     if(avance) avance(k + 1, n);
-    return col.doc(tipo + '_' + k).set({ d: b64.slice(k*TROZO, (k+1)*TROZO), i: k, n: n }).then(sig);
+    var una = function(){
+      return conTiempo(col.doc(tipo + '_' + k).set({ d: b64.slice(k*TROZO, (k+1)*TROZO), i: k, n: n }), 40000).catch(function(e){
+        if(++intento >= 4) throw e;
+        if(!avisado){ avisado = true; try{ toast('La conexión va lenta. Seguimos subiendo, no cierres la página.'); }catch(x){} }
+        return new Promise(function(r){ setTimeout(r, 1500 * intento); }).then(una);
+      });
+    };
+    return una().then(function(){ i++; return sig(); });
   };
   return sig().then(function(){ return { n:n, mime:mime, size:Math.round(b64.length * 0.75), v:Date.now() }; });
 };
@@ -3677,7 +3690,7 @@ function abrirGrabadora(){
   m.className = 'modal-bg'; m.id = 'modal';
   m.innerHTML = '<div class="modal gv" role="dialog" aria-modal="true" aria-label="Vídeo de presentación">'
     + '<h2>Tu vídeo de presentación</h2>'
-    + '<p>30 segundos, como un TikTok: entre 15 y 30. Di quién eres, qué te gusta de tu trabajo y qué tipo de clínica buscas. Con el móvil en vertical, luz de frente y sin ruido.</p>'
+    + '<p>Entre 15 segundos y 1 minuto. Preséntate: quién eres, tu experiencia y qué tipo de clínica buscas. Mejor con el móvil en vertical, buena luz y sin ruido de fondo.</p>'
     + '<div class="gv-pant"><video id="gv-v" playsinline muted autoplay></video><div class="gv-reloj" id="gv-reloj" hidden>0:00 / 0:30</div>'
     + '<div class="gv-vacio" id="gv-vacio">'+svg('video','#fff',30)+'<span>Pulsa "Encender cámara"</span></div></div>'
     + '<div class="err" id="gv-err" style="margin-top:10px;"></div>'
@@ -3760,7 +3773,7 @@ function subirVideoArchivo(inp){
     if(isFinite(d) && d > 180) return error('gv-err', 'El vídeo dura ' + mmss(d) + '. Sube uno de menos de 3 minutos.');
     GV.archivo = f; GV.url = url; GV.dur = isFinite(d) ? d : 0; GV.ini = 0; GV.fin = 0; GV.blob = null;
     var largo = GV.dur > VIDEO_MAX_S + 0.5, pesado = f.size > VIDEO_MAX_MB * 1048576;
-    var pv = $('gv-v'); if(pv){ pv.srcObject = null; pv.src = url; pv.muted = false; pv.controls = true; pv.autoplay = false; }
+    var pv = $('gv-v'); if(pv){ pv.srcObject = null; pv.src = url + '#t=0.001'; pv.muted = false; pv.controls = true; pv.autoplay = false; pv.preload = 'auto'; }
     var vac = $('gv-vacio'); if(vac) vac.hidden = true;
     var sub = $('gv-sub'); if(sub) sub.hidden = true;
     if(!largo && !pesado){ GV.blob = f; gvBotones('hecho'); return; }
@@ -3769,12 +3782,12 @@ function subirVideoArchivo(inp){
   v.onerror = function(){ error('gv-err', 'No podemos leer ese vídeo. Prueba con otro formato (MP4) o grábalo desde aquí.'); };
   v.src = url;
 }
-// vídeo largo o muy pesado: eliges los 30 segundos y CERCO lo prepara (más ligero)
+// vídeo largo o muy pesado: eliges el minuto y CERCO lo prepara (más ligero)
 function gvTramo(largo){
   var a = $('gv-acts'); if(!a) return;
   var max = Math.max(0, GV.dur - VIDEO_MAX_S);
   a.innerHTML = '<div class="gv-tramo">'
-    + (largo ? '<label for="gv-ini"><b>Elige los 30 segundos</b> que verá la clínica</label>'
+    + (largo ? '<label for="gv-ini"><b>Elige el minuto</b> que verá la clínica</label>'
       + '<div class="gv-tr-f"><input type="range" id="gv-ini" min="0" max="'+max.toFixed(1)+'" step="0.1" value="0" oninput="gvMoverTramo()"><span id="gv-tr-t">0:00 – '+mmss(Math.min(GV.dur, VIDEO_MAX_S))+'</span></div>'
       : '<p><b>Tu vídeo pesa ' + mb(GV.archivo.size) + '.</b> Lo preparamos para que pese menos y se vea igual de bien en el móvil de la clínica.</p>')
     + '<div class="gv-prog" id="gv-prog" hidden><div id="gv-prog-b"></div></div>'
@@ -3813,41 +3826,83 @@ function armarVideo(url){
 function gvPreparar(){
   var b = $('gv-prep'); if(!b || b.disabled) return;
   var tipo = tipoGrabacion();
-  if(!window.MediaRecorder || !tipo || !document.createElement('canvas').captureStream) return error('gv-err', 'Este navegador no puede preparar el vídeo. Prueba en Chrome o en Safari actualizado, o recorta el vídeo en tu móvil a 30 segundos y súbelo otra vez.');
+  if(!window.MediaRecorder || !tipo || !document.createElement('canvas').captureStream) return error('gv-err', 'Este navegador no puede preparar el vídeo. Prueba en Chrome o en Safari actualizado, o recorta el vídeo en tu móvil a 1 minuto y súbelo otra vez.');
   // sin audio web el vídeo saldría mudo: mejor decirlo que guardarlo sin sonido
   if(!hayAudioWeb()) return error('gv-err', msgSinAudio());
-  if(GV.arm){ try{ GV.arm.quitar(); }catch(e){} }
-  var arm = GV.arm = armarVideo(GV.url), src = arm.src;
+  var pv = $('gv-v'); if(!pv) return;
+  var ini = GV.ini || 0, dur = Math.max(1, Math.min(VIDEO_MAX_S, GV.dur - ini));
+  // Todo nace de este toque (el iPhone lo exige): audio, salto al trozo y reproducción.
+  // Se prepara el vídeo que tienes delante: lo ves y lo oyes mientras tanto.
+  var ac = GV.ac2; if(!ac || ac.state === 'closed'){ try{ ac = GV.ac2 = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return error('gv-err', msgSinAudio()); } }
+  try{ if(ac.resume) ac.resume(); }catch(e){}
+  var so = pv.__so; if(!so){ try{ so = pv.__so = ac.createMediaElementSource(pv); so.connect(ac.destination); }catch(e){ return error('gv-err', msgSinAudio()); } }
+  var de = ac.createMediaStreamDestination(); so.connect(de);
+  pv.ontimeupdate = null; pv.controls = false; pv.muted = false; pv.loop = false;
+  try{ pv.currentTime = ini; }catch(e){}
+  var arranque = pv.play();
   b.disabled = true; b.textContent = 'Preparando…'; $('gv-prog').hidden = false; error('gv-err', '');
-  var ini = GV.ini || 0, dur = Math.min(VIDEO_MAX_S, GV.dur - ini), pv = $('gv-v'); try{ pv.pause(); }catch(e){}
-  src.onloadedmetadata = function(){
-    src.onloadedmetadata = null;
-    // el lado corto a 720 px como mucho: se ve bien en un móvil y pesa poco
-    var w = src.videoWidth || 720, h = src.videoHeight || 1280, k = Math.min(1, 720 / Math.min(w, h));
-    var cv = document.createElement('canvas'); cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
-    var cx = cv.getContext('2d'), st = cv.captureStream(30);
-    try{ var ac = arm.ac || new (window.AudioContext || window.webkitAudioContext)(), so = ac.createMediaElementSource(src), de = ac.createMediaStreamDestination(); so.connect(de); de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); }); GV.ac = ac; }catch(e){}
-    if(!st.getAudioTracks().length){ arm.quitar(); GV.arm = null; b.disabled = false; b.textContent = 'Preparar mi vídeo'; $('gv-prog').hidden = true; return error('gv-err', msgSinAudio()); }
-    var rec, trozos = [];
-    try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1400000, audioBitsPerSecond:96000}); }catch(e){ rec = new MediaRecorder(st); }
-    rec.ondataavailable = function(e){ if(e.data && e.data.size) trozos.push(e.data); };
+  var cancel = document.querySelector('.gv-tr-a .btn-s'); if(cancel) cancel.onclick = function(){ fin('cancel'); };
+  var w = pv.videoWidth || 720, h = pv.videoHeight || 1280, k = Math.min(1, 720 / Math.min(w, h));
+  var cv = document.createElement('canvas'); cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
+  cv.style.cssText = 'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
+  document.body.appendChild(cv);
+  var cx = cv.getContext('2d'), st = cv.captureStream(30);
+  de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); });
+  var rec, trozos = [], hecho = false, ultimo = -1, quieto = 0, vigia = null;
+  try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1100000, audioBitsPerSecond:96000}); }catch(e){ rec = new MediaRecorder(st); }
+  rec.ondataavailable = function(e){ if(e.data && e.data.size) trozos.push(e.data); };
+  function limpiar(){
+    clearInterval(vigia); document.removeEventListener('visibilitychange', alVolver);
+    try{ so.disconnect(de); }catch(e){} try{ cv.remove(); }catch(e){}
+    try{ pv.pause(); }catch(e){}
+  }
+  function reiniciarBoton(txt){ b.disabled = false; b.textContent = txt || 'Preparar mi vídeo'; $('gv-prog').hidden = true; var pb = $('gv-prog-b'); if(pb) pb.style.width = '0'; pv.controls = true; }
+  function fin(motivo){
+    if(hecho) return; hecho = true;
+    if(motivo !== 'ok'){
+      trozos = []; try{ if(rec.state !== 'inactive') rec.stop(); }catch(e){} limpiar();
+      if(motivo === 'cancel'){ cerrarGrabadora(); return; }
+      reiniciarBoton('Probar otra vez');
+      return error('gv-err', motivo === 'fuera' ? 'Has salido de la página y el móvil ha parado el vídeo. Pulsa «Probar otra vez» y quédate en esta pantalla hasta que acabe (dura lo mismo que tu vídeo).'
+        : 'El móvil ha parado el vídeo a medias. Pulsa «Probar otra vez»; si vuelve a pasar, prueba con Chrome o Safari actualizado.');
+    }
     rec.onstop = function(){
-      try{ GV.ac && GV.ac.close(); }catch(e){} try{ arm.src.remove(); }catch(e){} GV.arm = null;
+      limpiar();
       var blob = new Blob(trozos, {type: (tipo || 'video/webm').split(';')[0]});
-      GV.blob = blob; GV.dur = dur; GV.ini = 0; GV.fin = 0;
-      var p2 = $('gv-v'); if(p2){ p2.ontimeupdate = null; p2.src = URL.createObjectURL(blob); p2.controls = true; }
+      if(!blob.size){ reiniciarBoton('Probar otra vez'); return error('gv-err', 'No ha salido bien. Pulsa «Probar otra vez».'); }
+      GV.blob = blob; GV.dur = dur; GV.ini = 0; GV.fin = 0; GV.w = cv.width; GV.h = cv.height;
+      // vídeo nuevo en un reproductor nuevo (el anterior quedó unido al audio de la preparación)
+      var nv = document.createElement('video'); nv.id = 'gv-v'; nv.setAttribute('playsinline', ''); nv.playsInline = true; nv.controls = true; nv.preload = 'auto';
+      nv.src = URL.createObjectURL(blob) + '#t=0.001';
+      pv.parentNode.replaceChild(nv, pv);
       $('gv-acts').innerHTML = ''; gvBotones('hecho');
-      if(blob.size > VIDEO_MAX_MB * 1048576) error('gv-err', 'Sigue pesando ' + mb(blob.size) + '. Prueba con un vídeo grabado con menos calidad.');
-      else toast('Listo: ' + mb(blob.size) + '. Mira cómo queda y pulsa «Usar este vídeo».');
+      if(blob.size > VIDEO_MAX_MB * 1048576) error('gv-err', 'Sigue pesando ' + mb(blob.size) + '. Elige un trozo más corto o graba con menos calidad (Ajustes → Cámara → Grabar vídeo → 720p HD).');
+      else toast('Listo: ' + mb(blob.size) + '. Míralo y pulsa «Usar este vídeo».');
     };
-    var dibuja = function(){ if(rec.state !== 'recording') return; try{ cx.drawImage(src, 0, 0, cv.width, cv.height); }catch(e){}
-      var t = src.currentTime - ini, pb = $('gv-prog-b'); if(pb) pb.style.width = Math.min(100, t / dur * 100) + '%';
-      if(b) b.textContent = 'Preparando… ' + Math.max(0, Math.round(dur - t)) + ' s';
-      if(t >= dur || src.ended){ src.pause(); rec.stop(); return; } requestAnimationFrame(dibuja); };
-    src.onseeked = function(){ src.onseeked = null; arm.arrancado = true; src.muted = false; try{ if(ac && ac.resume) ac.resume(); }catch(e){} var p = src.play(); (p && p.then ? p : Promise.resolve()).then(function(){ rec.start(250); dibuja(); }).catch(function(){ arm.quitar(); GV.arm = null; error('gv-err', 'No se ha podido preparar el vídeo. Vuelve a pulsar el botón; si sigue sin ir, prueba en Chrome o Safari actualizado.'); b.disabled = false; b.textContent = 'Probar otra vez'; }); };
-    arm.arrancado = true; try{ src.pause(); }catch(e){}
-    src.currentTime = ini;
-  };
+    try{ rec.stop(); }catch(e){ rec.onstop(); }
+  }
+  function alVolver(){ if(document.visibilityState === 'hidden') fin('fuera'); }
+  document.addEventListener('visibilitychange', alVolver);
+  function dibuja(){
+    if(hecho) return;
+    try{ cx.drawImage(pv, 0, 0, cv.width, cv.height); }catch(e){}
+    var t = pv.currentTime - ini, pb = $('gv-prog-b'); if(pb) pb.style.width = Math.max(0, Math.min(100, t / dur * 100)) + '%';
+    b.textContent = 'Preparando… ' + Math.max(0, Math.round(dur - t)) + ' s';
+    if(t >= dur - 0.05 || pv.ended){ fin('ok'); return; }
+    requestAnimationFrame(dibuja);
+  }
+  function empezar(){
+    if(hecho || rec.state !== 'inactive') return;
+    try{ rec.start(500); }catch(e){ return fin('error'); }
+    dibuja();
+    // si el vídeo se queda parado (llamada, bloqueo, el móvil lo pausa) lo decimos en vez de quedarnos colgados
+    vigia = setInterval(function(){
+      if(hecho) return;
+      if(Math.abs(pv.currentTime - ultimo) < 0.01){ quieto++; if(quieto === 2){ try{ var p = pv.play(); if(p && p.catch) p.catch(function(){}); }catch(e){} } if(quieto >= 6) fin('parado'); }
+      else { quieto = 0; ultimo = pv.currentTime; }
+    }, 1000);
+  }
+  (arranque && arranque.then ? arranque : Promise.resolve()).then(empezar).catch(function(){ fin('parado'); });
 }
 function usarVideo(){
   if(!GV.blob || !unaVez('usarV', 1500)) return;
@@ -3856,7 +3911,7 @@ function usarVideo(){
     return Nube.subirMedia('video', url, function(k, n){ if(b) b.textContent = n > 1 ? ('Subiendo ' + k + ' de ' + n + '…') : 'Subiendo…'; });
   }).then(function(meta){
     meta.dur = Math.round(GV.dur);
-    var gvv = $('gv-v'); if(gvv && gvv.videoWidth){ meta.w = gvv.videoWidth; meta.h = gvv.videoHeight; }
+    var gvv = $('gv-v'); if(gvv && gvv.videoWidth){ meta.w = gvv.videoWidth; meta.h = gvv.videoHeight; } else if(GV.w){ meta.w = GV.w; meta.h = GV.h; }
     if(GV.url){ try{ URL.revokeObjectURL(GV.url); }catch(e){} GV.url = null; GV.archivo = null; }
     if(GV.fin){ meta.ini = 0; meta.fin = GV.fin; }
     var p = Object.assign({}, S.perfil); p.video = meta;
@@ -3866,7 +3921,7 @@ function usarVideo(){
     _mediaUrl.video = null;
   }).catch(function(){
     if(b){ b.disabled = false; b.textContent = 'Usar este vídeo'; }
-    error('gv-err', 'No hemos podido subir el vídeo. Revisa tu conexión y vuelve a pulsar.');
+    error('gv-err', 'No hemos podido subir el vídeo: la conexión se ha cortado. Pulsa «Usar este vídeo» otra vez cuando tengas buena cobertura o wifi.');
   });
 }
 function quitarVideo(){ if(!confirm('¿Quitar tu vídeo? Las clínicas dejarán de verlo.')) return; var p = Object.assign({}, S.perfil); p.video = null; _mediaUrl.video = null; guardarYRepintar(p, 'Vídeo quitado'); }
@@ -3966,7 +4021,7 @@ function pintarMedia(){
     h += '<div class="pm-vid'+(v.poster ? ' con-portada' : '')+'" id="pf-vid" data-w="'+(v.w||'')+'" data-h="'+(v.h||'')+'"'+(v.poster ? ' style="background-image:linear-gradient(rgba(15,28,63,.15),rgba(15,28,63,.45)),url(\''+esc(v.poster)+'\')"' : '')+'><button type="button" class="pm-play" onclick="verMiVideo()">'+svg('video','#fff',22)+'<span>Ver mi vídeo'+(v.dur ? ' ('+mmss(v.dur)+')' : '')+'</span></button>'+(v.poster ? '<span class="pm-portada">Portada que ve la clínica</span>' : '')+'</div>'
       + '<div class="pm-row"><button class="btn btn-s" onclick="abrirGrabadora()">'+svg('video','currentColor',15)+'Grabar otro</button><label class="btn btn-s">'+svg('upload','currentColor',15)+'Subir otro<input type="file" accept="video/*" class="sr" onchange="subirVideoPerfil(this)"></label><button class="btn btn-g" style="color:#DC2626;" onclick="quitarVideo()">Quitar</button></div>';
   } else {
-    h += '<div class="pm-vacio"><div class="pm-vacio-ic">'+svg('video','#fff',24)+'</div><div style="min-width:0;"><b>Graba un vídeo de 30 segundos</b><span>Quién eres, qué te gusta de tu trabajo y qué buscas. La clínica lo ve antes que tu CV.</span></div>'
+    h += '<div class="pm-vacio"><div class="pm-vacio-ic">'+svg('video','#fff',24)+'</div><div style="min-width:0;"><b>Graba tu vídeo de presentación</b><span>Quién eres, qué te gusta de tu trabajo y qué buscas. La clínica lo ve antes que tu CV.</span></div>'
       + '<div class="pm-vacio-b"><button class="btn btn-p" onclick="abrirGrabadora()">'+svg('video','#1A3A9B',16)+'Grabar ahora</button><label class="btn pm-subir">'+svg('upload','#fff',16)+'Subir de mis archivos<input type="file" accept="video/*" class="sr" onchange="subirVideoPerfil(this)"></label></div></div>';
   }
   // la foto se pone arriba, en la cabecera del perfil
@@ -4055,7 +4110,7 @@ function seiHoy(p){
   var ent = S.sols.filter(function(s){ return s.estado === 'entrevista' && !esVisita(s); })[0];
   if(ent) return 'Lo más importante hoy: la entrevista con <b>' + esc(ent.clinicaNombre || 'la clínica') + '</b>. Confírmala y ensáyala con sus preguntas.' + seiLink('Abrirla', "cerrarSeimian(); ir('solicitud','" + esc(ent.id) + "')") + seiLink('Ensayar', "cerrarSeimian(); abrirHerramienta('ensayo','" + esc(ent.ofertaId) + "')");
   if(!p.disc) return 'Lo primero es el test: sin él no puedes enviar solicitudes. Son 5 minutos.' + seiLink('Hacer el test', "cerrarSeimian(); abrirTest(false)");
-  if(!p.video) return 'Graba tu vídeo de 30 segundos: es lo que más hace que una clínica te conteste.' + seiLink('Ir a mi perfil', "cerrarSeimian(); ir('perfil')");
+  if(!p.video) return 'Graba tu vídeo de presentación (hasta 1 minuto): es lo que más hace que una clínica te conteste.' + seiLink('Ir a mi perfil', "cerrarSeimian(); ir('perfil')");
   if(!p.cv) return 'Sube tu CV: la clínica lo puede leer dentro de CERCO sin descargarlo.' + seiLink('Ir a mi perfil', "cerrarSeimian(); ir('perfil')");
   var viv = S.sols.filter(function(s){ return ['enviada','vista'].indexOf(s.estado) > -1; }).length;
   if(viv < 3) return (viv ? 'Tienes ' + viv + ' solicitud' + (viv === 1 ? '' : 'es') + ' esperando. ' : '') + 'Con el perfil completo, lo que toca es solicitar 2 o 3 ofertas que te encajen: más no hace falta.' + seiLink('Ver ofertas', "cerrarSeimian(); ir('ofertas')");
@@ -4078,7 +4133,7 @@ function seiExtra(tema, p){
   if(tema === 'test') return 'El test tiene 15 preguntas. Puntúas cada frase del 1 al 4 y puedes repetir nota: lo que cuenta es la diferencia entre unas frases y otras, así que poner lo mismo a todo no suma. No hay respuestas buenas: cada clínica busca formas de trabajar distintas. Puedes repetirlo una vez sin esperar y después cada ' + DISC_ESPERA_DIAS + ' días; la clínica ve cuántas veces lo has cambiado.';
   if(tema === 'priv') return 'Las clínicas ven tu perfil completo (nombre, vídeo, CV y contacto) <b>solo cuando les envías una solicitud</b>, o si CERCO te presenta y tú lo has activado. En Perfil → Ajustes eliges quién puede verte y puedes ocultarte de clínicas concretas, por ejemplo donde trabajas ahora. También puedes eliminar tu cuenta y tus datos cuando quieras.' + seiLink('Ir a Ajustes', "cerrarSeimian(); ir('perfil'); setTimeout(function(){ pfIr('pf-ajustes'); }, 300)");
   if(tema === 'rebote') return 'Si una clínica te dice que no, CERCO puede presentarte a otra cercana que busca tu profesión, para que no empieces de cero. Tú decides en Perfil → Ajustes: que te pregunte antes, que lo haga solo o que no lo haga. La nueva clínica nunca sabe que vienes de un «no».' + seiLink('Ir a Ajustes', "cerrarSeimian(); ir('perfil'); setTimeout(function(){ pfIr('pf-ajustes'); }, 300)");
-  if(tema === 'video') return 'Para tus 30 segundos, tres frases bastan:<br>1. Quién eres y qué haces («Soy Laia, higienista con 4 años en clínica»).<br>2. Qué se te da mejor, con un ejemplo real.<br>3. Qué buscas ahora (horario, tipo de clínica).<br>Luz de frente, móvil a la altura de los ojos y sin leer. Después puedes recortarlo y elegir la portada.' + seiLink('Ir a mi perfil', "cerrarSeimian(); ir('perfil')");
+  if(tema === 'video') return 'Para tu vídeo de presentación, tres ideas bastan:<br>1. Quién eres y qué haces («Soy Laia, higienista con 4 años en clínica»).<br>2. Qué se te da mejor, con un ejemplo real.<br>3. Qué buscas ahora (horario, tipo de clínica).<br>Luz de frente, móvil a la altura de los ojos y sin leer. Después puedes recortarlo y elegir la portada.' + seiLink('Ir a mi perfil', "cerrarSeimian(); ir('perfil')");
   if(tema === 'primerdia') return 'Antes de empezar, pide por escrito lo mismo que salía en la oferta: sueldo, horario, convenio y periodo de prueba. El primer día pregunta quién es tu persona de referencia y cómo son los protocolos de esterilización y agenda. A los 90 días CERCO os preguntará a los dos si seguís y si las condiciones se cumplieron.';
   return null;
 }
@@ -4182,7 +4237,7 @@ function seiEntrevista(d){
 function seiMejorar(p){
   var f = [];
   if(!p.disc) f.push(['Hacer el test de personalidad', 'sin él no puedes solicitar', "cerrarSeimian(); abrirTest(false)", 'Hacer el test']);
-  if(!p.video) f.push(['Grabar un vídeo de 30 segundos', 'es lo primero que ve la clínica', "cerrarSeimian(); ir('perfil'); setTimeout(abrirGrabadora, 200)", 'Grabar']);
+  if(!p.video) f.push(['Grabar tu vídeo de presentación', 'es lo primero que ve la clínica', "cerrarSeimian(); ir('perfil'); setTimeout(abrirGrabadora, 200)", 'Grabar']);
   if(!p.resumen) f.push(['Presentarte en pocas líneas', 'las clínicas lo leen antes de llamarte', "cerrarSeimian(); editarPerfil()", 'Escribirlo']);
   if(!(p.trabajos||[]).length && p.experiencia && p.experiencia.indexOf('Sin experiencia') !== 0) f.push(['Añadir dónde has trabajado', 'da confianza aunque sea poco tiempo', "cerrarSeimian(); editarPerfil()", 'Añadir']);
   if(!p.foto) f.push(['Poner una foto', 'ayuda a que te recuerden después de la entrevista', "cerrarSeimian(); ir('perfil')", 'Añadir foto']);
@@ -5649,7 +5704,7 @@ function pasosCandidato(){
       sub: p.disc ? 'Hecho — eres ' + NOMBRE[p.disc.dom].toLowerCase() + ' con rasgo ' + NOMBRE[p.disc.sec].toLowerCase() : 'Son 5 minutos. Sin él no puedes solicitar ofertas',
       btn:'Hacer el test', acc:'abrirTest(false)' },
     { ok: !!p.video, tit:'Graba tu vídeo de presentación',
-      sub: p.video ? 'Hecho — es lo primero que ve la clínica' : '30 segundos. Es lo primero que ve la clínica',
+      sub: p.video ? 'Hecho — es lo primero que ve la clínica' : 'Hasta 1 minuto. Es lo primero que ve la clínica',
       btn:'Grabar', acc:'ir(\'perfil\'); setTimeout(abrirGrabadora, 200)' },
     { ok: !!(p.foto && p.cv), tit:'Añade tu foto y tu CV',
       sub: p.foto && p.cv ? 'Hecho — foto y CV en PDF' : (p.foto ? 'Falta tu CV en PDF' : (p.cv ? 'Falta tu foto' : 'La foto sale en tu tarjeta; el CV lo descarga la clínica')),
@@ -6422,8 +6477,12 @@ window.pintarMedia = function(){
       var a = Object.assign({}, fx()), ini = EV.ini, dur = Math.max(1, EV.fin - EV.ini);
       arm = arm || armarVideo('');
       urlMedia('video').then(function(u){
-        var src = arm.src; src.crossOrigin = 'anonymous';
-        src.onerror = function(){ arm.quitar(); ko('leer'); };
+        var src = arm.src; if(!arm.visible) src.crossOrigin = 'anonymous';
+        var cerrar = function(m){ clearInterval(vig); document.removeEventListener('visibilitychange', fuera); if(arm.visible) EV.listo = true; arm.quitar(); ko(m); };
+        var vig = null, fuera = function(){ if(document.visibilityState === 'hidden'){ try{ rec && rec.state !== 'inactive' && rec.stop(); }catch(x){} cerrar('fuera'); } };
+        var rec = null;
+        if(arm.visible) EV.listo = false; // que el bucle del editor no salte al principio mientras se graba
+        src.onerror = function(){ cerrar('leer'); };
         src.onloadedmetadata = function(){
           src.onloadedmetadata = null;
           var w = src.videoWidth || 720, h = src.videoHeight || 1280, k = Math.min(1, 720 / Math.min(w, h));
@@ -6431,7 +6490,8 @@ window.pintarMedia = function(){
           var cx = cv.getContext('2d'), st = cv.captureStream(30), ac = null;
           try{
             ac = arm.ac || new (window.AudioContext || window.webkitAudioContext)();
-            var nodo = ac.createMediaElementSource(src), ult = nodo;
+            var nodo = src.__so || (src.__so = ac.createMediaElementSource(src)), ult = nodo;
+            if(arm.visible && !src.__oye){ src.__oye = 1; nodo.connect(ac.destination); } // lo sigues oyendo mientras se aplica
             if(a.voz){
               var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 90;
               var pr = ac.createBiquadFilter(); pr.type = 'peaking'; pr.frequency.value = 3000; pr.gain.value = 3; pr.Q.value = 0.9;
@@ -6442,11 +6502,11 @@ window.pintarMedia = function(){
             var de = ac.createMediaStreamDestination(); g.connect(de);
             de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); });
           }catch(x){}
-          var rec, trozos = [];
-          try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1600000, audioBitsPerSecond:96000}); }catch(x){ rec = new MediaRecorder(st); }
+          var trozos = [];
+          try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1300000, audioBitsPerSecond:96000}); }catch(x){ rec = new MediaRecorder(st); }
           rec.ondataavailable = function(e){ if(e.data && e.data.size) trozos.push(e.data); };
-          if(!st.getAudioTracks().length){ arm.quitar(); return ko('audio'); }
-          rec.onstop = function(){ try{ ac && ac.close(); }catch(x){} try{ src.remove(); }catch(x){} ok({ blob:new Blob(trozos, {type:(tipo || 'video/webm').split(';')[0]}), dur:dur, w:cv.width, h:cv.height }); };
+          if(!st.getAudioTracks().length){ return cerrar('audio'); }
+          rec.onstop = function(){ clearInterval(vig); document.removeEventListener('visibilitychange', fuera); if(!arm.visible){ try{ ac && ac.close(); }catch(x){} try{ src.remove(); }catch(x){} } else { try{ g.disconnect(); }catch(x){} } ok({ blob:new Blob(trozos, {type:(tipo || 'video/webm').split(';')[0]}), dur:dur, w:cv.width, h:cv.height }); };
           var paso = function(){
             if(rec.state !== 'recording') return;
             dibujar(cx, src, cv.width, cv.height, a);
@@ -6454,14 +6514,28 @@ window.pintarMedia = function(){
             if(t >= dur || src.ended){ src.pause(); rec.stop(); return; }
             requestAnimationFrame(paso);
           };
-          src.onseeked = function(){ src.onseeked = null; arm.arrancado = true; src.muted = false; try{ if(ac && ac.resume) ac.resume(); }catch(x){} var p = src.play(); (p && p.then ? p : Promise.resolve()).then(function(){ rec.start(250); paso(); }).catch(function(){ arm.quitar(); ko('play'); }); };
+          src.onseeked = function(){ src.onseeked = null; arm.arrancado = true; src.muted = false; try{ if(ac && ac.resume) ac.resume(); }catch(x){} var p = src.play(); (p && p.then ? p : Promise.resolve()).then(function(){ rec.start(500); paso();
+              document.addEventListener('visibilitychange', fuera);
+              var ult = -1, quieto = 0;
+              vig = setInterval(function(){ if(rec.state !== 'recording') return clearInterval(vig);
+                if(Math.abs(src.currentTime - ult) < 0.01){ if(++quieto === 2){ try{ var q = src.play(); if(q && q.catch) q.catch(function(){}); }catch(x){} } if(quieto >= 6){ try{ rec.onstop = null; rec.stop(); }catch(x){} cerrar('parado'); } }
+                else { quieto = 0; ult = src.currentTime; } }, 1000); }).catch(function(){ arm.quitar(); ko('play'); }); };
           arm.arrancado = true; try{ src.pause(); }catch(x){}
-          try{ src.currentTime = ini; }catch(x){ arm.quitar(); ko('seek'); }
+          try{ src.currentTime = ini; }catch(x){ cerrar('seek'); }
         };
         if(src.getAttribute('src') !== u){ src.src = u; try{ var p0 = src.play(); if(p0 && p0.catch) p0.catch(function(){}); }catch(x){} }
         else if(src.readyState >= 1) src.onloadedmetadata();
       }).catch(function(){ arm.quitar(); ko('leer'); });
     });
+  }
+  // el vídeo que tienes delante, preparado en el mismo toque (el iPhone lo exige)
+  function armarVisible(){
+    var v = $('ev-vid'); if(!v || !hayAudioWeb()) return null;
+    var ac = v.__ac; if(!ac || ac.state === 'closed'){ try{ ac = v.__ac = new (window.AudioContext || window.webkitAudioContext)(); }catch(x){ return null; } }
+    try{ if(ac.resume) ac.resume(); }catch(x){}
+    var arm = { src:v, ac:ac, visible:true, arrancado:false, quitar:function(){ try{ v.pause(); }catch(x){} } };
+    try{ var p = v.play(); if(p && p.then) p.then(function(){ if(!arm.arrancado) v.pause(); }).catch(function(){}); }catch(x){}
+    return arm;
   }
   function portadaCon(a, t){
     return new Promise(function(ok){
@@ -6484,7 +6558,7 @@ window.pintarMedia = function(){
     var v = $('ev-vid'); try{ v && v.pause(); }catch(x){}
     var a = Object.assign({}, fx()), tP = EV.posterT != null ? Math.max(EV.ini, Math.min(EV.fin, EV.posterT)) : EV.ini, foto = EV.posterFoto ? EV.poster : '';
     // armado en el mismo toque (iPhone): con la url si ya la tenemos
-    var arm = hayAudioWeb() ? armarVideo(_mediaUrl.video || '') : null;
+    var arm = hayAudioWeb() ? (armarVisible() || armarVideo(_mediaUrl.video || '')) : null;
     (foto ? Promise.resolve(foto) : portadaCon(a, tP)).then(function(poster){
       return renderizar(arm).then(function(r){
         progreso('Subiendo el vídeo…', 1);
@@ -6503,6 +6577,8 @@ window.pintarMedia = function(){
       progreso(null); if(b){ b.disabled = false; b.textContent = 'Guardar cambios'; }
       error('m-err', e === 'audio' ? msgSinAudio() + ' El recorte y la portada sí se pueden guardar si quitas los filtros, el texto, el encuadre y el sonido.'
         : e === 'play' ? 'El móvil no ha dejado reproducir el vídeo para aplicar los cambios. Vuelve a pulsar «Guardar cambios».'
+        : e === 'fuera' ? 'Has salido de la página y el móvil ha parado el vídeo. Pulsa «Guardar cambios» otra vez y quédate en esta pantalla hasta que acabe.'
+        : e === 'parado' ? 'El móvil ha parado el vídeo a medias. Pulsa «Guardar cambios» otra vez.'
         : e === 'soporte' ? 'Este navegador no puede aplicar filtros ni texto al vídeo. Prueba en Chrome o en Safari actualizado; el recorte y la portada sí se pueden guardar si quitas los demás cambios.'
         : e === 'grande' ? 'El vídeo con los cambios pesa demasiado. Recórtalo un poco y vuelve a guardar.'
         : 'No se han podido guardar los cambios. Revisa tu conexión y vuelve a intentarlo.');

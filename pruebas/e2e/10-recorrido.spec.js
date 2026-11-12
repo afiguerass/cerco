@@ -342,7 +342,8 @@ test('6. La profesional ve el estado, «Tu incorporación», confirma el contrat
   await page.getByRole('button', { name: 'Ver su mensaje' }).click();
   await seVe(page, 'Tu incorporación');
   await seVe(page, 'Empiezas el 16 de noviembre de 2026');
-  await seVe(page, 'Fue el jueves 12 de noviembre, a las 10:30.');
+  // La entrevista (12 de noviembre) aún no ha llegado (hoy es 9 de noviembre): no sale en pasado
+  await seVe(page, 'Será el jueves 12 de noviembre, a las 10:30.');
   await expect(page.locator('body')).toContainText(/Tus primeros 90 días\s*2 de 8/);
   await capturar(page, 'pro-18-tu-incorporacion');
 

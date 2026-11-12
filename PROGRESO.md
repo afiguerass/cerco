@@ -43,6 +43,8 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
     - Clínica: `_subirOferta`, `_dreceresSeimian`.
     - Profesional: `pintarInicio` (la original y dos capas), `fechaCorta`, `esIOS`.
     - En total, unos 10.400 caracteres.
+  - [x] **`submitNewOffer` («Publicar oferta»)**: tenía 5 versiones envueltas unas en otras, en 5 archivos. Ahora hay una sola, en `clinica/01-panel.js`, con los pasos en el mismo orden: palabras prohibidas → contrato y convenio → municipio → salario → publicar → limpiar el formulario.
+    - Prueba nueva (`40-validaciones-oferta`): cada comprobación con su mensaje exacto. Pasa igual con el código anterior y con el nuevo, captura incluida.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.

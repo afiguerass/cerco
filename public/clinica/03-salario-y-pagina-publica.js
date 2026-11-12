@@ -39,26 +39,7 @@
     if(el) el.addEventListener('input', function(){ var n = num(el.value); el.value = n ? miles(n) : ''; });
   });
 
-  var _submitOrig = window.submitNewOffer;
-  window.submitNewOffer = function(){
-    var err = document.getElementById('co-err');
-    var titulo = ((document.getElementById('co-titulo')||{}).value||'').trim();
-    var ubic = ((document.getElementById('co-ubicacion')||{}).value||'').trim();
-    if(titulo && ubic){
-      var s = _componerSalario();
-      if(s.error){
-        if(err){ err.textContent = s.error; if(window.verAviso) verAviso(err); }
-        var f = document.getElementById(s.foco); if(f){ try{ f.focus({preventScroll:true}); }catch(x){} }
-        return;
-      }
-      var hid = document.getElementById('co-salario'); if(hid) hid.value = s.texto;
-    }
-    var r = _submitOrig.apply(this, arguments);
-    // después de publicar, el formulario queda limpio
-    if(!window.__editandoOferta){ ['co-sal-min','co-sal-max'].forEach(function(id){ var e = document.getElementById(id); if(e && !(document.getElementById('co-titulo')||{}).value) e.value = ''; }); }
-    return r;
-  };
-  var _editOrig = window.editarOferta;
+      var _editOrig = window.editarOferta;
   if(typeof _editOrig === 'function'){
     window.editarOferta = function(id){
       var r = _editOrig.apply(this, arguments);

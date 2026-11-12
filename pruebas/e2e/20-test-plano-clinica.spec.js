@@ -6,7 +6,7 @@ const A = require('../apoyo/acciones');
 
 test('Clínica: resultado plano → «Perfil sin definir»', async ({ browser }, testInfo) => {
   const { context, page } = await nuevaVentana(browser, testInfo);
-  await A.registrarClinica(page, `plana-${testInfo.project.name}@prueba.es`);
+  await A.registrarClinica(page, `plana-${testInfo.project.name}-${Date.now()}@prueba.es`);
   await page.getByText('Saltar y configurar mi clínica').click();
   await page.fill('#f-nom-onboarding', 'Clínica Plana');
   await page.locator('#screen-1-onboarding').getByRole('button', { name: 'Continuar' }).click();

@@ -80,18 +80,8 @@
     [/\b(embaraz\w*|sin (problemas|limitaciones) de salud)\b/i, 'salud o embarazo']
   ];
   function vetada(t){ for(var i=0;i<VETADAS.length;i++){ var m = String(t||'').match(VETADAS[i][0]); if(m) return {palabra:m[0], motivo:VETADAS[i][1]}; } return null; }
-  var _subOrig = window.submitNewOffer;
-  window.submitNewOffer = function(){
-    var val = function(id){ return ((document.getElementById(id)||{}).value || ''); };
-    var v = vetada([val('co-titulo'), val('co-descripcion'), val('co-requisitos')].join(' \n '));
-    if(v){
-      var err = document.getElementById('co-err');
-      if(err){ err.textContent = 'La oferta menciona «' + v.palabra + '». Un anuncio de empleo no puede pedir ni excluir por ' + v.motivo + ' (Ley 15/2022 y Estatuto de los Trabajadores). Describe las tareas y la titulación, y vuelve a publicar.'; if(window.verAviso) verAviso(err); }
-      return;
-    }
-    return _subOrig.apply(this, arguments);
-  };
-
+  window.CERCO_ofertaVetada = vetada; // la usa submitNewOffer (clinica/01-panel.js)
+    
   /* ---------- 4. mensajes sin preguntas prohibidas ---------- */
   var PREG_NO = /(embaraz|quedarte embarazada|tener hijos|tienes hijos|planes? de familia|qué edad|que edad|cuántos años tienes|cuantos años tienes|estás casad|estas casad|tienes pareja|enfermedad|baja médica|baja medica|religi|de dónde eres|de donde eres|nacionalidad|sindicat)/i;
   ['enviarMensajeClinica'].forEach(function(fn){

@@ -113,24 +113,7 @@
   };
 
   /* ---------- 2. oferta: contrato, convenio y prueba ---------- */
-  var _subOrig = window.submitNewOffer;
-  window.submitNewOffer = function(){
-    var err = document.getElementById('co-err');
-    var t = ((document.getElementById('co-titulo')||{}).value||'').trim(), u = ((document.getElementById('co-ubicacion')||{}).value||'').trim();
-    if(t && u){
-      var falta = !((document.getElementById('co-contrato')||{}).value) ? ['co-contrato', 'Elige el tipo de contrato.']
-                : !(((document.getElementById('co-convenio')||{}).value||'').trim()) ? ['co-convenio', 'Indica el convenio colectivo (o «Sin convenio aplicable» si es una colaboración como autónomo).'] : null;
-      if(falta){
-        if(err){ err.textContent = falta[1]; if(window.verAviso) verAviso(err); }
-        var f = document.getElementById(falta[0]); if(f){ try{ f.focus({preventScroll:true}); }catch(x){} }
-        return;
-      }
-    }
-    var r = _subOrig.apply(this, arguments);
-    if(!window.__editandoOferta) ['co-contrato','co-convenio','co-prueba'].forEach(function(id){ var x = document.getElementById(id); if(x && !(document.getElementById('co-titulo')||{}).value) x.value = ''; });
-    return r;
-  };
-
+    
   /* ---------- 3. buscar talento e invitar ---------- */
   var PROF_RE = {
     'Higienista dental':/higien/i, 'Auxiliar de clínica dental':/auxiliar|asistente|ayudante/i,

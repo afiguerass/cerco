@@ -2468,7 +2468,55 @@ function _salirDeEdicion(){
   if(bs) bs.textContent = 'Publicar oferta';
 }
 
+/* PUBLICAR UNA OFERTA («Publicar oferta»). Una sola versión con todos los pasos,
+   en el mismo orden en que se hacían antes, cuando había cinco versiones
+   envueltas unas en otras (Fase 1, paso 1.7). */
 function submitNewOffer(){
+  var $v = function(id){ return ((document.getElementById(id)||{}).value || ''); };
+  var err = document.getElementById('co-err');
+  var aviso = function(texto, idFoco){
+    if(err){ err.textContent = texto; if(window.verAviso) verAviso(err); }
+    if(idFoco){ var f = document.getElementById(idFoco); if(f){ try{ f.focus({preventScroll:true}); }catch(x){} } }
+  };
+  var titulo = $v('co-titulo').trim(), ubic = $v('co-ubicacion').trim();
+
+  // 1. Palabras que un anuncio de empleo no puede usar (Ley 15/2022)
+  var v = window.CERCO_ofertaVetada([$v('co-titulo'), $v('co-descripcion'), $v('co-requisitos')].join(' \n '));
+  if(v){
+    if(err){ err.textContent = 'La oferta menciona «' + v.palabra + '». Un anuncio de empleo no puede pedir ni excluir por ' + v.motivo + ' (Ley 15/2022 y Estatuto de los Trabajadores). Describe las tareas y la titulación, y vuelve a publicar.'; if(window.verAviso) verAviso(err); }
+    return;
+  }
+
+  // 2. Tipo de contrato y convenio colectivo, obligatorios
+  if(titulo && ubic){
+    var falta = !$v('co-contrato') ? ['co-contrato', 'Elige el tipo de contrato.']
+              : !$v('co-convenio').trim() ? ['co-convenio', 'Indica el convenio colectivo (o «Sin convenio aplicable» si es una colaboración como autónomo).'] : null;
+    if(falta){ aviso(falta[1], falta[0]); return; }
+  }
+
+  // 3. La ubicación tiene que ser un municipio (de ahí salen los km)
+  if(titulo && ubic && !CGeo.lugar(ubic)){
+    aviso('No encontramos «' + ubic + '». Escribe el municipio donde está la clínica (por ejemplo: Salt o Girona): así el candidato sabe a cuántos km le queda.', 'co-ubicacion');
+  }
+  else {
+    // 4. Salario obligatorio y bien escrito
+    var salarioOk = true;
+    if(titulo && ubic){
+      var sal = _componerSalario();
+      if(sal.error){ aviso(sal.error, sal.foco); salarioOk = false; }
+      else { var hid = document.getElementById('co-salario'); if(hid) hid.value = sal.texto; }
+    }
+    if(salarioOk){
+      // 5. Publicar (o guardar los cambios, si se está editando)
+      _publicarOfertaBase();
+      // Después de publicar, los campos de salario quedan limpios
+      if(!window.__editandoOferta){ ['co-sal-min','co-sal-max'].forEach(function(id){ var e = document.getElementById(id); if(e && !$v('co-titulo')) e.value = ''; }); }
+    }
+  }
+  // Y también contrato, convenio y periodo de prueba (como antes, aunque no se haya publicado)
+  if(!window.__editandoOferta) ['co-contrato','co-convenio','co-prueba'].forEach(function(id){ var x = document.getElementById(id); if(x && !$v('co-titulo')) x.value = ''; });
+}
+function _publicarOfertaBase(){
   window.__ofertaTocadaAMa = false;
   const titulo = document.getElementById('co-titulo').value.trim();
   const ubicacion = document.getElementById('co-ubicacion').value.trim();

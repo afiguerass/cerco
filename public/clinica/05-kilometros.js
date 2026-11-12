@@ -26,19 +26,7 @@
   }catch(x){}
 
   /* ---------- 2. al publicar: la ubicación tiene que ser un municipio ---------- */
-  var _subOrig = window.submitNewOffer;
-  window.submitNewOffer = function(){
-    var err = document.getElementById('co-err');
-    var titulo = ((document.getElementById('co-titulo')||{}).value||'').trim();
-    var ubic = ((document.getElementById('co-ubicacion')||{}).value||'').trim();
-    if(titulo && ubic && !CGeo.lugar(ubic)){
-      if(err){ err.textContent = 'No encontramos «' + ubic + '». Escribe el municipio donde está la clínica (por ejemplo: Salt o Girona): así el candidato sabe a cuántos km le queda.'; if(window.verAviso) verAviso(err); }
-      var f = document.getElementById('co-ubicacion'); if(f){ try{ f.focus({preventScroll:true}); }catch(x){} }
-      return;
-    }
-    return _subOrig.apply(this, arguments);
-  };
-
+    
   /* ---------- 3. desde dónde medimos: la dirección de la clínica ---------- */
   var DEF = 'Calle Gran Vía 28, Madrid';
   function origen(){

@@ -17,6 +17,10 @@
 const { test, expect, nuevaVentana, capturar, vaciarEmulador } = require('../apoyo/entorno');
 const A = require('../apoyo/acciones');
 
+// Comprueba que un texto se ve en pantalla (el primero visible, si sale varias veces)
+const seVe = (page, texto, opciones = {}) =>
+  expect(page.getByText(texto, opciones).locator('visible=true').first()).toBeVisible({ timeout: opciones.timeout });
+
 test.describe.configure({ mode: 'serial' });
 
 const OFERTA_1 = {
@@ -150,18 +154,18 @@ test('4. La profesional se registra y hace el test («sin perfil» y después su
 
   // Primero lo contesta todo con la misma nota → no hay perfil
   await A.contestarTestProfesional(page, { plano: true });
-  await expect(page.getByText('Todavía sin perfil definido')).toBeVisible();
-  await expect(page.getByText('Hasta que lo repases no hay colores ni perfil, y no puedes enviar solicitudes.')).toBeVisible();
+  await seVe(page, 'Todavía sin perfil definido');
+  await seVe(page, 'Hasta que lo repases no hay colores ni perfil, y no puedes enviar solicitudes.');
   await expect(page.getByText('Concienzudo (C)')).toHaveCount(0); // sin barras ni porcentajes
   await capturar(page, 'pro-07-test-sin-perfil');
 
   // Repasa las preguntas y ahora sí distingue → perfil C con rasgo I
   await page.getByRole('button', { name: 'Repasar 15 preguntas' }).click();
   await A.contestarTestProfesional(page, { pesos: { D: 1, I: 3, S: 2, C: 4 } });
-  await expect(page.getByText('Concienzudo con rasgo influyente')).toBeVisible();
+  await seVe(page, 'Concienzudo con rasgo influyente');
   await capturar(page, 'pro-08-test-resultado');
   await page.click('#tr-btn');
-  await expect(page.getByText('Buenos días, Laura')).toBeVisible();
+  await seVe(page, 'Buenos días, Laura');
   // La guía de Seimian sale la primera vez: la cerramos
   await page.locator('#gu-next').waitFor();
   await capturar(page, 'pro-09-inicio-con-guia');
@@ -177,8 +181,8 @@ test('4b. La profesional sube su vídeo y su CV', async () => {
   await page.click('#gv-usar');
   await expect(page.getByText('Ver mi vídeo (0:16)')).toBeVisible({ timeout: 60_000 });
   await page.locator('input[onchange^="elegirCV"]').setInputFiles(A.archivo('cv-prueba.pdf'));
-  await expect(page.getByText('cv-prueba.pdf')).toBeVisible();
-  await expect(page.getByText('Tu perfil está al 86 %')).toBeVisible();
+  await seVe(page, 'cv-prueba.pdf');
+  await seVe(page, 'Tu perfil está al 86 %');
   await capturar(page, 'pro-11-mi-perfil');
   // El vídeo y el CV se han guardado en la base de datos (en trozos)
   const trozos = await page.evaluate(async () => {
@@ -193,24 +197,140 @@ test('4b. La profesional sube su vídeo y su CV', async () => {
 test('4c. La profesional ve las ofertas con su % de encaje y solicita las dos', async () => {
   const page = pro.page;
   await page.evaluate(() => ir('ofertas'));
-  await expect(page.getByText('2 ofertas a menos de 25 km de Salt')).toBeVisible();
+  await seVe(page, '2 ofertas a menos de 25 km de Salt');
   await capturar(page, 'pro-12-ofertas');
-  await page.getByText('Higienista dental de tarde', { exact: true }).locator('visible=true').first().click();
-  await expect(page.getByText('Tu encaje')).toBeVisible();
-  await expect(page.getByText('A 3 km de Salt')).toBeVisible();
+  await page.locator('.of-t', { hasText: /^Higienista dental de tarde$/ }).locator('visible=true').first().click();
+  await seVe(page, 'Tu encaje');
+  await seVe(page, 'A 3 km de Salt');
   await capturar(page, 'pro-13-oferta-detalle');
   await page.getByRole('button', { name: 'Solicitar esta oferta' }).click();
   await capturar(page, 'pro-14-solicitar');
   await page.fill('#m-msg', 'Me encantaría conoceros.');
   await page.click('#m-btn');
-  await expect(page.getByText('Solicitud enviada').first()).toBeVisible();
+  await seVe(page, 'Solicitud enviada');
 
   await page.evaluate(() => ir('ofertas'));
-  await page.getByText('Higienista dental', { exact: true }).locator('visible=true').first().click();
-  await expect(page.getByText('97%').first()).toBeVisible();
+  await page.locator('.of-t', { hasText: /^Higienista dental$/ }).locator('visible=true').first().click();
+  await seVe(page, '97%');
   await page.getByRole('button', { name: 'Solicitar esta oferta' }).click();
+  // La web ignora un segundo «Enviar solicitud» en menos de 2 s (evita dobles
+  // clics). Una persona tarda más; la prueba espera lo mismo.
+  await page.waitForTimeout(2100);
   await page.click('#m-btn');
+  await seVe(page, 'Solicitud enviada');
   await page.evaluate(() => ir('solicitudes'));
-  await expect(page.locator('body')).toContainText('Higienista dental de tarde');
+  await expect(page.locator('main').getByText('Clínica Dental Prueba · Ahora mismo')).toHaveCount(2);
+  await expect(page.locator('main')).toContainText('Higienista dental de tarde');
   await capturar(page, 'pro-15-mis-solicitudes');
+});
+
+test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y contrata', async () => {
+  const page = clinica.page;
+  await page.evaluate(() => showScreen('ofertes'));
+  await expect(page.locator('#screen-ofertes')).toContainText('1 candidatos');
+  await capturar(page, 'clinica-11-ofertas-con-solicitudes');
+  await page.locator('#screen-ofertes').getByRole('button', { name: 'Ver candidatos' }).first().click();
+  await seVe(page, 'Tienes 2 solicitudes sin abrir');
+  await seVe(page, 'Higienistas'); // agrupados por profesión
+  await capturar(page, 'clinica-12-candidatos');
+
+  // Ficha grande: resumen arriba, vídeo + CV resumido, personalidad, contacto, acciones
+  await page.locator('[onclick^="abrirFichaCandidato"]', { hasText: 'Laura Prueba' }).locator('visible=true').first().click();
+  await seVe(page, 'RESUMEN DEL CANDIDATO');
+  await seVe(page, 'Ver su vídeo de presentación (0:16)');
+  await seVe(page, 'CV resumido');
+  await seVe(page, 'Perfil de personalidad');
+  await seVe(page, 'POR QUÉ 97% DE ENCAJE');
+  await seVe(page, correoPro);
+  await capturar(page, 'clinica-13-ficha-candidata');
+
+
+  // El CV completo se puede ver sin descargarlo
+  await page.click('#ficha-cv-ver');
+  await seVe(page, 'CV Laura Prueba.pdf');
+  await capturar(page, 'clinica-14-ver-cv');
+  // Se cierra con la «×». (Con la tecla Esc hay un fallo ya existente: la
+  // ficha deja de actualizarse. Está apuntado en PROGRESO.md.)
+  await page.click('#cv-x');
+  await expect(page.getByText('CV Laura Prueba.pdf').locator('visible=true')).toHaveCount(0);
+  await page.waitForTimeout(1500); // la ficha se vuelve a dibujar sola al abrirla (pasa a «vista»)
+  await page.getByRole('button', { name: 'Me interesa', exact: true }).locator('visible=true').first().click();
+  await seVe(page, 'Laura pasa a «Me interesan». Ya ve que sigue en el proceso.');
+  await seVe(page, 'Te interesa');
+
+  await page.getByRole('button', { name: 'Invitar a entrevista' }).locator('visible=true').first().click();
+  await expect(page.locator('#cita-ok')).toBeVisible();
+  await page.locator('[onclick^="_citaSet(\'dia\'"]').filter({ hasText: '12 nov' }).click();
+  await page.locator('[onclick="_citaSet(\'hora\',\'10:30\')"]').click();
+  await page.locator('[onclick="_citaSet(\'modo\',\'clinica\')"]').click();
+  await page.fill('#cita-msg', 'Te esperamos en la clínica.');
+  await capturar(page, 'clinica-15-programar-entrevista');
+  await page.click('#cita-ok');
+  await seVe(page, 'Jueves 12 de noviembre · 10:30');
+  await capturar(page, 'clinica-16-entrevista-programada');
+
+  await page.getByRole('button', { name: 'Contratar' }).locator('visible=true').first().click();
+  await expect(page.locator('#hire-ok')).toBeVisible();
+  await page.click('#hire-ok');
+  await seVe(page, 'Laura está en «Contratados». Ábrela para enviarle el contrato y seguir el plan de acogida.');
+  await capturar(page, 'clinica-17-contratados');
+});
+
+test('5b. La clínica envía el contrato y marca el plan de acogida', async () => {
+  const page = clinica.page;
+  await page.getByRole('button', { name: 'Ver ficha' }).locator('visible=true').first().click();
+  await seVe(page, 'Plan de acogida · primeros 90 días');
+  await page.fill('#ct-ini', '2026-11-16');
+  await page.locator('#ct-file').setInputFiles(A.archivo('contrato-prueba.pdf'));
+  await capturar(page, 'clinica-18-contrato-rellenado');
+  await page.click('#ct-ok');
+  await seVe(page, 'Aún no ha confirmado que lo ha visto.', { exact: false });
+  await seVe(page, 'Empieza el 16 de noviembre de 2026');
+  await seVe(page, 'contrato-prueba.pdf', { exact: false });
+  await expect(page.locator('body')).toContainText('1 de 8 hechos');
+  // Marca un paso del plan de acogida
+  await page.getByText('Uniforme, taquilla y acceso al programa de la clínica preparados.').locator('visible=true').first().click();
+  await expect(page.locator('body')).toContainText('2 de 8 hechos');
+  await capturar(page, 'clinica-19-contrato-y-acogida');
+});
+
+test('6. La profesional ve el estado, «Tu incorporación», confirma el contrato y retira la otra', async () => {
+  const page = pro.page;
+  await page.evaluate(() => ir('inicio'));
+  await seVe(page, 'Clínica Dental Prueba te ha elegido');
+  await capturar(page, 'pro-16-inicio-contratada');
+  await page.evaluate(() => ir('solicitudes'));
+  await seVe(page, '¡Te han contratado!');
+  await capturar(page, 'pro-17-solicitudes-contratada');
+
+  await page.evaluate(() => ir('inicio'));
+  await page.getByRole('button', { name: 'Ver su mensaje' }).click();
+  await seVe(page, 'Tu incorporación');
+  await seVe(page, 'Empiezas el 16 de noviembre de 2026');
+  await seVe(page, 'Fue el jueves 12 de noviembre, a las 10:30.');
+  await expect(page.locator('body')).toContainText(/Tus primeros 90 días\s*2 de 8/);
+  await capturar(page, 'pro-18-tu-incorporacion');
+
+  await page.getByRole('button', { name: 'Lo he recibido' }).click();
+  await expect(page.getByRole('button', { name: 'Lo he recibido' })).toHaveCount(0);
+  await page.click('#inc-ret');
+  await expect(page.locator('#inc-ret')).toHaveCount(0);
+  await capturar(page, 'pro-19-contrato-confirmado');
+
+  await page.evaluate(() => ir('solicitudes'));
+  await seVe(page, 'Retirada');
+  await capturar(page, 'pro-20-solicitudes-final');
+
+  // La clínica ve que Laura ha confirmado el contrato
+  const c = clinica.page;
+  await c.reload();
+  await c.evaluate(() => showScreen('portal'));
+  await c.locator('[onclick="CERCO_etapa(\'contr\')"]').locator('visible=true').first().click();
+  await c.getByRole('button', { name: 'Ver ficha' }).locator('visible=true').first().click();
+  await expect(c.getByText('Aún no ha confirmado que lo ha visto.', { exact: false })).toHaveCount(0);
+  await capturar(c, 'clinica-20-contrato-confirmado');
+
+  // Nada se ha roto por el camino: ningún error de JavaScript en las páginas
+  expect(clinica.page.erroresPagina).toEqual([]);
+  expect(pro.page.erroresPagina).toEqual([]);
 });

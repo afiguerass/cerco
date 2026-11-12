@@ -121,7 +121,6 @@
 
   function listo(){ try{ montarTitulo(); pintarSal(); }catch(x){} }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', listo); else listo();
-  var _sc = window.showScreen;
-  if(typeof _sc === 'function') window.showScreen = showScreen = function(n){ var r = _sc.apply(this, arguments); if(n === 'crear-oferta') setTimeout(listo, 50); return r; };
+  window.CERCO_formularioOfertaListo = listo; // la usa showScreen (clinica/01-panel.js) al abrir «Nueva oferta»
 })();
 

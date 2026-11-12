@@ -5527,7 +5527,26 @@ window.aplicarModoInvitado = function(){
 };
 
 // ---- Navigation (always runs, isolated from any error above) ----
+/* Cambiar de pantalla (Fase 1: una sola versión). Antes eran cinco versiones
+   envueltas; los pasos van en el mismo orden. Cada pieza de otro archivo se
+   comprueba antes de usarla: durante la carga, si aún no existe, se hace lo
+   mismo que hacía la versión original. */
 window.showScreen = function(id){
+  // Al salir de la ficha de un candidato, se quita la ficha provisional (clinica/16-ficha-candidato.js)
+  if(window.CERCO_fichaAlCambiarPantalla) CERCO_fichaAlCambiarPantalla(id);
+  var pedida = id;
+  // Las entrevistas de ejemplo llevan a la Agenda real (clinica/12-todo-conectado.js)
+  if(window.CERCO_agendaRedirigir) id = CERCO_agendaRedirigir(id);
+  var r = _mostrarPantallaBase.apply(this, [id].concat([].slice.call(arguments, 1)));
+  // Ajustes de la interfaz: bienvenida y municipio de la oferta nueva (clinica/08-arreglos-interfaz.js)
+  try{ if(window.CERCO_interfazTrasPantalla) CERCO_interfazTrasPantalla(id); }catch(x){}
+  // La Agenda se pinta al entrar (clinica/12-todo-conectado.js)
+  if(id === 'agenda' && window.CERCO_agendaAlMostrar) CERCO_agendaAlMostrar();
+  // El formulario de oferta se prepara al abrirlo (clinica/13-formulario-oferta.js)
+  if(pedida === 'crear-oferta' && window.CERCO_formularioOfertaListo) setTimeout(CERCO_formularioOfertaListo, 50);
+  return r;
+};
+var _mostrarPantallaBase = function(id){
   // Un convidat només pot estar a la seva pantalla o al test
   try {
     if(window.esModoInvitado && esModoInvitado()){

@@ -255,10 +255,9 @@
     return r;
   };
   // si se va a otra pantalla, la ficha deja de estar «abierta»
-  var _sc = window.showScreen;
-  window.showScreen = function(id){
+  // La usa showScreen (clinica/01-panel.js): al salir de la ficha se quita la provisional
+  window.CERCO_fichaAlCambiarPantalla = function(id){
     if(id !== 'ficha'){ var st = $('modal-cand'); if(st && st.dataset.stub) st.remove(); actual = null; }
-    return _sc.apply(this, arguments);
   };
 })();
 

@@ -335,16 +335,17 @@
   };
 
   /* =============== 3. PANTALLAS DE MUESTRA =============== */
-  var _show = window.showScreen;
-  window.showScreen = function(id){
+  // Las usa showScreen (clinica/01-panel.js)
+  window.CERCO_agendaRedirigir = function(id){
     if(id === 'entrevista' && real()){
       var desde = (document.querySelector('.app-screen.active') || {}).id;
       id = 'agenda';
       if(desde === 'screen-candidat') setTimeout(function(){ aviso('Esa ficha es de ejemplo. Las entrevistas de verdad se programan desde la ficha de un candidato y quedan aquí.'); }, 300);
     }
-    var r = _show.apply(this, [id].concat([].slice.call(arguments, 1)));
-    if(id === 'agenda'){ try{ pintarAgenda(); }catch(x){} try{ document.querySelectorAll('.shell-nav-item').forEach(function(n){ n.classList.toggle('active', n.dataset.screen === 'agenda'); }); }catch(x){} }
-    return r;
+    return id;
+  };
+  window.CERCO_agendaAlMostrar = function(){
+    try{ pintarAgenda(); }catch(x){} try{ document.querySelectorAll('.shell-nav-item').forEach(function(n){ n.classList.toggle('active', n.dataset.screen === 'agenda'); }); }catch(x){}
   };
   // si cambian las solicitudes con la agenda abierta, se repinta
   var _todo = window.CDB && CDB.renderTodo;

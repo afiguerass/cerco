@@ -27,6 +27,8 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - Pruebas nuevas (`pruebas/unidad/geo.test.mjs`): 400 direcciones, 150 búsquedas y 300 distancias dan exactamente lo mismo que antes.
   - **Pendiente dentro de la Fase 1:** que la lista se cargue *solo cuando haga falta*. Hoy se sigue cargando al abrir la página, porque el código la pide «al instante» desde muchos sitios. Se podrá hacer en los pasos 1.6 y 1.7, cuando ese código esté ordenado.
 - [ ] **1.6 Código en carpetas:** clínica, profesional y común.
+  - [x] **1.6a** Los 30 bloques de código que había dentro de las páginas están en archivos aparte, en el mismo orden: `public/clinica/` (16), `public/profesional/` (9) y `public/comun/` (los 2 que eran idénticos en las dos páginas, más los municipios). Las páginas pasan de 1,4 MB y 1,1 MB a 470 KB y 415 KB. Capturas idénticas.
+  - [ ] **1.6b** Dividir los dos archivos grandes (`clinica/01-panel.js`, 281 KB, y `profesional/01-portal.js`, 206 KB), que mezclan Firebase, textos y pantallas. Se hará junto con el paso 1.7.
 - [ ] **1.7 Deshacer las «capas»:** cada función con una sola versión final.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
@@ -60,7 +62,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Fase 1, paso 1.6: pasar el código de las páginas a archivos en carpetas (clínica, profesional y común).
+Fase 1, paso 1.7: deshacer las «capas» (funciones redefinidas varias veces), empezando por las más sencillas.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

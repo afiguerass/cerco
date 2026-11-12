@@ -21,6 +21,9 @@ La web se publica con GitHub Pages desde la rama principal (`main`). Lo que se s
 | `README.md` | Este archivo. |
 | `package.json`, `vite.config.js` | **Vite**, la herramienta que compila la web (`npm run build` deja la web lista para publicar en `dist/`). Se añadió en la Fase 1. |
 | `.github/workflows/publicar.yml` | **Publicación automática**: pasa las pruebas en cada pull request y, al llegar un cambio a `main`, compila y publica la web si todo está en verde. |
+| `src/estilos/` | Estilos (aspecto) de las dos páginas. |
+| `src/comun/` | Código común que Vite compila: el test DISC y el % de encaje (`disc.js`). |
+| `public/clinica/`, `public/profesional/`, `public/comun/`, `public/datos/` | Código de cada lado, el que comparten (municipios y km, vídeo) y la lista de municipios. Se ordena poco a poco durante la Fase 1. |
 | `pruebas/` | Pruebas automáticas (ver más abajo). **No forma parte de la web**: solo sirve para comprobar que todo sigue funcionando después de cada cambio. |
 
 ## Dónde se guardan los datos

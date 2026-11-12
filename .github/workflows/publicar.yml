@@ -1,0 +1,85 @@
+# Publicación automática de CERCO.
+#
+# - En cada pull request hacia main: se pasan todas las pruebas.
+# - Al llegar un cambio a main: se pasan todas las pruebas y, solo si están en
+#   verde, se compila la web y se publica en GitHub Pages, en las mismas
+#   direcciones de siempre (afiguerass.github.io/cerco/ y /candidato.html).
+#
+# Para que publique hay que tener, en GitHub: Settings → Pages → Source:
+# «GitHub Actions» (antes era «Deploy from a branch»).
+name: Pruebas y publicación
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publicar-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            pruebas/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Instalar dependencias
+        run: |
+          npm ci
+          npm ci --prefix pruebas
+          npx --prefix pruebas playwright install --with-deps chromium
+      - name: Pasar todas las pruebas (reglas + web en ordenador y móvil)
+        run: npm test --prefix pruebas
+      - name: Guardar el informe si algo falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas
+          path: |
+            pruebas/playwright-report
+            pruebas/test-results
+          retention-days: 7
+
+  publicar:
+    needs: pruebas
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Compilar la web
+        run: |
+          npm ci
+          npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Publicar
+        id: despliegue
+        uses: actions/deploy-pages@v4

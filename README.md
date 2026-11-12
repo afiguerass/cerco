@@ -20,6 +20,7 @@ La web se publica con GitHub Pages desde la rama principal (`main`). Lo que se s
 | `PROGRESO.md` | Cuaderno de trabajo: qué está hecho, qué falta y cuál es el siguiente paso. |
 | `README.md` | Este archivo. |
 | `package.json`, `vite.config.js` | **Vite**, la herramienta que compila la web (`npm run build` deja la web lista para publicar en `dist/`). Se añadió en la Fase 1. |
+| `.github/workflows/publicar.yml` | **Publicación automática**: pasa las pruebas en cada pull request y, al llegar un cambio a `main`, compila y publica la web si todo está en verde. |
 | `pruebas/` | Pruebas automáticas (ver más abajo). **No forma parte de la web**: solo sirve para comprobar que todo sigue funcionando después de cada cambio. |
 
 ## Dónde se guardan los datos

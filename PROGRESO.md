@@ -9,7 +9,10 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
 
 ### Pasos de la Fase 1
 - [x] **1.1 Vite.** El proyecto compila las dos páginas tal como están (`npm run build` → `dist/`). Las pruebas abren ahora la web compilada, y las 26 pasan con las capturas idénticas.
-- [ ] **1.2 Publicación automática** con GitHub Actions: compila y publica en las mismas direcciones. Se deja preparada, sin activar.
+- [x] **1.2 Publicación automática** preparada en `.github/workflows/publicar.yml`:
+  - En cada pull request hacia `main`, pasa todas las pruebas.
+  - Al llegar un cambio a `main`, pasa las pruebas y, solo si están en verde, compila y publica en las mismas direcciones.
+  - **Cuando Asish apruebe publicar la Fase 1**, tendrá que cambiar en GitHub: Settings → Pages → Source → «GitHub Actions» (hoy está en «Deploy from a branch»). Sin ese cambio, `main` seguiría publicándose como hasta ahora, y con el código de la Fase 1 sin compilar la web no funcionaría.
 - [ ] **1.3 Estilos** en archivos aparte.
 - [ ] **1.4 Test DISC y % de encaje** en un único módulo compartido por los dos lados, con pruebas propias. La puntuación de los tests ya hechos no puede cambiar.
 - [ ] **1.5 Municipios** en un archivo de datos aparte, cargado solo cuando hace falta.
@@ -47,7 +50,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Fase 1, paso 1.2: dejar preparada la publicación automática con GitHub Actions.
+Fase 1, paso 1.3: estilos en archivos aparte.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

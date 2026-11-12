@@ -237,7 +237,16 @@ var Nube = {
     return this.db().collection('candidatos').doc(this.uid).get()
       .then(function(d){ return d.exists ? d.data() : null; });
   },
+  /* Guardar el perfil (Fase 1: una sola versión). Primero lo básico y después,
+     en el mismo orden que antes, los ajustes, las entrevistas preparadas y el
+     consentimiento del test con las clínicas bloqueadas. */
   guardarPerfil: function(p){
+    return this._guardarPerfilBase(p)
+      .then(function(r){ return window.CERCO_perfilAjustes ? CERCO_perfilAjustes(p, r) : r; })
+      .then(function(r){ return window.CERCO_perfilEnsayos ? CERCO_perfilEnsayos(p, r) : r; })
+      .then(function(r){ return window.CERCO_perfilConsentimiento ? CERCO_perfilConsentimiento(p, r) : r; });
+  },
+  _guardarPerfilBase: function(p){
     var d = {};
     ['nombre','email','telefono','ciudad','profesion','experiencia','titulacion','jornada','disponibilidad','resumen']
       .forEach(function(k){ if(p[k] !== undefined) d[k] = String(p[k]||'').slice(0, k==='resumen' ? 400 : 120); });

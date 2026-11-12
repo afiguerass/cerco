@@ -67,15 +67,13 @@ function tarjetaPlazo(s){
 }
 
 /* ---------- 2. consentimiento antes del test ---------- */
-var _gpSector = Nube.guardarPerfil;
-Nube.guardarPerfil = function(p){
-  var self = this;
-  return _gpSector.call(this, p).then(function(r){
+// Guardar perfil, paso 4: consentimiento del test y clínicas bloqueadas. La usa Nube.guardarPerfil (profesional/01-portal.js)
+window.CERCO_perfilConsentimiento = function(p, r){
+  var self = Nube;
     var d = {};
     if(p.consentTest) d.consentTest = String(p.consentTest).slice(0,30);
     if(Array.isArray(p.bloqueadas)) d.bloqueadas = p.bloqueadas.slice(-100).map(String);
     return Object.keys(d).length ? self.db().collection('candidatos').doc(self.uid).set(d, {merge:true}).then(function(){ return r; }) : r;
-  });
 };
 
 /* ---------- 3. denunciar y dejar de ver ---------- */

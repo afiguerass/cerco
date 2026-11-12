@@ -65,10 +65,9 @@ function esIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent || ''); }
 function enApp(){ try{ return matchMedia('(display-mode: standalone)').matches || !!navigator.standalone; }catch(e){ return false; } }
 
 /* ---------- 2. perfil: ajustes nuevos ---------- */
-var _gpOrig = Nube.guardarPerfil;
-Nube.guardarPerfil = function(p){
-  var self = this;
-  return _gpOrig.call(this, p).then(function(r){
+// Guardar perfil, paso 2: ajustes (rebote, visible, alertas, guardadas…). La usa Nube.guardarPerfil (profesional/01-portal.js)
+window.CERCO_perfilAjustes = function(p, r){
+  var self = Nube;
     var d = {};
     if(p.rebote !== undefined) d.rebote = ['auto','preguntar','no'].indexOf(p.rebote) > -1 ? p.rebote : 'no';
     if(p.visible !== undefined) d.visible = !!p.visible;
@@ -82,7 +81,6 @@ Nube.guardarPerfil = function(p){
     if(p.ref) d.ref = String(p.ref).slice(0,40);
     var w = Object.keys(d).length ? self.db().collection('candidatos').doc(self.uid).set(d, {merge:true}) : Promise.resolve();
     return w.then(function(){ try{ publicarTalento(p); }catch(e){} return r; });
-  });
 };
 function guardarAjuste(cambios, msg){
   var p = Object.assign({}, S.perfil, cambios);

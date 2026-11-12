@@ -386,12 +386,10 @@ function hEncajas(){
     if(S.vista === 'herramientas'){ var ae = document.activeElement; if(!(ae && /TEXTAREA|INPUT|SELECT/.test(ae.tagName))) pintarHerr(); }
   };
 // la solicitud lleva si la has preparado
-var _gpHerr = Nube.guardarPerfil;
-Nube.guardarPerfil = function(p){
-  var self = this;
-  return _gpHerr.call(this, p).then(function(r){
+// Guardar perfil, paso 3: entrevistas preparadas. La usa Nube.guardarPerfil (profesional/01-portal.js)
+window.CERCO_perfilEnsayos = function(p, r){
+  var self = Nube;
     if(Array.isArray(p.ensayos)) return self.db().collection('candidatos').doc(self.uid).set({ensayos:p.ensayos.slice(-50).map(String)}, {merge:true}).then(function(){ return r; });
     return r;
-  });
 };
 

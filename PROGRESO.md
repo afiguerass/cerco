@@ -18,12 +18,12 @@ Se trabaja en la rama `profesional`; la web publicada (rama `main`) no se toca s
   - **Profesional:** ve «¡Te han contratado!» y «Tu incorporación» con el plan (2 de 8, lo mismo que marcó la clínica). Confirma «Lo he recibido» y retira la otra solicitud. La clínica ve que lo ha confirmado.
   - Al final se comprueba que no ha habido ningún error de JavaScript en las páginas.
 - [x] **Paso 6** — 88 capturas de referencia (44 en ordenador y 44 en móvil) en `pruebas/capturas/`. Cada vez que se pasan las pruebas se comparan con estas. Para que salgan siempre igual: fecha y hora fijas (lunes 9 de noviembre de 2026, 10:00), y se tapan los vídeos, las frases del test (salen en orden aleatorio) y los avisos flotantes. En el móvil la web se desplaza por dentro, así que cada captura muestra lo que cabe en la pantalla.
-- [x] **Paso 7** — Todo en verde con `npm test` desde cero: 33 pruebas de reglas y 22 de navegador (11 en ordenador y 11 en móvil). Comprobado que `index.html`, `candidato.html` y `firestore.rules` siguen idénticos a los de `main`.
+- [x] **Paso 7** — Todo en verde con `npm test` desde cero: 33 pruebas de reglas y 24 de navegador (12 en ordenador y 12 en móvil). En la Fase 0 no se cambió ni una línea de la web; después, con el visto bueno de Asish, se han hecho los arreglos de abajo.
 
 ## Fase 0 terminada — esperando el visto bueno de Asish
 
 ### Lista corta para probar a mano
-La web publicada no ha cambiado. Lo que se ha añadido son solo pruebas y documentos. Aun así, conviene comprobar que todo sigue igual:
+En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo sigue igual:
 1. **Clínica** (ventana normal, https://afiguerass.github.io/cerco/): entra con tu cuenta y mira que se vean tus ofertas, tus candidatos y «Mi equipo».
 2. **Profesional** (ventana de incógnito, https://afiguerass.github.io/cerco/candidato.html): entra con una cuenta de prueba y abre «Ofertas» y «Mis solicitudes».
 3. **Opcional, para ver uno de los fallos encontrados:** en el móvil, como clínica, abre la ficha de un candidato y pulsa «Ver CV completo». Comprueba si puedes cerrar el visor.
@@ -31,26 +31,31 @@ La web publicada no ha cambiado. Lo que se ha añadido son solo pruebas y docume
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Asish revisa la Fase 0 y los fallos apuntados abajo, y decide si se pasa a la **Fase 1** (ordenar el código sin cambiar nada).
+Asish prueba la rama `profesional` (instrucciones en el README, apartado «Probar la rama profesional») y decide si se pasa a la **Fase 1** (ordenar el código sin cambiar nada).
 
-## Avisos y fallos encontrados (no se arreglan en la Fase 0)
-- **`candidato.html` intenta registrar un archivo `sw.js` que no existe en el repositorio** (función `registrarSW`). El navegador recibe un «no encontrado» (error 404). Consecuencia probable: los avisos del portal del profesional cuando la app está en segundo plano no llegan como notificación del sistema. Dentro de la app se siguen viendo.
-- **Reglas de seguridad: puntos mejorables** (no son fallos visibles; se proponen para la Fase 3):
-  - Cualquier cuenta, también la de un profesional, puede crearse un documento en `clinicas/{su uid}`. Con eso las reglas la tratan como «clínica» y puede leer `talento`. Los perfiles de `talento` son anónimos, así que el riesgo es bajo.
-  - `tiempos_respuesta` y `condiciones` aceptan cualquier contenido de cualquier cuenta con sesión, sin comprobar quién escribe ni qué escribe. `valoraciones` solo comprueba que la nota sea de 1 a 5.
-  - La clínica puede devolver una solicitud a un estado anterior (por ejemplo, de «contratada» a «vista»). Puede que sea a propósito, para corregir errores.
-- **Clínica · visor del CV en el ordenador:** si la clínica abre el CV completo y lo cierra con la tecla **Esc**, la ficha deja de actualizarse. Al pulsar «Me interesa» el cambio se guarda, pero en pantalla sigue apareciendo «Nueva solicitud» y el botón «Me interesa». Cerrando con la «×» funciona bien.
-- **Clínica · visor del CV en el móvil:** la barra superior de CERCO tapa la cabecera del visor del CV. No se ven el nombre del archivo ni la «×» para cerrar, así que en el móvil no hay forma visible de cerrarlo.
-- **Cuando una persona solicita dos ofertas de la misma clínica:** en «Candidatos» de una oferta concreta la cabecera dice «2 candidatos han aplicado» y «Tienes 2 solicitudes sin abrir», aunque a esa oferta solo ha aplicado una persona. Parece que cuenta las solicitudes de todas las ofertas.
-- **Trabajador del equipo (enlace del test):** el resultado se envía a la clínica mientras sale «Enviando…», pero el botón «Guardar y continuar» ya se puede pulsar. Si la persona lo pulsa y cierra la página antes de que termine, el resultado puede no llegar, aunque la pantalla final dice «Tu resultado ya está con tu clínica».
-- **Textos que van contra las reglas del encargo** (no se han tocado):
-  - El caso de resultado plano dice «Todavía sin perfil definido» y «Sin perfil definido». El encargo pide exactamente «Perfil sin definir».
-  - El perfil público de la clínica muestra «RESPONSABLE DE CONTRATACIÓN» encima del nombre de la persona. Está prohibido.
-  - «Ampliar con IA», «Generar descripción con IA» y «la IA ordenará la información…»: el texto se genera con una plantilla, no con una IA.
-  - Paso 2 del alta de la clínica: dice «usando cada número una sola vez», pero en el test sí se pueden repetir números.
-  - El contrato adjunto se muestra con un emoji (📄), y la interfaz no debe llevar emojis.
-- **Pequeñas faltas en textos:** «Higienista dental con de 3 a 5 años de experiencia» (resumen de la ficha), «Equipo de 1 personas» (oferta vista por el profesional), «1 candidatos» (Mis ofertas de la clínica).
-- **Doble clic:** la web ignora un segundo «Publicar oferta» en menos de 0,9 s y un segundo «Enviar solicitud» en menos de 2 s. Está bien para evitar duplicados; solo se apunta porque las pruebas tienen que esperar.
+## Arreglos hechos después de la Fase 0 (pedidos por Asish)
+Cada uno tiene su propio commit en la rama `profesional`:
+- [x] El resultado plano del test dice exactamente «Perfil sin definir» (clínica y profesional). En la clínica, el distintivo gris es un «?», como en el lado del profesional.
+- [x] Fuera «Responsable de contratación». El perfil público dice «QUIÉN RESPONDE A LOS CANDIDATOS». En «Mi cuenta», el rol «Responsable de RRHH» se muestra como «Responsable de personal»; el dato guardado no cambia.
+- [x] Fuera «IA» de todos los textos visibles. Ahora dice «con Seimian», como ya hacía el lado del profesional.
+- [x] La explicación del test ya no dice «usando cada número una sola vez»: dice que se puede repetir número.
+- [x] Faltas: «con entre 3 y 5 años de experiencia», «Equipo de 1 persona», «1 candidato».
+- [x] El contrato adjunto lleva un icono de trazo en lugar del emoji 📄.
+- [x] En el móvil, el visor del CV queda por encima de la barra superior y del botón de Seimian: se ven el nombre, «Descargar» y la «×».
+- [x] Pruebas más finas: las capturas admiten como mucho 10 píxeles distintos (una letra ya se nota). En cada pantalla capturada se comprueba que no salgan palabras prohibidas (IA, RRHH, responsable de contratación, TikTok, matching, Kanban, caja negra) ni emojis. Hay una prueba nueva del caso «Perfil sin definir» en el lado clínica.
+
+## Fallos que siguen pendientes (no se han tocado; decide Asish)
+- **Visor del CV en el ordenador:** si la clínica lo cierra con la tecla **Esc**, la ficha deja de actualizarse. Con la «×» funciona bien.
+- **Una persona que solicita dos ofertas de la misma clínica:** en «Candidatos» de una oferta concreta la cabecera cuenta las solicitudes de todas las ofertas («2 candidatos han aplicado»).
+- **Trabajador del equipo (enlace del test):** el botón «Guardar y continuar» se puede pulsar mientras el resultado aún se está enviando. Si la persona cierra la página en ese momento, el resultado puede perderse.
+- **Más emojis** en el menú «Correo» de la ficha del candidato (lado clínica): ✉️ 📨 💻 📋.
+- **«Perfil sin definir»:** el encargo dice «solo la frase y la opción de repasar». Hoy, además de la frase, sale un párrafo que explica por qué y cómo repasar. Se ha dejado; si sobra, se quita.
+- **Seguimiento del profesional:** cuando le contratan, la entrevista aparece en pasado («Fue el jueves 12 de noviembre…») aunque la fecha todavía no haya llegado.
+- **Reglas de seguridad: puntos mejorables** (para la Fase 3):
+  - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.
+  - `tiempos_respuesta`, `condiciones` y `valoraciones` no comprueban bien quién escribe ni qué escribe.
+  - La clínica puede devolver una solicitud a un estado anterior.
+- **Doble clic:** la web ignora un segundo «Publicar oferta» en menos de 0,9 s y un segundo «Enviar solicitud» en menos de 2 s. No es un fallo: es una protección. Solo se apunta porque las pruebas tienen que esperar.
 
 ## Notas técnicas
 - Desde el entorno de Claude Code no se puede descargar Firebase desde `www.gstatic.com`. En las pruebas se sirve una copia idéntica (misma versión 10.12.0, paquete oficial `firebase` de npm). La web publicada no cambia.

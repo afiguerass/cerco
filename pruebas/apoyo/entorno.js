@@ -110,10 +110,17 @@ async function nuevaVentana(browser, testInfo, extra = {}) {
 const CSS_CAPTURA = path.join(__dirname, 'captura.css');
 async function capturar(page, nombre, opciones = {}) {
   if (process.env.SIN_CAPTURAS) return;
+  // Si se pide, se coloca un elemento en el centro de la pantalla antes de
+  // la captura, para que el desplazamiento sea siempre el mismo.
+  if (opciones.centrar) {
+    await opciones.centrar.evaluate((el) => { if (document.activeElement) document.activeElement.blur(); el.scrollIntoView({ block: 'start' }); });
+  }
   await page.waitForTimeout(400);
   await base.expect(page).toHaveScreenshot(`${nombre}.png`, {
     fullPage: true,
-    mask: [page.locator('video'), ...(opciones.tapar || [])],
+    // Se tapan: los vídeos (cada fotograma es distinto) y las frases del test
+    // DISC, que salen en orden aleatorio a propósito.
+    mask: [page.locator('video'), page.locator('#t-ops, [id^="options-container-"]'), ...(opciones.tapar || [])],
     stylePath: CSS_CAPTURA,
     timeout: 20_000,
   });

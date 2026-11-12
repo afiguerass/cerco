@@ -290,7 +290,7 @@ test('5b. La clínica envía el contrato y marca el plan de acogida', async () =
   await seVe(page, 'Plan de acogida · primeros 90 días');
   await page.fill('#ct-ini', '2026-11-16');
   await page.locator('#ct-file').setInputFiles(A.archivo('contrato-prueba.pdf'));
-  await capturar(page, 'clinica-18-contrato-rellenado');
+  await capturar(page, 'clinica-18-contrato-rellenado', { centrar: page.locator('#ct-ok') });
   await page.click('#ct-ok');
   await seVe(page, 'Aún no ha confirmado que lo ha visto.', { exact: false });
   await seVe(page, 'Empieza el 16 de noviembre de 2026');
@@ -299,7 +299,7 @@ test('5b. La clínica envía el contrato y marca el plan de acogida', async () =
   // Marca un paso del plan de acogida
   await page.getByText('Uniforme, taquilla y acceso al programa de la clínica preparados.').locator('visible=true').first().click();
   await expect(page.locator('body')).toContainText('2 de 8 hechos');
-  await capturar(page, 'clinica-19-contrato-y-acogida');
+  await capturar(page, 'clinica-19-contrato-y-acogida', { centrar: page.getByText('Plan de acogida · primeros 90 días').locator('visible=true').first() });
 });
 
 test('6. La profesional ve el estado, «Tu incorporación», confirma el contrato y retira la otra', async () => {

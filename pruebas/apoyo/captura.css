@@ -1,4 +1,4 @@
 /* Solo se aplica al hacer las capturas de referencia, nunca a la web real.
    Oculta los avisos flotantes que aparecen y desaparecen solos, para que no
    salgan unas veces sí y otras no. */
-#global-toast, #toast { visibility: hidden !important; }
+#global-toast, #toast, #guard-toast { visibility: hidden !important; }

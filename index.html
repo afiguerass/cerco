@@ -10888,9 +10888,10 @@ h2, h3{ letter-spacing:-0.02em; font-weight:700; }
       + '<button type="button" id="cv-x" aria-label="Cerrar" style="width:44px;height:44px;border:0;background:none;border-radius:10px;cursor:pointer;font-size:22px;color:#374151;">×</button></div>'
       + '<div id="cv-pag" style="flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;align-items:center;gap:12px;"><div style="padding:40px;color:#6B7280;font-size:14px;">Abriendo el CV…</div></div></div>';
     document.body.appendChild(m);
-    var cerrar = function(){ m.remove(); document.removeEventListener('keydown', esc1); };
-    var esc1 = function(ev){ if(ev.key === 'Escape') cerrar(); };
-    document.addEventListener('keydown', esc1);
+    // Esc cierra solo el visor: se queda la tecla para que no cierre también la ficha que hay debajo
+    var cerrar = function(){ m.remove(); document.removeEventListener('keydown', esc1, true); };
+    var esc1 = function(ev){ if(ev.key === 'Escape'){ ev.stopPropagation(); cerrar(); } };
+    document.addEventListener('keydown', esc1, true);
     document.getElementById('cv-x').onclick = cerrar; m.onclick = function(ev){ if(ev.target === m) cerrar(); };
     var box = document.getElementById('cv-pag');
     urlDe(c, 'cv').then(function(u){

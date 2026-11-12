@@ -259,9 +259,9 @@ test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y
   // El visor se ve entero (también en el móvil, por encima de la barra de arriba)
   await seVe(page, 'CV Laura Prueba.pdf');
   await capturar(page, 'clinica-14-ver-cv');
-  // Se cierra con la «×». (Con la tecla Esc hay un fallo ya existente: la
-  // ficha deja de actualizarse. Está apuntado en PROGRESO.md.)
-  await page.click('#cv-x');
+  // En el ordenador se cierra con la tecla Esc; en el móvil, con la «×».
+  if (test.info().project.name === 'ordenador') await page.keyboard.press('Escape');
+  else await page.click('#cv-x');
   await expect(page.getByText('CV Laura Prueba.pdf').locator('visible=true')).toHaveCount(0);
   await page.waitForTimeout(1500); // la ficha se vuelve a dibujar sola al abrirla (pasa a «vista»)
   await page.getByRole('button', { name: 'Me interesa', exact: true }).locator('visible=true').first().click();

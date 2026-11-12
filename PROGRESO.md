@@ -39,6 +39,10 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
     - `toggleOfferStatus`: tenía dos versiones y solo funcionaba la segunda. Se quita la primera.
     - `copyLink_onboarding`: ninguna de sus dos versiones se usaba. Se quitan las dos.
     - `_esc`: funcionaba la **primera**, porque la segunda estaba fuera del bloque y nunca llegaba a usarse (comprobado en el navegador). Se deja la que funcionaba.
+  - [x] **Versiones sustituidas del todo**: una versión posterior las reemplazaba sin usarlas, así que eran código que nunca se ejecutaba. Se han quitado:
+    - Clínica: `_subirOferta`, `_dreceresSeimian`.
+    - Profesional: `pintarInicio` (la original y dos capas), `fechaCorta`, `esIOS`.
+    - En total, unos 10.400 caracteres.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.
@@ -97,6 +101,7 @@ Cada uno tiene su propio commit en la rama `profesional`:
 - [x] El rol «Responsable de personal» se llama «Coordinador/a de clínica». El dato guardado sigue siendo el mismo.
 
 ## Pendiente para más adelante
+- **iPad:** la función que detecta si el aparato es un iPhone o un iPad (`esIOS`, lado profesional) no reconoce los iPad en modo escritorio, que es como vienen por defecto. Ya había una versión que sí los reconocía, pero no era la que funcionaba. Se ha dejado igual; habría que probar en un iPad si algo del vídeo falla.
 - **Seguridad, para la Fase 3:** la función que protege los textos antes de ponerlos en la página (`_esc`, lado clínica) no protege las comillas («"»). Un nombre con comillas, por ejemplo el de una clínica, podría romper un trozo de la página. Ya había una versión corregida, pero nunca llegaba a usarse. No se ha cambiado para que todo funcione igual.
 - **Cosas vistas en las capturas nuevas (sin tocar; decide Asish):**
   - **Agenda** de la clínica: dice «Todavía no tienes entrevistas» aunque hubo una entrevista programada para el 12 de noviembre. Puede ser a propósito, porque después esa persona fue contratada.

@@ -98,23 +98,6 @@ function bloqueSeimianInicio(){
   });
   return h;
 }
-var _inicioPasos = window.pintarInicio;
-window.pintarInicio = function(){
-  var r = _inicioPasos.apply(this, arguments);
-  try{
-    var pasos = tarjetaPasos(), per = $('in-perfil');
-    // como en el panel de la clínica: los pasos van arriba, justo después del saludo
-    var arriba = $('in-props');
-    if(pasos && per && arriba){ per.innerHTML = ''; arriba.insertAdjacentHTML('afterbegin', pasos); }
-    var ofs = $('in-ofs');
-    if(ofs && S.ofertasCargadas && (hayReales() || !(S.perfil||{}).disc)){
-      var tit = document.querySelector('#v-inicio .in-ofs-t'); if(tit) tit.textContent = 'CLÍNICAS QUE TE RECOMIENDA SEIMIAN';
-      ofs.innerHTML = bloqueSeimianInicio();
-    }
-    pintarIconos($('v-inicio'));
-  }catch(e){}
-  return r;
-};
 
 
 /* ================================================================
@@ -183,30 +166,6 @@ function bloqueNovedades(){
   if(!f.length) return '';
   return '<div class="inb"><div class="inb-cab"><span>NOVEDADES</span></div>'+f.slice(0,5).join('')+(f.length > 5 ? '<button class="inb-mas" onclick="ir(\'solicitudes\')">Ver todas en Mis solicitudes</button>' : '')+'</div>';
 }
-var _inicioOrden = window.pintarInicio;
-window.pintarInicio = function(){
-  var r = _inicioOrden.apply(this, arguments);
-  try{
-    var w = document.querySelector('#v-inicio .wrap'); if(!w) return r;
-    var st = w.querySelector('.stats'), eye = w.querySelector('.in-ofs-t') ? w.querySelector('.in-ofs-t').parentNode : null, ofs = $('in-ofs'), todas = ofs ? ofs.nextElementSibling : null;
-    function caja(id){ var e = $(id); if(!e){ e = document.createElement('div'); e.id = id; } return e; }
-    // solicitudes en una línea de cifras, debajo de las ofertas
-    var solT = caja('in-sol-t'); solT.className = 'eyebrow'; solT.style.marginTop = '18px'; solT.innerHTML = svg('send','currentColor',13)+'<span>TUS SOLICITUDES</span>';
-    // como en la clínica: lo que necesita tu respuesta y las novedades, arriba del todo
-    var gan = S.sols.some(function(x){ return x.estado === 'contratada'; });
-    if(!gan) $('in-aviso').innerHTML = '';
-    var resp = caja('in-resp'), nov = caja('in-nov');
-    resp.innerHTML = bloqueRespuesta(); nov.innerHTML = bloqueNovedades();
-    var av = $('in-aviso');
-    av.parentNode.insertBefore(resp, av.nextSibling); resp.parentNode.insertBefore(nov, resp.nextSibling);
-    var sug = caja('in-sug'); sug.innerHTML = bloqueSugerencias(); sug.style.marginTop = sug.innerHTML ? '18px' : '0';
-    // orden final
-    var tras = todas || ofs || w.lastChild;
-    [solT, st, sug].forEach(function(el){ if(el && tras){ tras.parentNode.insertBefore(el, tras.nextSibling); tras = el; } });
-    pintarIconos(w);
-  }catch(e){}
-  return r;
-};
 
 
 /* ================================================================

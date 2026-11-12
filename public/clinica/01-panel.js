@@ -1219,32 +1219,6 @@ function _xuletaSeimian(cont){
 /* Les tres coses que un responsable vol saber, a un toc.
    Surten al principi i tornen a sortir despres de cada resposta,
    perque no hagi d endevinar mai que pot preguntar. */
-function _dreceresSeimian(cont){
-  if(!cont) cont = document.getElementById('chat-messages');
-  if(!cont) return;
-  var vell = document.getElementById('seimian-dreceres');
-  if(vell) vell.remove();
-
-  var caixa = document.createElement('div');
-  caixa.id = 'seimian-dreceres';
-  caixa.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:100%;margin-top:2px;';
-
-  var opcions = [
-    ['¿Qué le falta a mi equipo?', 'seimianEquipo'],
-    ['Ayúdame con una oferta',     'seimianOferta'],
-    ['¿Cómo invito a mi equipo?',  'seimianInvitar']
-  ];
-  opcions.forEach(function(o){
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = o[0];
-    b.style.cssText = 'background:white;border:1.5px solid #DBEAFE;color:#1A56DB;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;line-height:1.3;';
-    b.onclick = function(){ window[o[1]](); };
-    caixa.appendChild(b);
-  });
-  cont.appendChild(caixa);
-  cont.scrollTop = cont.scrollHeight;
-}
 
 /* Respon com si li ho haguessis escrit tu, perque quedi la conversa sencera */
 function _seimianDiu(pregunta, resposta, despres){
@@ -5325,11 +5299,7 @@ window.Nube = {
     if(!Nube.activa) return;
     Nube.guardarMiembro(Nube.uid, m);
   };
-  window._subirOferta = function(o){
-    if(!Nube.activa) return;
-    Nube.guardarOferta(o);
-  };
-})();
+  })();
 
 /* ============ COMPORTAMENT D'APP ============
    Tecla Enter, boto enrere del mobil i proteccio contra

@@ -953,7 +953,6 @@ function discRepetible(p){
   var t = new Date(d.fecha).getTime() + DISC_ESPERA_DIAS * 86400000;
   return {ok: !t || Date.now() >= t, fecha: new Date(t)};
 }
-function fechaCorta(d){ return d.toLocaleDateString('es-ES', {day:'numeric', month:'long'}); }
 function abrirTest(repetir){
   if(repetir){ var rp = discRepetible(); if(!rp.ok){ toast('Podrás repetir el test a partir del ' + fechaCorta(rp.fecha) + '.'); return; } }
   T.repetir = !!repetir; T.i = 0; T.res = null;
@@ -1235,80 +1234,6 @@ function ordenarOfertas(l){
   });
 }
 
-function pintarInicio(){
-  var p = S.perfil || {};
-  var h = new Date().getHours();
-  $('in-fecha').textContent = new Date().toLocaleDateString('es-ES',{weekday:'long', day:'numeric', month:'long'}).replace(/^./, function(c){ return c.toUpperCase(); });
-  $('in-hola').textContent = (h < 14 ? 'Buenos días' : (h < 21 ? 'Buenas tardes' : 'Buenas noches')) + (p.nombre ? ', ' + primerNom(p.nombre) : '');
-  var ent = S.sols.filter(function(s){ return s.estado === 'entrevista'; });
-  // el «¡Enhorabuena!» arriba: hasta que lo ves y, como mucho, dos semanas
-  var gan = S.sols.filter(function(s){ return s.estado === 'contratada' && (!s.ganVista || Date.now() - new Date(fechaDe(s, 'contratada') || 0) < 14*86400000); });
-  var porConf = ent.filter(function(s){ return s.cita && s.cita.estado === 'propuesta'; });
-  $('in-sub').textContent = gan.length ? '¡Enhorabuena! ' + (gan[0].clinicaNombre || 'Una clínica') + ' te ha elegido.'
-    : porConf.length ? 'Tienes ' + (porConf.length === 1 ? 'una cita' : porConf.length + ' citas') + ' por confirmar.'
-    : ent.length
-    ? (ent.length === 1 ? (esVisita(ent[0]) ? 'Una clínica quiere conocerte: te propone día y hora.' : 'Tienes una invitación a entrevista esperando respuesta.') : 'Tienes ' + ent.length + ' respuestas de clínicas esperándote.')
-    : (hayReales() ? 'Aquí tienes tus siguientes pasos y las clínicas que te recomendamos.' : 'Te enseñamos las ofertas en cuanto las clínicas las publiquen.');
-  $('in-n-of').textContent = S.ofertas.length;
-  $('in-n-sol').textContent = solsActivas().length;
-  $('in-n-ent').textContent = ent.length;
-
-  var av = '';
-  if(gan.length){
-    var g = gan[0];
-    av = '<div class="card gana-card" style="cursor:pointer;" onclick="ir(\'solicitud\',\''+esc(g.id)+'\')">'+svg('sparkles','#fff',26)+'<div><div class="gana-t">¡Te han elegido!</div><div class="gana-s">'+esc(g.clinicaNombre||'')+' · '+esc(g.ofertaTitulo||'')+'. Mira su mensaje.</div></div></div>';
-  } else if(porConf.length){
-    var pc0 = porConf[0];
-    av = '<div class="card" style="border-color:#C9D6F5;background:#F4F7FE;cursor:pointer;" onclick="ir(\'solicitud\',\''+esc(pc0.id)+'\')">'
-      + '<div style="display:flex;gap:12px;align-items:center;"><div style="background:#fff;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+svg('cal','#1A56DB',20)+'</div>'
-      + '<div style="flex:1;min-width:0;"><div style="font-size:14.5px;font-weight:800;">Confirma tu '+(esVisita(pc0)?'visita':'entrevista')+' en '+esc(pc0.clinicaNombre||'la clínica')+'</div>'
-      + '<div style="font-size:13px;color:#4B5563;">'+esc(fechaCitaC(pc0.cita.fecha))+' · '+esc(MODO_C[pc0.cita.modo]||'')+'</div></div>'+svg('right','#1A56DB',18)+'</div></div>';
-  } else if(ent.length){
-    var s = ent[0];
-    av = '<div class="card" style="border-color:#BFE9D7;background:#F3FBF7;cursor:pointer;" onclick="ir(\'solicitud\',\''+esc(s.id)+'\')">'
-      + '<div style="display:flex;gap:12px;align-items:center;"><div style="background:#fff;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+svg(esVisita(s)?'pin':'video','#0E9F6E',20)+'</div>'
-      + '<div style="flex:1;min-width:0;"><div style="font-size:14.5px;font-weight:800;">'+esc(s.clinicaNombre||'Una clínica')+' quiere conocerte</div>'
-      + '<div style="font-size:13px;color:#4B5563;">'+(esVisita(s)?'Te propone día y hora':esc(s.ofertaTitulo||''))+' · Mira los detalles</div></div>'+svg('right','#0E9F6E',18)+'</div></div>';
-  }
-  $('in-aviso').innerHTML = av;
-  try{ $('in-props').innerHTML = bloqueInicioExtra(); }catch(e){ $('in-props').innerHTML = ''; }
-
-  // perfil a mitges
-  var falta = [];
-  if(!p.disc) falta.push('<li>Hacer el test de personalidad (lo necesitas para solicitar)</li>');
-  if(!p.resumen) falta.push('<li>Presentarte en pocas líneas</li>');
-  if(!(p.trabajos||[]).length && p.experiencia && p.experiencia.indexOf('Sin experiencia') !== 0) falta.push('<li>Añadir dónde has trabajado</li>');
-  if(!(p.fuertes||[]).length) falta.push('<li>Elegir tus puntos fuertes</li>');
-  if(!p.video) falta.unshift('<li>Grabar tu vídeo de presentación (lo primero que ve la clínica)</li>');
-  if(!p.foto) falta.push('<li>Poner una foto de perfil</li>');
-  if(!p.cv) falta.push('<li>Subir tu CV completo en PDF</li>');
-  var total = 10, hechos = total - falta.length;
-  var pc = '';
-  if(falta.length){
-    pc = '<div class="card"><div class="eyebrow">TU PERFIL</div>'
-      + '<div style="font-size:15px;font-weight:800;">Tu perfil está al ' + Math.round(hechos/total*100) + '%</div>'
-      + '<div class="meter"><div style="width:'+Math.round(hechos/total*100)+'%"></div></div>'
-      + '<ul class="falta">'+falta.join('')+'</ul>'
-      + (!p.disc ? '<button class="btn btn-p" onclick="abrirTest(false)">Hacer el test ahora</button>' : (!p.video ? '<button class="btn btn-p" onclick="ir(\'perfil\'); setTimeout(abrirGrabadora, 200)">'+svg('video','#fff',16)+'Grabar mi vídeo</button> <button class="btn btn-s" onclick="ir(\'perfil\')">Completar mi perfil</button>' : '<button class="btn btn-s" onclick="ir(\'perfil\')">Completar mi perfil</button>'))
-      + '</div>';
-  } else if(p.disc){
-    pc = '<div class="card dark"><div class="eyebrow">'+svg('compass','rgba(255,255,255,.6)',13)+'TU FORMA DE TRABAJAR</div>'
-      + '<div style="display:flex;gap:14px;align-items:center;"><div class="disc-big" style="background:'+COLOR[p.disc.dom]+';width:52px;height:52px;font-size:21px;border-radius:14px;">'+p.disc.dom+'</div>'
-      + '<div style="font-size:14px;line-height:1.6;color:rgba(255,255,255,.9);">Eres <b style="color:#fff;">'+NOMBRE[p.disc.dom]+'</b> con rasgo '+NOMBRE[p.disc.sec].toLowerCase()+'. Las clínicas que buscan '+APORTA[p.disc.dom]+' te verán arriba de su lista.</div></div></div>';
-  }
-  $('in-perfil').innerHTML = pc;
-
-  var libres = ofertasVisibles().filter(function(o){ return !solDeOferta(o.id); });
-  var zc = ofertasCerca(libres), notaIn = '';
-  var l = ordenarOfertas(zc.dentro).slice(0,3);
-  if(!l.length && zc.fuera.length && hayReales()){
-    l = zc.fuera.slice(0,3);
-    notaIn = '<div class="aviso aviso-info">'+svg('pin','#1E3A8A',16)+'<span>No hay ofertas '+esc(txtRadio(p.radio||25, p.geo))+'. Estas son las más cercanas. <button class="link" onclick="editarPerfil()">Cambiar distancia</button></span></div>';
-  }
-  if(!S.ofertasCargadas) $('in-ofs').innerHTML = '<div class="cargando" style="padding:30px;"><div class="spin"></div></div>';
-  else if(!l.length) $('in-ofs').innerHTML = '<div class="vacio"><b>Ya has solicitado todas las ofertas</b><p>Cuando se publiquen nuevas, las verás aquí.</p></div>';
-  else $('in-ofs').innerHTML = notaIn + '' + l.map(tarjetaOferta).join('');
-}
 
 document.addEventListener('click', function(ev){
   var c = ev.target.closest && ev.target.closest('#of-fil .chip');
@@ -2194,7 +2119,6 @@ function gvMoverTramo(){
    Preparar el vídeo pasa por pasos que esperan (cargar, saltar al trozo), así que
    «armamos» el vídeo y el audio en el mismo toque y luego ya se pueden usar. */
 function hayAudioWeb(){ return !!(window.AudioContext || window.webkitAudioContext); }
-function esIOS(){ return /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
 function msgSinAudio(){
   return esIOS()
     ? 'Tu iPhone tiene activado el Modo de aislamiento, que no deja a las webs preparar vídeos con sonido. Desactívalo solo para CERCO: toca «aA» (o el icono de la izquierda en la barra de dirección) → Ajustes del sitio web → desactiva «Modo de aislamiento». O graba con menos calidad: Ajustes → Cámara → Grabar vídeo → 720p HD a 30 fps.'

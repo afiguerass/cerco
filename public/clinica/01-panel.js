@@ -5040,7 +5040,15 @@ function renderMiCuenta(){
 }
 
 /* ====================== CANDIDATOS ====================== */
+/* «Candidatos» (Fase 1: una sola versión). Antes eran siete versiones
+   envueltas; ahora se pinta la base y después cada parte, en el mismo orden.
+   Un fallo en una parte no impide pintar las demás, igual que antes. */
 function renderPortalReal(){
+  try{ _pintarCandidatosBase(); }catch(x){}
+  ['CERCO_candidatosReales', 'CERCO_candidatosTasaRespuesta', 'CERCO_candidatosEtiquetas', 'CERCO_candidatosTalento', 'CERCO_candidatosPorProfesion', 'CERCO_candidatosEntrada']
+    .forEach(function(parte){ try{ if(window[parte]) window[parte](); }catch(x){} });
+}
+function _pintarCandidatosBase(){
   var h1 = document.getElementById('portal-h1');
   var sub = document.getElementById('portal-sub');
   var aviso = document.getElementById('portal-aviso-real');

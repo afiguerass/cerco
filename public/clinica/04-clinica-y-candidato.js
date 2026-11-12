@@ -282,9 +282,8 @@
   // "Invitar a entrevista" y "Proponer visita" pasan por el día y la hora
 
   /* ---------- estados nuevos en las tarjetas ---------- */
-  var _renderPortal = window.renderPortalReal;
-  window.renderPortalReal = function(){
-    var r; try{ r = _renderPortal && _renderPortal.apply(this, arguments); }catch(x){}
+  // Candidatos: etiquetas en las tarjetas (mensajes, contratada, cita, plazo). Lo usa renderPortalReal (clinica/01-panel.js)
+  window.CERCO_candidatosEtiquetas = function(){
     try{
       document.querySelectorAll('#portal-reales .cand-real').forEach(function(card){
         var c = buscar(card.dataset.id); if(!c) return;
@@ -317,7 +316,6 @@
         }
       }
     }catch(x){}
-    return r;
   };
 
   /* ---------- Inicio: próxima cita y respuestas del candidato ---------- */

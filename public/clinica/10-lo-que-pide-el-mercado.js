@@ -348,8 +348,10 @@
     b.onclick = function(){ CERCO_comparar(); };
     lista.parentElement.insertBefore(b, lista);
   }
-  var _rpOrig = window.renderPortalReal;
-  if(typeof _rpOrig === 'function') window.renderPortalReal = function(){ var r = _rpOrig.apply(this, arguments); try{ entradaCandidatos(); }catch(x){} return r; };
+  // Candidatos: entrada a las herramientas. Lo usa renderPortalReal (clinica/01-panel.js)
+  window.CERCO_candidatosEntrada = function(){
+    try{ entradaCandidatos(); }catch(x){}
+  };
   function entradaHerramientas(){
     if($('mk-tool-cmp')) return;
     var t = [].filter.call(document.querySelectorAll('#screen-herramientas .tool-title'), function(x){ return x.textContent.trim() === 'Ver encaje de un candidato'; })[0]; if(!t) return;

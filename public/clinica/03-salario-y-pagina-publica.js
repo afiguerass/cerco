@@ -156,11 +156,10 @@
   };
 
   /* ---------- tu propia tasa de respuesta, en Candidatos ---------- */
-  var _rpOrig = window.renderPortalReal;
-  window.renderPortalReal = function(){
-    var r; try{ r = _rpOrig && _rpOrig.apply(this, arguments); }catch(x){}
+  // Candidatos: tu tasa de respuesta en la cabecera. Lo usa renderPortalReal (clinica/01-panel.js)
+  window.CERCO_candidatosTasaRespuesta = function(){
     try{
-      if(CDB.demo()) return r;
+      if(CDB.demo()) return;
       var l = (window.CERCO_candidaturas ? CERCO_candidaturas() : []).filter(function(c){ return c.estado !== 'retirada'; });
       var ahora = Date.now(), resp = 0, eval_ = 0;
       l.forEach(function(c){
@@ -175,7 +174,6 @@
           + ' <span style="color:#6B7280;">(lo ven los candidatos)</span>';
       }
     }catch(x){}
-    return r;
   };
   try{ CDB.renderTodo(); }catch(x){}
 })();

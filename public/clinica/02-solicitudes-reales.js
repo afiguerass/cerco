@@ -315,9 +315,8 @@
     });
     try{ window._geoDespuesReal && _geoDespuesReal(); }catch(x){}
   }
-  var _renderPortalOrig = window.renderPortalReal;
-  window.renderPortalReal = function(){
-    try{ _renderPortalOrig && _renderPortalOrig(); }catch(x){}
+  // Candidatos: cabecera con el número de personas y las solicitudes reales. Lo usa renderPortalReal (clinica/01-panel.js)
+  window.CERCO_candidatosReales = function(){
     var enDemo = false; try{ enDemo = CDB.demo(); }catch(x){}
     if(!enDemo){
       var vis = activasEnVista();

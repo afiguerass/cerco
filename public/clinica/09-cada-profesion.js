@@ -186,8 +186,10 @@
   var _af2 = window.abrirFichaCandidato;
   window.abrirFichaCandidato = function(id){ var r = _af2.apply(this, arguments); try{ pintarGuardFicha(id); }catch(x){} return r; };
   window.CERCO_agruparCandidatos = agruparCandidatos;
-  var _rp = window.renderPortalReal;
-  window.renderPortalReal = function(){ var r; try{ r = _rp && _rp.apply(this, arguments); }catch(x){} try{ agruparCandidatos(); }catch(x){} return r; };
+  // Candidatos: agrupados por profesión. Lo usa renderPortalReal (clinica/01-panel.js)
+  window.CERCO_candidatosPorProfesion = function(){
+    try{ agruparCandidatos(); }catch(x){}
+  };
   // cuando cambian el buscador, el color o la distancia, se vuelve a agrupar
   function luego(){ setTimeout(function(){ try{ agruparCandidatos(); }catch(x){} }, 30); }
   document.addEventListener('input', function(ev){ if(ev.target && ev.target.id === 'search-portal') luego(); });

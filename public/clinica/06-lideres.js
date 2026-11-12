@@ -255,8 +255,10 @@
       pintarTalento();
     }).catch(function(){ if(b){ b.disabled = false; b.textContent = 'Volver a enviar'; } document.getElementById('inv-err').textContent = 'No se ha podido enviar. Revisa tu conexión.'; });
   };
-  var _rpOrig = window.renderPortalReal;
-  window.renderPortalReal = function(){ var r = _rpOrig ? _rpOrig.apply(this, arguments) : null; try{ pintarTalento(); cargarTalento(); }catch(x){} return r; };
+  // Candidatos: «Talento que encaja». Lo usa renderPortalReal (clinica/01-panel.js)
+  window.CERCO_candidatosTalento = function(){
+    try{ pintarTalento(); cargarTalento(); }catch(x){}
+  };
 
   /* ---------- 4. inicio: seguimiento, plazos, valoración ---------- */
   var VAL = { l:null };

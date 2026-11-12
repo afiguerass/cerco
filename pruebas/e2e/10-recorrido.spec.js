@@ -266,6 +266,14 @@ test('5. La clínica ve la solicitud, la ficha grande, me interesa, entrevista y
   await seVe(page, correoPro);
   await capturar(page, 'clinica-13-ficha-candidata');
 
+  // Menú «Correo» del contacto: iconos de trazo, sin emojis
+  await page.locator('a[href^="mailto:"]').locator('visible=true').last().click();
+  await seVe(page, 'Abrir en Gmail');
+  await expect(page.locator('#correo-menu svg')).toHaveCount(4);
+  await capturar(page, 'clinica-13b-menu-correo', { centrar: page.locator('#correo-menu') });
+  await page.getByText('RESUMEN DEL CANDIDATO').locator('visible=true').first().click();
+  await expect(page.locator('#correo-menu')).toHaveCount(0);
+
 
   // El CV completo se puede ver sin descargarlo
   await page.click('#ficha-cv-ver');

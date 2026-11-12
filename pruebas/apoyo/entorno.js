@@ -80,6 +80,45 @@ async function vaciarEmulador() {
   await fetch(`${AUTH}/emulator/v1/projects/${PROYECTO}/accounts`, { method: 'DELETE' });
 }
 
+// Fecha y hora fijas para las pruebas del recorrido: lunes 9 de noviembre de
+// 2026 a las 10:00 (hora de Madrid). El reloj avanza normal desde ahí. Así
+// los textos como «Buenos días» o «Hace 5 min» salen siempre igual y las
+// capturas se pueden comparar.
+const HORA_FIJA = new Date('2026-11-09T10:00:00+01:00');
+
+// Crea una ventana de navegador independiente (como una ventana normal o una
+// de incógnito: cada una con su propia sesión), con el tamaño del proyecto
+// (ordenador o móvil).
+async function nuevaVentana(browser, testInfo, extra = {}) {
+  const u = testInfo.project.use;
+  const opciones = {};
+  for (const k of ['viewport', 'deviceScaleFactor', 'isMobile', 'hasTouch', 'userAgent', 'locale', 'timezoneId', 'baseURL']) {
+    if (u[k] !== undefined) opciones[k] = u[k];
+  }
+  const context = await browser.newContext({ ...opciones, ...extra });
+  await prepararContexto(context);
+  await context.clock.install({ time: HORA_FIJA });
+  const page = await context.newPage();
+  page.erroresPagina = [];
+  page.on('pageerror', (e) => page.erroresPagina.push(String(e && e.message || e)));
+  return { context, page };
+}
+
+// Captura de referencia de la pantalla actual (Paso 6). La primera vez se
+// guarda; las siguientes se compara con la guardada. Se tapan los vídeos
+// (cada fotograma es distinto) y los avisos flotantes que desaparecen solos.
+const CSS_CAPTURA = path.join(__dirname, 'captura.css');
+async function capturar(page, nombre, opciones = {}) {
+  if (process.env.SIN_CAPTURAS) return;
+  await page.waitForTimeout(400);
+  await base.expect(page).toHaveScreenshot(`${nombre}.png`, {
+    fullPage: true,
+    mask: [page.locator('video'), ...(opciones.tapar || [])],
+    stylePath: CSS_CAPTURA,
+    timeout: 20_000,
+  });
+}
+
 const test = base.test.extend({
   context: async ({ context }, use) => {
     await prepararContexto(context);
@@ -93,4 +132,7 @@ const test = base.test.extend({
   },
 });
 
-module.exports = { test, expect: base.expect, prepararContexto, vaciarEmulador, PROYECTO, AUTH, FIRESTORE };
+module.exports = {
+  test, expect: base.expect, prepararContexto, vaciarEmulador, nuevaVentana, capturar,
+  HORA_FIJA, PROYECTO, AUTH, FIRESTORE,
+};

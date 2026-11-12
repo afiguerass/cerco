@@ -1,0 +1,15 @@
+{
+  "name": "cerco",
+  "private": true,
+  "description": "CERCO: plataforma de selección de personal para clínicas dentales",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:pruebas": "vite build --mode pruebas --outDir dist-pruebas",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}

@@ -23,12 +23,13 @@ Esta carpeta **no forma parte de la web**. Sirve para comprobar, después de cad
 Hace falta Node.js 20 o superior y Java 11 o superior (el emulador de Firebase lo necesita).
 
 ```bash
+npm install
 cd pruebas
 npm install
 npm test
 ```
 
-`npm test` arranca el emulador, pasa las pruebas de reglas, después las de la web, y lo apaga al acabar.
+El primer `npm install` (en la carpeta principal) instala Vite, que compila la web. `npm test` compila la web (en `dist-pruebas/`), arranca el emulador, pasa las pruebas de reglas, después las de la web, y lo apaga al acabar. Las pruebas abren siempre la **web compilada**, que es la que se publica.
 
 Otras órdenes útiles:
 

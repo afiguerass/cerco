@@ -3,7 +3,23 @@
 Este archivo resume en qué punto está el trabajo. Se actualiza después de cada paso.
 Se trabaja en la rama `profesional`; la web publicada (rama `main`) no se toca sin el visto bueno de Asish.
 
-## Fase actual: Fase 0 — Preparar el terreno (terminada)
+## Fase actual: Fase 1 — Ordenar el código sin cambiar nada
+
+Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un commit en la rama `profesional`, con todas las pruebas y capturas en verde. No se publica nada en `main` sin el visto bueno de Asish.
+
+### Pasos de la Fase 1
+- [x] **1.1 Vite.** El proyecto compila las dos páginas tal como están (`npm run build` → `dist/`). Las pruebas abren ahora la web compilada, y las 26 pasan con las capturas idénticas.
+- [ ] **1.2 Publicación automática** con GitHub Actions: compila y publica en las mismas direcciones. Se deja preparada, sin activar.
+- [ ] **1.3 Estilos** en archivos aparte.
+- [ ] **1.4 Test DISC y % de encaje** en un único módulo compartido por los dos lados, con pruebas propias. La puntuación de los tests ya hechos no puede cambiar.
+- [ ] **1.5 Municipios** en un archivo de datos aparte, cargado solo cuando hace falta.
+- [ ] **1.6 Código en carpetas:** clínica, profesional y común.
+- [ ] **1.7 Deshacer las «capas»:** cada función con una sola versión final.
+- [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
+- [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
+- [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.
+
+## Fase 0 — Preparar el terreno (terminada y publicada)
 
 ### Hecho
 - [x] **Paso 1** — Creada la rama `profesional` y este archivo `PROGRESO.md`.
@@ -31,7 +47,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-**Fase 0 publicada** el 12 de noviembre de 2026: se fusionó el pull request #1 (`profesional` → `main`), y GitHub Pages la publicó sin errores. Asish prueba la web publicada y dice cuándo empezar la **Fase 1** (ordenar el código sin cambiar nada).
+Fase 1, paso 1.2: dejar preparada la publicación automática con GitHub Actions.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

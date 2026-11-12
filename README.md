@@ -19,6 +19,7 @@ La web se publica con GitHub Pages desde la rama principal (`main`). Lo que se s
 | `Encargo para Claude Code CERCO profesional.md` | El encargo: qué es CERCO, las reglas que no se pueden romper y el plan por fases para profesionalizarlo. |
 | `PROGRESO.md` | Cuaderno de trabajo: qué está hecho, qué falta y cuál es el siguiente paso. |
 | `README.md` | Este archivo. |
+| `package.json`, `vite.config.js` | **Vite**, la herramienta que compila la web (`npm run build` deja la web lista para publicar en `dist/`). Se añadió en la Fase 1. |
 | `pruebas/` | Pruebas automáticas (ver más abajo). **No forma parte de la web**: solo sirve para comprobar que todo sigue funcionando después de cada cambio. |
 
 ## Dónde se guardan los datos

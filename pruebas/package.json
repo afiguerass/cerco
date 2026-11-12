@@ -1,0 +1,21 @@
+{
+  "name": "cerco-pruebas",
+  "version": "1.0.0",
+  "description": "Pruebas automáticas de CERCO (no forma parte de la web)",
+  "scripts": {
+    "preparar": "node -e \"require('fs').mkdirSync('.reglas-copia',{recursive:true});require('fs').copyFileSync('../firestore.rules','.reglas-copia/firestore.rules')\"",
+    "test": "npm run preparar && firebase emulators:exec --project demo-cerco --only auth,firestore \"npm run test:reglas && npm run test:web\"",
+    "test:reglas": "node --test reglas/",
+    "test:web": "playwright test",
+    "capturas:nuevas": "npm run preparar && firebase emulators:exec --project demo-cerco --only auth,firestore \"playwright test --update-snapshots\"",
+    "emulador": "npm run preparar && firebase emulators:start --project demo-cerco --only auth,firestore"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "@playwright/test": "1.63.0",
+    "firebase": "10.12.0",
+    "firebase-tools": "^15.36.0",
+    "pdfjs-dist": "3.11.174"
+  },
+  "private": true
+}

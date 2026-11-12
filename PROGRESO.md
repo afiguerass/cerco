@@ -21,7 +21,11 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
 - [x] **1.4 Test DISC y % de encaje** en un único módulo, `src/comun/disc.js`, que usan los dos lados.
   - Antes había dos copias del cálculo del test y dos del encaje; el de la clínica estaba reescrito a mano.
   - Pruebas propias en `pruebas/unidad/`: con 2.000 tests y 2.000 ofertas el resultado es **exactamente** el mismo que con las funciones de antes, así que la puntuación de los tests ya hechos no cambia.
-- [ ] **1.5 Municipios** en un archivo de datos aparte, cargado solo cuando hace falta.
+- [x] **1.5 Municipios** en un archivo de datos aparte.
+  - Antes la lista (6.801 municipios, 200 KB) estaba **copiada dentro de las dos páginas**.
+  - Ahora está en `public/datos/municipios.js` (solo datos), y la búsqueda y los km en `public/comun/geo.js`. Las dos páginas comparten los mismos archivos y el navegador los descarga una sola vez.
+  - Pruebas nuevas (`pruebas/unidad/geo.test.mjs`): 400 direcciones, 150 búsquedas y 300 distancias dan exactamente lo mismo que antes.
+  - **Pendiente dentro de la Fase 1:** que la lista se cargue *solo cuando haga falta*. Hoy se sigue cargando al abrir la página, porque el código la pide «al instante» desde muchos sitios. Se podrá hacer en los pasos 1.6 y 1.7, cuando ese código esté ordenado.
 - [ ] **1.6 Código en carpetas:** clínica, profesional y común.
 - [ ] **1.7 Deshacer las «capas»:** cada función con una sola versión final.
 - [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
@@ -56,7 +60,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Fase 1, paso 1.5: la lista de municipios en un archivo de datos aparte, cargado solo cuando haga falta.
+Fase 1, paso 1.6: pasar el código de las páginas a archivos en carpetas (clínica, profesional y común).
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

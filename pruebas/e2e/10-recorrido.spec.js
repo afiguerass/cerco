@@ -555,6 +555,18 @@ test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entr
     await page.fill('#' + id, antes);
   }
 
+  // Con el campo vacío, «Enviar» y la flecha de Seimian avisan en vez de no hacer nada
+  await page.evaluate(() => abrirSeimian());
+  await page.locator('#global-chat-modal button[onclick="sendChatMsg()"]').click();
+  await expect(page.locator('#chat-input-vacio')).toHaveText('Escribe algo antes de enviar.');
+  await page.locator('#chat-input').pressSequentially('h');
+  await expect(page.locator('#chat-input-vacio')).toHaveCount(0);
+  await page.locator('#global-chat-modal button[onclick*="remove()"]').first().click();
+  await page.evaluate(() => abrirFichaCandidato(CERCO_candidaturas().find((x) => x.estado === 'contratada').id));
+  await page.locator('#ficha-msg-in ~ button').locator('visible=true').first().click();
+  await expect(page.locator('#ficha-msg-in-vacio')).toHaveText('Escribe algo antes de enviar.');
+  await expect(page.locator('#ficha-msg-in')).toBeFocused();
+
   // Cerrar sesión (Mi cuenta) y volver a entrar: los datos vuelven de la nube
   await page.evaluate(() => showScreen('mi-cuenta'));
   await page.getByRole('button', { name: 'Cerrar sesión' }).locator('visible=true').first().click();
@@ -574,6 +586,17 @@ test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entr
 
   // El profesional también: sale y vuelve a entrar
   const p = pro.page;
+  // Con el campo vacío: Seimian, los mensajes de la solicitud y «Revisar con Seimian» avisan
+  await p.evaluate(() => { if (document.getElementById('sei')) cerrarSeimian(); abrirSeimian(); });
+  await p.locator('#sei form button').click();
+  await expect(p.locator('#sei-q-vacio')).toHaveText('Escribe algo antes de enviar.');
+  await p.evaluate(() => { cerrarSeimian(); ir('solicitud', S.sols.find((x) => x.estado === 'contratada').id); });
+  await p.locator('.msg-in button').locator('visible=true').first().click();
+  await expect(p.locator('#sd-msg-in-vacio')).toHaveText('Escribe algo antes de enviar.');
+  await p.evaluate(() => abrirHerramienta('ensayo'));
+  await p.locator('#hr-box button', { hasText: 'Revisar con Seimian' }).first().click();
+  await expect(p.locator('#hr-a0-vacio')).toHaveText('Escribe tu respuesta antes de revisarla.');
+  await p.evaluate(() => abrirHerramienta(null));
   // Antes, en el editor de vídeo: abrirlo y cerrarlo enseguida, mientras prepara las
   // miniaturas, no da ningún error. (Va aquí, después de las capturas del profesional,
   // porque la espera cambiaría los «Hace N min» de las capturas.)

@@ -114,7 +114,7 @@ function seiAtajos(){
   c.appendChild(d);
 }
 function seiPreguntar(){
-  var i = $('sei-q'); var q = (i && i.value || '').trim(); if(!q) return;
+  var i = $('sei-q'); var q = (i && i.value || '').trim(); if(!q){ if(i && window.CERCO_avisoVacio) CERCO_avisoVacio(i); return; }
   i.value = '';
   var t = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   var tema = /hoy|que hago|por donde|siguiente paso|que me falta hacer/.test(t) ? 'hoy'
@@ -268,7 +268,9 @@ function bloqueMensajesC(s){
 }
 function enviarMensajeC(id){
   var s = buscarSol(id), i = $('sd-msg-in'); if(!s || !i) return;
-  var t = (i.value || '').trim(); if(!t || !unaVez('msgC', 600)) return;
+  var t = (i.value || '').trim();
+  if(!t){ if(window.CERCO_avisoVacio) CERCO_avisoVacio(i); return; }
+  if(!unaVez('msgC', 600)) return;
   var m = (s.mensajes || []).concat([{de:'candidato', t:t.slice(0,600), f:new Date().toISOString()}]).slice(-100);
   i.value = '';
   Nube.cambiar(s, {mensajes: m}).then(function(){ marcarVistosC(s); pintarSolicitud(); setTimeout(function(){ var b = $('sd-msgs'); if(b) b.scrollTop = b.scrollHeight; var ii = $('sd-msg-in'); if(ii) try{ ii.focus({preventScroll:true}); }catch(e){} }, 30); })

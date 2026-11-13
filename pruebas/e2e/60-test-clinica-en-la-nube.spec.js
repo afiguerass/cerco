@@ -46,6 +46,10 @@ test('El test de la clínica está en la nube y no se pierde', async ({ browser 
   await o.fill('#login-email', 'nube-clinica@prueba.es');
   await o.fill('#login-pwd', A.CLINICA.pwd);
   await o.getByRole('button', { name: 'Iniciar sesión' }).click();
+  // La clínica ya existe en la nube: entra directa a Inicio, sin las pantallas de bienvenida
+  await expect(o.locator('#screen-inicio')).toBeVisible({ timeout: 20_000 });
+  await expect(o.locator('#screen-benvinguda')).toBeHidden();
+  await expect(o.getByText('Buenos días, Marta').locator('visible=true').first()).toBeVisible();
   await expect.poll(() => o.evaluate(() => CDB.miDisc()), { timeout: 20_000 }).toEqual(local);
   await o.evaluate(() => showScreen('equipo'));
   await expect(o.locator('#screen-equipo')).toContainText('Marta Gil · tú');
@@ -60,7 +64,20 @@ test('El test de la clínica está en la nube y no se pierde', async ({ browser 
   expect(await leerNube(o)).toBeNull();
   expect(JSON.parse(await o.evaluate((u) => localStorage.getItem('cerco_disc_empresa_de_' + u), uid))).toEqual(local);
 
+  // Una cuenta que aún no ha configurado su clínica sí ve la bienvenida, también desde otro navegador
+  // (se crea en un navegador limpio y se entra desde otro)
+  const v4 = await nuevaVentana(browser, testInfo);
+  await A.registrarClinica(v4.page, 'nube-sin-configurar@prueba.es');
+  await v4.context.close();
+  const v3 = await nuevaVentana(browser, testInfo);
+  await v3.page.goto('/index.html');
+  await v3.page.fill('#login-email', 'nube-sin-configurar@prueba.es');
+  await v3.page.fill('#login-pwd', A.CLINICA.pwd);
+  await v3.page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(v3.page.locator('#screen-benvinguda')).toBeVisible({ timeout: 20_000 });
+
   expect(c.erroresPagina).toEqual([]);
   expect(o.erroresPagina).toEqual([]);
-  await v1.context.close(); await v2.context.close();
+  expect(v3.page.erroresPagina).toEqual([]);
+  await v1.context.close(); await v2.context.close(); await v3.context.close();
 });

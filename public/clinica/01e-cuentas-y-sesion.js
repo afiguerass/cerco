@@ -250,14 +250,21 @@ function handleLogin(){
     CAuth.entrar();
     document.getElementById('login-pwd').value = '';
     try{ CDB.setDemo(false); CDB.renderTodo(); }catch(x){}
-    if(btn){ btn.disabled = false; btn.textContent = 'Iniciar sesión'; }
-    if(CDB.registrado()){
-      showScreen('inicio');
-      var q = ((CAuth.cuenta()||{}).nombre||'').split(/\s+/)[0];
-      if(typeof showToast === 'function') showToast(q ? ('Hola de nuevo, ' + q) : 'Sesión iniciada');
-    } else {
-      showScreen('benvinguda');
-    }
+    var seguir = function(registrada){
+      if(btn){ btn.disabled = false; btn.textContent = 'Iniciar sesión'; }
+      if(registrada){
+        showScreen('inicio');
+        var q = ((CAuth.cuenta()||{}).nombre||'').split(/\s+/)[0];
+        if(typeof showToast === 'function') showToast(q ? ('Hola de nuevo, ' + q) : 'Sesión iniciada');
+      } else {
+        showScreen('benvinguda');
+      }
+    };
+    // Desde un navegador que aún no conoce la clínica, se pregunta a la nube antes de
+    // enseñar la bienvenida (clinica/01h-nube.js)
+    if(CDB.registrado() || !window.CERCO_clinicaDeLaNube) return seguir(CDB.registrado());
+    if(btn){ btn.disabled = true; btn.textContent = 'Recuperando tus datos…'; }
+    CERCO_clinicaDeLaNube().then(function(r){ try{ CDB.renderTodo(); }catch(x){} seguir(r); });
   };
 
   var local = CAuth.comprueba(e, p);
@@ -408,14 +415,19 @@ function _entrarDespuesDeGoogle(u){
     if(typeof applyUserName === 'function' && u.displayName) applyUserName(u.displayName);
     CDB.setDemo(false); CDB.renderTodo();
   } catch(e){}
-  if(CDB.registrado()){
-    showScreen('inicio');
-    var q = (u.displayName || '').split(/\s+/)[0];
-    if(typeof showToast === 'function') showToast(q ? ('Hola, ' + q) : 'Sesión iniciada con Google');
-  } else {
-    showScreen('benvinguda');
-    if(typeof showToast === 'function') showToast('Cuenta creada con Google. Ahora configuramos tu clínica.');
-  }
+  var seguir = function(registrada){
+    if(registrada){
+      showScreen('inicio');
+      var q = (u.displayName || '').split(/\s+/)[0];
+      if(typeof showToast === 'function') showToast(q ? ('Hola, ' + q) : 'Sesión iniciada con Google');
+    } else {
+      showScreen('benvinguda');
+      if(typeof showToast === 'function') showToast('Cuenta creada con Google. Ahora configuramos tu clínica.');
+    }
+  };
+  // Desde un navegador que aún no conoce la clínica, se pregunta a la nube antes (clinica/01h-nube.js)
+  if(CDB.registrado() || !window.CERCO_clinicaDeLaNube) return seguir(CDB.registrado());
+  CERCO_clinicaDeLaNube().then(function(r){ try{ CDB.renderTodo(); }catch(x){} seguir(r); });
 }
 
 /* Cerrar sesión: deja de escuchar las solicitudes, borra su copia local y cierra (Fase 1: una sola versión) */

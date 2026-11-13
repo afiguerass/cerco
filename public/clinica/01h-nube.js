@@ -342,6 +342,28 @@ window.Nube = {
     }
   };
 
+  /* Al entrar desde un navegador que aún no conoce la clínica: si la clínica ya existe en la
+     nube (está configurada: tiene nombre), se trae a este navegador para ir directa a Inicio en
+     vez de a las pantallas de bienvenida. Devuelve si la clínica queda registrada aquí.
+     Lo usan handleLogin y _entrarDespuesDeGoogle (clinica/01e-cuentas-y-sesion.js). */
+  window.CERCO_clinicaDeLaNube = function(){
+    try{ if(CDB.registrado()) return Promise.resolve(true); }catch(e){}
+    var u = null; try{ u = firebase.auth().currentUser; }catch(e){}
+    if(!u) return Promise.resolve(false);
+    var leer = firebase.firestore().collection('clinicas').doc(u.uid).get()
+      .then(function(d){ return d.exists ? d.data() : null; }).catch(function(){ return null; });
+    var espera = new Promise(function(res){ setTimeout(function(){ res(null); }, 8000); }); // si la nube no contesta, como antes
+    return Promise.race([leer, espera]).then(function(c){
+      if(!c || !String(c.nom || '').trim()) return false;
+      try{
+        // la misma mezcla que al bajar de la nube
+        localStorage.setItem(CDB.K.emp, JSON.stringify(Object.assign({}, CDB.clinica(), c)));
+        if(c.plantilla !== undefined) CDB.setPlantilla(c.plantilla);
+      }catch(e){}
+      return CDB.registrado();
+    });
+  };
+
   /* Traer lo que hay en la nube a este dispositivo */
   window._bajarDeLaNube = function(){
     if(!Nube.activa) return;

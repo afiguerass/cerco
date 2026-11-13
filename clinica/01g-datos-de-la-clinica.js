@@ -258,7 +258,7 @@ window.CDB = {
   reset: function(){
     var self = this;
     [this.K.emp, this.K.eq, this.K.of, this.K.pl, this.K.me, this.K.alta,
-     'cerco_disc_individual'].forEach(function(k){
+     'cerco_disc_individual', 'cerco_disc_empresa_pendiente', 'cerco_disc_empresa_uid'].forEach(function(k){
       try{ localStorage.removeItem(k); }catch(e){}
     });
     try{ localStorage.removeItem(self.K.demo); }catch(e){}
@@ -304,7 +304,7 @@ var ICO = {
    Un fallo en un bloque no impide pintar los demás, igual que antes. */
 function renderInicioReal(){
   try{ _pintarInicioBase(); }catch(x){}
-  ['CERCO_inicioSolicitudes', 'CERCO_inicioCitas', 'CERCO_inicioPlazos', 'CERCO_inicioLider', 'CERCO_inicioConfianza', 'CERCO_inicioAgenda']
+  ['CERCO_inicioSolicitudes', 'CERCO_inicioCitas', 'CERCO_inicioContratos', 'CERCO_inicioPlazos', 'CERCO_inicioLider', 'CERCO_inicioConfianza', 'CERCO_inicioAgenda']
     .forEach(function(bloque){ try{ if(window[bloque]) window[bloque](); }catch(x){} });
 }
 function _pintarInicioBase(){
@@ -481,11 +481,11 @@ function _renderStatsRealBase(){
   }
 
   /* KPIs honestos: solo lo que podemos contar */
-  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" class="stats-kpis">'
+  // (las contrataciones están arriba, en «Tu contratación», que sale siempre)
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;" class="stats-kpis">'
         + _kpiStat(eq.length, eq.length === 1 ? 'persona con el test hecho' : 'personas con el test hecho', r.pendientes ? r.pendientes+' pendientes' : 'todo el equipo', r.pendientes?'#D97706':'#059669')
-        + _kpiStat(r.ofertas, 'ofertas publicadas', r.activas + ' activas', '#6B7280')
-        + _kpiStat(r.candidatos, 'candidatos recibidos', r.candidatos ? 'en tus ofertas' : 'aún ninguno', '#6B7280')
-        + _kpiStat(r.contratados, 'contrataciones', r.contratados ? '' : 'aún ninguna', '#6B7280')
+        + _kpiStat(r.ofertas, r.ofertas === 1 ? 'oferta publicada' : 'ofertas publicadas', r.activas + (r.activas === 1 ? ' activa' : ' activas'), '#6B7280')
+        + _kpiStat(r.candidatos, r.candidatos === 1 ? 'candidato recibido' : 'candidatos recibidos', r.candidatos ? 'en tus ofertas' : 'aún ninguno', '#6B7280')
         + '</div>';
 
   /* composición real */
@@ -584,6 +584,7 @@ function _filaMiembro(m, conBorrar){
        + '<div style="font-size:11.5px;color:#6B7280;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
        + '<span>'+_esc(m.rol||'Sin rol')+'</span>'
        + _xipPerfil(m.dom, true) + _xipPerfil(m.sec, false)
+       + (m.origen === 'cerco' ? '<span class="xip-cerco" style="font-size:10.5px;font-weight:700;color:#065F46;background:#ECFDF5;border-radius:99px;padding:2px 8px;">Contratación en CERCO</span>' : '')
        + '</div></div>'
        + (conBorrar && !m.yo
           ? '<button onclick="borrarMiembro(\''+m.id+'\')" title="Quitar" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;">'+_svg(ICO.trash,'#C3CBD9',15)+'</button>'

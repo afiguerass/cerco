@@ -196,6 +196,7 @@ function showResults_onboarding(){
 
   try {
     localStorage.setItem('cerco_disc_empresa', JSON.stringify({dominant, secondary, norm}));
+    try{ if(window.CERCO_subirMiDisc) CERCO_subirMiDisc(); }catch(e){}
     try{ if(window.CDB) CDB.renderTodo(); }catch(e){}
   } catch(e){}
   if(typeof loadPersonalDiscIntoBadge === 'function') loadPersonalDiscIntoBadge();
@@ -480,6 +481,7 @@ function showResults_testdisc(){
       var _esInv = !!(window.esModoInvitado && esModoInvitado());
       if(!_esInv){
         localStorage.setItem('cerco_disc_empresa', JSON.stringify({dominant, secondary, norm}));
+        try{ if(window.CERCO_subirMiDisc) CERCO_subirMiDisc(); }catch(e){}
         if(window.CDB){ CDB.renderTodo(); }
         if(window._subirClinica) _subirClinica();
       }

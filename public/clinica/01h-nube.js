@@ -277,6 +277,8 @@ window.Nube = {
       }).catch(function(){});
       firebase.auth().onAuthStateChanged(function(u){
         if(u && !u.isAnonymous){
+          // por si la sesión es de otra cuenta que la de los datos de este navegador (clinica/01e-cuentas-y-sesion.js)
+          try{ if(window.CERCO_datosParaCuenta) CERCO_datosParaCuenta(u.uid, u.email || '', false); }catch(e){}
           Nube.uid = u.uid; Nube.activa = true;
           _syncBadge('ok');
           Nube._avisar();

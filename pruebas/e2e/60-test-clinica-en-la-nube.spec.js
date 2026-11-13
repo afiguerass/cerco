@@ -62,7 +62,7 @@ test('El test de la clínica está en la nube y no se pierde', async ({ browser 
   await A.registrarClinica(o, 'nube-otra@prueba.es');
   await expect.poll(() => o.evaluate(() => CDB.miDisc())).toBeNull();
   expect(await leerNube(o)).toBeNull();
-  expect(JSON.parse(await o.evaluate((u) => localStorage.getItem('cerco_disc_empresa_de_' + u), uid))).toEqual(local);
+  expect(JSON.parse(JSON.parse(await o.evaluate((u) => localStorage.getItem('cerco_copia_' + u), uid)).datos.cerco_disc_empresa)).toEqual(local);
 
   // Una cuenta que aún no ha configurado su clínica sí ve la bienvenida, también desde otro navegador
   // (se crea en un navegador limpio y se entra desde otro)

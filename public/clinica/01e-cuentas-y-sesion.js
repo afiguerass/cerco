@@ -149,6 +149,54 @@ function recuperarContrasena(){
   });
 }
 
+/* ================= LOS DATOS DEL NAVEGADOR SON DE UNA SOLA CUENTA =================
+   Todo lo que la clínica guarda en el navegador queda marcado con su cuenta
+   (cerco_datos_uid). Si se registra o entra otra cuenta en el mismo navegador, antes de
+   nada se guarda una copia de lo de la cuenta anterior (cerco_copia_<cuenta>) y se
+   empieza con el navegador vacío: ninguna cuenta ve ni hereda datos de otra. Si la cuenta
+   anterior vuelve a entrar en este navegador, se le devuelve su copia (y encima, lo de la
+   nube). Lo del lado del profesional no se toca: ya va separado por cuenta. */
+var CERCO_CLAVES_CLINICA = ['cerco_empresa', 'cerco_equipo', 'cerco_ofertas', 'cerco_plantilla', 'cerco_demo', 'cerco_alta',
+  'cerco_disc_empresa', 'cerco_disc_individual', 'cerco_disc_empresa_pendiente', 'cerco_disc_empresa_uid',
+  'cerco_candidaturas', 'cerco_acogida', 'cerco_cand_guardados', 'cerco_valoraciones', 'cerco_msg_vistos',
+  'cerco_entrevista_link', 'cerco_entrevista_modo', 'cerco_entrevista_propio', 'cerco_mensaje_entrevista',
+  'cerco_sala_entrevista', 'cerco_cuenta', 'cerco_sesion'];
+var CERCO_K_DUENO_DATOS = 'cerco_datos_uid';
+// Prepara el navegador para la cuenta que entra. Devuelve true si había datos de otra cuenta.
+// cuenta: el uid de Firebase (o, sin conexión, «correo:» + correo). nueva: si se acaba de crear.
+window.CERCO_datosParaCuenta = function(cuenta, email, nueva){
+  if(!cuenta) return false;
+  var ls = window.localStorage, leer = function(k){ try{ return ls.getItem(k); }catch(x){ return null; } };
+  var hay = CERCO_CLAVES_CLINICA.some(function(k){ return k !== 'cerco_sesion' && leer(k) !== null; });
+  var dueno = leer(CERCO_K_DUENO_DATOS), cu = null;
+  try{ cu = JSON.parse(leer('cerco_cuenta') || 'null'); }catch(x){}
+  var mios;
+  if(!hay) mios = true;
+  else if(dueno) mios = dueno === cuenta;
+  else if(nueva) mios = false;                                  // una cuenta recién creada no hereda nada
+  else mios = !(cu && cu.email && email && cu.email !== String(email).toLowerCase());   // datos de antes, sin marcar
+  if(!mios){
+    // 1. copia de lo de la cuenta anterior (las solicitudes no: están en la nube y ocupan mucho)
+    var copia = {};
+    CERCO_CLAVES_CLINICA.forEach(function(k){ var v = leer(k); if(v !== null && k !== 'cerco_candidaturas' && k !== 'cerco_sesion') copia[k] = v; });
+    var nombre = 'cerco_copia_' + (dueno || (cu && cu.email ? 'correo:' + cu.email : 'sin-cuenta'));
+    try{ ls.setItem(nombre, JSON.stringify({ fecha:new Date().toISOString(), datos:copia })); }catch(x){}
+    // 2. el navegador, vacío para la cuenta que entra
+    try{ if(window.CERCO_soltarCandidaturas) CERCO_soltarCandidaturas(); }catch(x){}
+    CERCO_CLAVES_CLINICA.forEach(function(k){ try{ ls.removeItem(k); }catch(x){} });
+  }
+  if(!mios || !hay){
+    // 3. si esta cuenta ya había usado este navegador, recupera su copia
+    var suya = leer('cerco_copia_' + cuenta) || (email ? leer('cerco_copia_correo:' + String(email).toLowerCase()) : null);
+    if(suya){
+      try{ var d = JSON.parse(suya).datos || {}; Object.keys(d).forEach(function(k){ if(CERCO_CLAVES_CLINICA.indexOf(k) > -1) ls.setItem(k, d[k]); }); }catch(x){}
+    }
+  }
+  try{ ls.setItem(CERCO_K_DUENO_DATOS, cuenta); }catch(x){}
+  if(!mios){ try{ CDB.renderTodo(); }catch(x){} }
+  return !mios;
+};
+
 function handleRegistro(){
   var n = (document.getElementById('reg-nombre')||{}).value || '';
   var e = (document.getElementById('reg-email')||{}).value || '';
@@ -190,19 +238,21 @@ function handleRegistro(){
     showScreen('benvinguda');
     if(typeof showToast === 'function') showToast('Cuenta creada. Ahora configuramos tu clínica.');
   };
-  if(!window.Nube) return seguir();
+  if(!window.Nube){ CERCO_datosParaCuenta('correo:' + e.toLowerCase(), e, true); return seguir(); }
   // Primero preguntamos a Firebase: si el correo ya tiene cuenta, no fingimos que se ha creado
   if(btnR){ btnR.__txt = btnR.textContent; btnR.disabled = true; btnR.textContent = 'Creando tu cuenta…'; }
   if(err){ err.style.color = '#6B7280'; err.textContent = 'Creando tu cuenta…'; }
   Nube.registrar(e, p1).then(function(){
     if(err){ err.style.color = '#0E9F6E'; err.textContent = ''; }
+    var u = null; try{ u = firebase.auth().currentUser; }catch(x){}
+    CERCO_datosParaCuenta(u ? u.uid : 'correo:' + e.toLowerCase(), e, true);
     seguir();
     setTimeout(function(){ _subirClinica(); }, 600);
   }).catch(function(x){
     var c = (x && x.code) || x || '';
     if(btnR){ btnR.disabled = false; btnR.textContent = btnR.__txt || 'Crear cuenta'; }
     if(err) err.style.color = '';
-    if(c === 'sin-nube') return seguir();
+    if(c === 'sin-nube'){ CERCO_datosParaCuenta('correo:' + e.toLowerCase(), e, true); return seguir(); }
     if(c === 'auth/email-already-in-use') return poner('Ya existe una cuenta con ese correo (de clínica o de profesional). Inicia sesión; si no recuerdas la contraseña, pulsa «¿Olvidaste tu contraseña?». Para probar los dos lados, usa otro correo.', 'reg-email');
     if(c === 'auth/weak-password') return poner('La contraseña necesita al menos 6 caracteres.', 'reg-pwd');
     if(c === 'auth/invalid-email') return poner('Ese correo no parece correcto. Revísalo.', 'reg-email');
@@ -292,6 +342,9 @@ function handleLogin(){
   }
 
   Nube.entrar(e, p).then(function(){
+    // Si este navegador tenía datos de otra cuenta, se guarda una copia y se empieza vacío
+    var u = null; try{ u = firebase.auth().currentUser; }catch(x){}
+    if(u) CERCO_datosParaCuenta(u.uid, e, false);
     // La nube te reconoce: creamos tu acceso también en este dispositivo
     var nom = '';
     try { nom = (CAuth.cuenta()||{}).nombre || ''; } catch(x){}
@@ -406,6 +459,7 @@ function entrarConGoogle(){
 
 function _entrarDespuesDeGoogle(u){
   if(!u) return;
+  CERCO_datosParaCuenta(u.uid, u.email || '', false);
   try {
     CAuth.crearExterno(u.displayName || (u.email||'').split('@')[0], u.email || '');
     var d = CDB.clinica();

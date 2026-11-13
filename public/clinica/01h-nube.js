@@ -155,6 +155,8 @@ window.Nube = {
       codigo: String(m.codigo||'').slice(0,16),
       fecha:  new Date().toISOString()
     };
+    // quien se contrató en CERCO (clinica/04-clinica-y-candidato.js)
+    if(m.origen === 'cerco'){ doc.origen = 'cerco'; doc.candidaturaId = String(m.candidaturaId || '').slice(0,200); }
     return d.collection('clinicas').doc(cid).collection('equipo').doc(doc.codigo || String(Date.now()))
       .set(doc).then(function(){ return true; }).catch(function(){ return false; });
   },

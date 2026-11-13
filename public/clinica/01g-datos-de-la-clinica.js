@@ -584,6 +584,7 @@ function _filaMiembro(m, conBorrar){
        + '<div style="font-size:11.5px;color:#6B7280;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'
        + '<span>'+_esc(m.rol||'Sin rol')+'</span>'
        + _xipPerfil(m.dom, true) + _xipPerfil(m.sec, false)
+       + (m.origen === 'cerco' ? '<span class="xip-cerco" style="font-size:10.5px;font-weight:700;color:#065F46;background:#ECFDF5;border-radius:99px;padding:2px 8px;">Contratación en CERCO</span>' : '')
        + '</div></div>'
        + (conBorrar && !m.yo
           ? '<button onclick="borrarMiembro(\''+m.id+'\')" title="Quitar" style="background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;">'+_svg(ICO.trash,'#C3CBD9',15)+'</button>'

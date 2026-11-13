@@ -14,7 +14,7 @@
 // Hay tres ventanas a la vez, cada una con su sesión: la clínica (ventana
 // normal), la profesional (como una ventana de incógnito) y el trabajador.
 // Se ejecuta dos veces: ordenador (1400 px) y móvil (390 px).
-const { test, expect, nuevaVentana, capturar, vaciarEmulador } = require('../apoyo/entorno');
+const { test, expect, nuevaVentana, capturar, vaciarEmulador, FIRESTORE, PROYECTO } = require('../apoyo/entorno');
 const A = require('../apoyo/acciones');
 
 // Comprueba que un texto se ve en pantalla (el primero visible, si sale varias veces)
@@ -451,6 +451,43 @@ test('6c. Agenda: pulsando en cualquier parte de la entrevista se abre la ficha'
   await c.locator('#agenda-box .ag-it', { hasText: 'Laura Prueba' }).locator('visible=true').first().getByRole('button', { name: 'Apple u Outlook' }).click();
   await descarga;
   await expect(c.locator('#screen-agenda')).toBeVisible();
+});
+
+test('6d. Quien se contrata pasa a «Mi equipo» con su perfil DISC, y si se quita no vuelve', async () => {
+  const c = clinica.page;
+  await c.evaluate(() => showScreen('equipo'));
+  const fila = c.locator('#screen-equipo .miembro-row', { hasText: 'Laura Prueba' }).locator('visible=true').first();
+  await expect(fila).toBeVisible();
+  await expect(fila).toContainText('Contratación en CERCO');
+  await expect(fila).toContainText('Higienista dental'); // el puesto de la oferta
+  await expect(fila.locator('.mini-disc')).toHaveText('C'); // su perfil principal, el de su test
+  // Una sola vez, aunque tenga dos solicitudes
+  await expect(c.locator('#screen-equipo .miembro-row', { hasText: 'Laura Prueba' }).locator('visible=true')).toHaveCount(1);
+  // Cuenta en Estadísticas, como el resto del equipo
+  await c.evaluate(() => showScreen('stats'));
+  await expect(c.locator('#screen-stats')).toContainText('Laura Prueba');
+  // Si la clínica la quita del equipo, no vuelve a aparecer (ni al recargar)
+  await c.evaluate(() => showScreen('equipo'));
+  await expect.poll(() => c.evaluate(() => (CDB.equipo().find((m) => m.origen === 'cerco') || {}).id || '')).toMatch(/^CERCO-/); // ya viene de la nube
+  await c.evaluate(() => borrarMiembro(CDB.equipo().find((m) => m.origen === 'cerco').id));
+  await expect(c.locator('#screen-equipo .miembro-row', { hasText: 'Laura Prueba' }).locator('visible=true')).toHaveCount(0);
+  // Se espera a que el borrado llegue de verdad a la nube (mirándola desde fuera) antes de recargar
+  const equipoEnLaNube = async () => {
+    const r = await (await fetch(`http://${FIRESTORE.host}:${FIRESTORE.port}/v1/projects/${PROYECTO}/databases/(default)/documents/clinicas`, { headers: { Authorization: 'Bearer owner' } })).json();
+    const nombres = [];
+    for (const d of r.documents || []) {
+      const e = await (await fetch(`http://${FIRESTORE.host}:${FIRESTORE.port}/v1/${d.name}/equipo`, { headers: { Authorization: 'Bearer owner' } })).json();
+      for (const x of e.documents || []) nombres.push(x.fields.nombre.stringValue);
+    }
+    return nombres;
+  };
+  await expect.poll(equipoEnLaNube, { timeout: 30_000 }).not.toContain('Laura Prueba');
+  await c.reload();
+  await expect(c.locator('#screen-inicio')).toBeVisible();
+  await c.waitForTimeout(3000);
+  await c.evaluate(() => showScreen('equipo'));
+  await expect(c.locator('#screen-equipo .miembro-row', { hasText: 'Laura Prueba' }).locator('visible=true')).toHaveCount(0);
+  expect(c.erroresPagina).toEqual([]);
 });
 
 test('7. El resto de pantallas de la clínica se ven bien y sin errores', async () => {

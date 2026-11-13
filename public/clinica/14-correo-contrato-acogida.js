@@ -235,6 +235,7 @@
   /* ---------------- 2. al contratar, a «Contratados» ---------------- */
   window.CERCO_trasContratar = function(id){
     var c = buscar(id), nom = c ? primer(c.nombre) : '';
+    try{ if(window.CERCO_contratadosAlEquipo) CERCO_contratadosAlEquipo(); }catch(x){}
     try{ CERCO_verEtapa('contr'); }catch(x){ try{ cerrarFichaCandidato(); }catch(y){} }
     setTimeout(function(){
       var card = document.querySelector('.cand-real[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');

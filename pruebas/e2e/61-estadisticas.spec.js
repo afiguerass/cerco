@@ -1,6 +1,6 @@
 // Estadísticas de la clínica: «Me interesa» cuenta como contestada y las
 // contrataciones se ven siempre, aunque el equipo aún no tenga tests.
-const { test, expect, nuevaVentana, vaciarEmulador } = require('../apoyo/entorno');
+const { test, expect, nuevaVentana, vaciarEmulador, FIRESTORE, PROYECTO } = require('../apoyo/entorno');
 const A = require('../apoyo/acciones');
 
 const OFERTA = (titulo) => ({ titulo, municipio: 'Girona', jornada: 'Completa · 40 h/semana', salarioMin: '22000', salarioMax: '26000',
@@ -66,6 +66,33 @@ test('Estadísticas: «Me interesa» cuenta como contestada y las contrataciones
   await expect(c.locator('#screen-stats')).toContainText('Falta la parte de tu equipo');
   await expect(cifras.locator('.mk-kpi', { hasText: 'contratación' })).toContainText('1');
 
+  // Contratación de antes (como las que se hicieron antes de este cambio): sin pasar al equipo
+  const base = `http://${FIRESTORE.host}:${FIRESTORE.port}/v1/projects/${PROYECTO}/databases/(default)/documents`;
+  const miembrosCerco = async () => {
+    const r = await (await fetch(`${base}/clinicas`, { headers: { Authorization: 'Bearer owner' } })).json();
+    let n = 0;
+    for (const d of r.documents || []) {
+      const e = await (await fetch(`http://${FIRESTORE.host}:${FIRESTORE.port}/v1/${d.name}/equipo`, { headers: { Authorization: 'Bearer owner' } })).json();
+      n += (e.documents || []).filter((x) => x.fields.origen && x.fields.origen.stringValue === 'cerco').length;
+    }
+    return n;
+  };
+  await expect.poll(miembrosCerco, { timeout: 30_000 }).toBe(1); // al contratar pasó al equipo
+  await c.evaluate(async () => {
+    const db = firebase.firestore(), uid = firebase.auth().currentUser.uid;
+    const eq = await db.collection('clinicas').doc(uid).collection('equipo').get();
+    for (const d of eq.docs) if ((d.data() || {}).origen === 'cerco') await d.ref.delete();
+    const x = CERCO_candidaturas().find((x) => x.estado === 'contratada');
+    await db.collection('candidaturas').doc(x.id).update({ alEquipo: firebase.firestore.FieldValue.delete() });
+  });
+  await expect.poll(miembrosCerco, { timeout: 30_000 }).toBe(0);
+  await expect.poll(async () => {
+    const r = await (await fetch(`${base}/candidaturas`, { headers: { Authorization: 'Bearer owner' } })).json();
+    return (r.documents || []).some((d) => d.fields.estado.stringValue === 'contratada' && d.fields.alEquipo);
+  }, { timeout: 30_000 }).toBe(false);
+  expect(c.erroresPagina).toEqual([]);
+  await vc.context.close();
+
   // Mis ofertas, desde otro ordenador: cada oferta dice cuántos candidatos tiene de verdad
   // (antes salía «0 candidatos» en las ofertas cuyo número no se había subido a la nube)
   const vo = await nuevaVentana(browser, testInfo), o = vo.page;
@@ -78,8 +105,13 @@ test('Estadísticas: «Me interesa» cuenta como contestada y las contrataciones
   await expect.poll(() => o.locator('#screen-ofertes .offer-card:not(.ejemplo)').locator('visible=true').allInnerTexts()
     .then((l) => l.map((t) => (t.match(/Higienista [AB]/) || [''])[0] + ': ' + (t.match(/\d+ candidatos?/) || [''])[0]).sort()), { timeout: 20_000 })
     .toEqual(['Higienista A: 1 candidato', 'Higienista B: 1 candidato']);
+  // La contratación de antes pasa sola a «Mi equipo», con su perfil y el puesto
+  await o.evaluate(() => showScreen('equipo'));
+  const fila = o.locator('#screen-equipo .miembro-row', { hasText: 'Laura Prueba' }).locator('visible=true');
+  await expect(fila).toHaveCount(1, { timeout: 20_000 });
+  await expect(fila).toContainText('Contratación en CERCO');
+  await expect(fila).toContainText('Higienista A');
 
-  expect(c.erroresPagina).toEqual([]);
   expect(o.erroresPagina).toEqual([]);
-  await vc.context.close(); await vp.context.close(); await vo.context.close();
+  await vp.context.close(); await vo.context.close();
 });

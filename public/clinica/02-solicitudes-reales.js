@@ -180,6 +180,7 @@
         if(ret.length && typeof showToast === 'function') showToast((ret[0].nombre||'Un candidato') + ' ha retirado su solicitud');
       }
       _primera = false;
+      try{ if(window.CERCO_contratadosAlEquipo) CERCO_contratadosAlEquipo(); }catch(x){}
       try{ CDB.renderTodo(); }catch(x){}
       try{ if(typeof pintarOfertasReales === 'function') pintarOfertasReales(); }catch(x){}
     });

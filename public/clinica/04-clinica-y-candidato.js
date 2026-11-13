@@ -418,6 +418,32 @@
   }
 
   /* ---------- cifras: contratados ---------- */
+  /* Quien se contrata en CERCO pasa a «Mi equipo», con el perfil DISC de su test y el puesto
+     de la oferta. Una sola vez: la solicitud queda marcada (alEquipo) y, si después se quita
+     del equipo, no vuelve. Si ya hay alguien con ese nombre en el equipo (por ejemplo, hizo el
+     test con el enlace), no se repite. También pasan las contrataciones de antes. */
+  var _alEquipoEnCurso = {};
+  function nomNorm(t){ return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim(); }
+  function pasarAlEquipo(c){
+    if(!c || c.estado !== 'contratada' || c.alEquipo || !c.disc || !c.disc.dom || _alEquipoEnCurso[c.id]) return;
+    try{ if(CDB.demo() || !Nube.activa) return; }catch(x){ return; }
+    _alEquipoEnCurso[c.id] = 1;
+    var n = nomNorm(c.nombre), eq = CDB.equipo();
+    var ya = eq.some(function(m){ return m.candidaturaId === c.id || (n && nomNorm(m.nombre) === n); })
+          || (CDB.miDisc() && n && nomNorm(CDB.clinica().nomResp) === n);
+    if(!ya){
+      var norm = c.disc.norm || {};
+      CDB.addMiembro({ nombre:c.nombre || 'Sin nombre', rol:c.ofertaTitulo || c.profesion || 'Sin puesto',
+        dom:c.disc.dom, sec:c.disc.sec || '', pct:norm[c.disc.dom] || 0,
+        codigo:'CERCO-' + String(c.id).replace(/[^A-Za-z0-9]/g, '').slice(-10), origen:'cerco', candidaturaId:c.id });
+    }
+    Nube.db().collection('candidaturas').doc(c.id).update({ alEquipo:true }).then(function(){
+      var l = lista(); l.forEach(function(x){ if(x.id === c.id) x.alEquipo = true; }); guardarLista(l);
+    }).catch(function(){ delete _alEquipoEnCurso[c.id]; });
+    try{ CDB.renderTodo(); }catch(x){}
+  }
+  // La usan _escucharCandidaturas (clinica/02-solicitudes-reales.js) y CERCO_trasContratar (clinica/14-correo-contrato-acogida.js)
+  window.CERCO_contratadosAlEquipo = function(){ lista().forEach(pasarAlEquipo); };
   window.CERCO_contarContratados = function(){ return lista().filter(function(c){ return c.estado === 'contratada'; }).length; }; // la usa CDB.resumen (clinica/01g-datos-de-la-clinica.js)
   try{ CDB.renderTodo(); }catch(x){}
 })();

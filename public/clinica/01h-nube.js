@@ -128,6 +128,14 @@ window.Nube = {
     return r.set(limpio, {merge:true}).then(function(){ return true; }).catch(function(){ return false; });
   },
 
+  /* --- test DISC de la responsable de la clínica: también en la nube (antes solo en el navegador) --- */
+  guardarMiDisc: function(m){
+    var r = this.refClinica();
+    if(!r || !m || !m.dominant) return Promise.resolve(false);
+    var d = { dominant:m.dominant, secondary:m.secondary || null, norm:m.norm || null, guardado:new Date().toISOString() };
+    return r.set({ discResponsable:d }, {merge:true}).then(function(){ return true; }).catch(function(){ return false; });
+  },
+
   leerClinica: function(){
     var r = this.refClinica();
     if(!r) return Promise.resolve(null);
@@ -281,10 +289,62 @@ window.Nube = {
     });
   };
 
+  /* El test DISC de la responsable (clinicas/{uid}.discResponsable).
+     - Si en este navegador hay un test que aún no está en la nube (clínicas de antes,
+       o una subida que falló), se sube tal cual: los resultados no cambian.
+     - Si la nube lo tiene y este navegador no (otro ordenador, o tras cerrar sesión),
+       se trae de la nube. */
+  var K_PEND = 'cerco_disc_empresa_pendiente', K_DUENO = 'cerco_disc_empresa_uid';
+  function leer(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function poner(k, v){ try{ if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){} }
+  // Sube el test de este navegador, que es de la cuenta que ha entrado (lo llama quien lo sabe)
+  window.CERCO_subirMiDisc = function(){
+    var m = null; try{ m = CDB.miDisc(); }catch(e){}
+    if(!m || !m.dominant) return Promise.resolve(false);
+    poner(K_PEND, '1');
+    if(!Nube.activa || !Nube.uid) return Promise.resolve(false);
+    poner(K_DUENO, Nube.uid);
+    return Nube.guardarMiDisc(m).then(function(ok){ if(ok) poner(K_PEND, null); return ok; });
+  };
+  function mismoNombre(c){
+    var a = '', b = '';
+    try{ a = (CDB.clinica().nom || '').trim().toLowerCase(); b = ((c && c.nom) || '').trim().toLowerCase(); }catch(e){}
+    return !!a && a === b;
+  }
+  // Se llama al entrar, con la ficha de la nube y ANTES de mezclarla con lo de este navegador
+  window.CERCO_sincronizarMiDisc = function(c){
+    if(!Nube.uid) return;
+    var local = null; try{ local = CDB.miDisc(); }catch(e){}
+    if(local && !local.dominant) local = null;
+    var nube = c && c.discResponsable && c.discResponsable.dominant ? c.discResponsable : null;
+    var dueno = leer(K_DUENO), pendiente = !!leer(K_PEND);
+    // ¿De quién es el test de este navegador? Marcado: de esa cuenta. Sin marcar (clínicas
+    // de antes): de esta cuenta si el nombre de la clínica coincide con el de la nube.
+    var mio = local ? (dueno ? dueno === Nube.uid : mismoNombre(c)) : false;
+    if(local && dueno && dueno !== Nube.uid){
+      // test de otra cuenta que usó este navegador: no se sube; se guarda una copia y se deja de mostrar
+      poner('cerco_disc_empresa_de_' + dueno, JSON.stringify(local));
+      poner(CDB.K.me, null); poner(K_PEND, null); poner(K_DUENO, null);
+      local = null;
+    }
+    if(local && !mio && !dueno && nube){
+      // sin marcar y de otra clínica (el nombre no coincide), y esta cuenta ya tiene el suyo en la nube
+      poner('cerco_disc_empresa_de_otra', JSON.stringify(local));
+      local = null;
+    }
+    if(local && mio && (!nube || pendiente)){ window.CERCO_subirMiDisc(); return; }
+    if(nube && (!local || mio)){
+      // el de la nube manda: se trae a este navegador (otro ordenador, o el mismo tras cerrar sesión)
+      poner(CDB.K.me, JSON.stringify({ dominant:nube.dominant, secondary:nube.secondary, norm:nube.norm }));
+      poner(K_DUENO, Nube.uid);
+    }
+  };
+
   /* Traer lo que hay en la nube a este dispositivo */
   window._bajarDeLaNube = function(){
     if(!Nube.activa) return;
     Nube.leerClinica().then(function(c){
+      try{ CERCO_sincronizarMiDisc(c); }catch(e){}
       if(c){
         try{
           var local = CDB.clinica();

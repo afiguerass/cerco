@@ -258,7 +258,7 @@ window.CDB = {
   reset: function(){
     var self = this;
     [this.K.emp, this.K.eq, this.K.of, this.K.pl, this.K.me, this.K.alta,
-     'cerco_disc_individual'].forEach(function(k){
+     'cerco_disc_individual', 'cerco_disc_empresa_pendiente', 'cerco_disc_empresa_uid'].forEach(function(k){
       try{ localStorage.removeItem(k); }catch(e){}
     });
     try{ localStorage.removeItem(self.K.demo); }catch(e){}

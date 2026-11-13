@@ -67,7 +67,7 @@ function tarjetaPlazo(s){
 }
 
 /* ---------- 2. consentimiento antes del test ---------- */
-// Guardar perfil, paso 4: consentimiento del test y clínicas bloqueadas. La usa Nube.guardarPerfil (profesional/01-portal.js)
+// Guardar perfil, paso 4: consentimiento del test y clínicas bloqueadas. La usa Nube.guardarPerfil (profesional/01a-base-y-nube.js)
 window.CERCO_perfilConsentimiento = function(p, r){
   var self = Nube;
     var d = {};
@@ -163,7 +163,7 @@ function modalEncaje(){
   document.body.appendChild(m);
 }
 function anadirPie(boxId, html){ var b = $(boxId); if(!b || !html) return; var v = b.querySelector('.pie-seg'); if(v) v.remove(); b.insertAdjacentHTML('beforeend', html); }
-// Detalle de oferta: confianza, vacaciones y pie. La usa pintarDetalle (profesional/01-portal.js)
+// Detalle de oferta: confianza, vacaciones y pie. La usa pintarDetalle (profesional/01d-pantallas-y-guia.js)
   window.CERCO_detalleConfianza = function(){
     try{
     var o = buscarOferta(S.actual); if(!o) return;
@@ -173,7 +173,7 @@ function anadirPie(boxId, html){ var b = $(boxId); if(!b || !html) return; var v
     anadirPie('od', pieOferta(o)); pintarIconos($('od'));
   }catch(e){}
   };
-// Solicitud: pie con denunciar y cómo calculamos el encaje. La usa pintarSolicitud (profesional/01-portal.js)
+// Solicitud: pie con denunciar y cómo calculamos el encaje. La usa pintarSolicitud (profesional/01d-pantallas-y-guia.js)
   window.CERCO_solicitudPie = function(){
     try{ var s = buscarSol(S.actualSol); if(s){ anadirPie('sd', pieSolicitud(s)); pintarIconos($('sd')); } }catch(e){}
   };
@@ -214,7 +214,7 @@ function responderCondiciones(id, ok){
 }
 
 /* ---------- 8. recordatorio de la entrevista ---------- */
-// Al refrescar: recordatorio de la cita 24 h antes. La usa refrescar (profesional/01-portal.js)
+// Al refrescar: recordatorio de la cita 24 h antes. La usa refrescar (profesional/01c-datos-alta-test-y-descubrir.js)
   window.CERCO_refrescarRecordatorios = function(){
     try{
     S.sols.forEach(function(s){

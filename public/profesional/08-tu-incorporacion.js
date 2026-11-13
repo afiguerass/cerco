@@ -94,7 +94,7 @@ function bloqueIncorporacion(s){
   return html + '</div>';
 }
 (function(){
-  // Solicitud contratada: «Tu incorporación». La usa pintarSolicitud (profesional/01-portal.js)
+  // Solicitud contratada: «Tu incorporación». La usa pintarSolicitud (profesional/01d-pantallas-y-guia.js)
   window.CERCO_solicitudIncorporacion = function(){
     try{
       var s = buscarSol(S.actualSol), box = $('sd'); if(!s || !box || s.estado !== 'contratada') return;

@@ -343,7 +343,7 @@
   };
 
   // al subir o grabar un vídeo, el siguiente paso natural es editarlo
-  // Al usar un vídeo: aviso «Vídeo guardado. ¿Le pones filtro…?». La usa usarVideo (profesional/01-portal.js)
+  // Al usar un vídeo: aviso «Vídeo guardado. ¿Le pones filtro…?». La usa usarVideo (profesional/01e-presentacion-foto-video-cv.js)
   window.CERCO_videoGuardadoAviso = function(){
     var mira = setInterval(function(){ if($('gv-usar')) return; clearInterval(mira); setTimeout(function(){ if((S.perfil||{}).video) toast('Vídeo guardado. ¿Le pones filtro, texto o lo recortas?', 'Editar', function(){ abrirEditorVideo(); }); }, 400); }, 500);
     setTimeout(function(){ clearInterval(mira); }, 120000);

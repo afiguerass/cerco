@@ -67,7 +67,7 @@ function esIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent || '') || 
 function enApp(){ try{ return matchMedia('(display-mode: standalone)').matches || !!navigator.standalone; }catch(e){ return false; } }
 
 /* ---------- 2. perfil: ajustes nuevos ---------- */
-// Guardar perfil, paso 2: ajustes (rebote, visible, alertas, guardadas…). La usa Nube.guardarPerfil (profesional/01-portal.js)
+// Guardar perfil, paso 2: ajustes (rebote, visible, alertas, guardadas…). La usa Nube.guardarPerfil (profesional/01a-base-y-nube.js)
 window.CERCO_perfilAjustes = function(p, r){
   var self = Nube;
     var d = {};
@@ -606,7 +606,7 @@ function eliminarCuenta(){
 }
 
 /* ---------- 12. enganches con el resto de la app ---------- */
-// Al refrescar: ajustes, solicitudes caducadas y efecto rebote. La usa refrescar (profesional/01-portal.js)
+// Al refrescar: ajustes, solicitudes caducadas y efecto rebote. La usa refrescar (profesional/01c-datos-alta-test-y-descubrir.js)
   window.CERCO_refrescarRebote = function(){
     if(S.vista === 'perfil') pintarAjustes();
   try{ procesarCaducadas(); }catch(e){}

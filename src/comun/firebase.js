@@ -2,7 +2,7 @@
 // Antes se descargaba de www.gstatic.com mientras se abría la página; ahora va
 // dentro de la web compilada, con la misma versión (10.12.0) y el mismo uso
 // (*compat*). Cuando está listo se avisa con el evento «cerco-firebase-listo»:
-// Nube.cargar() (clinica/01-panel.js y profesional/01-portal.js) lo espera.
+// Nube.cargar() (clinica/01h-nube.js y profesional/01a-base-y-nube.js) lo espera.
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';

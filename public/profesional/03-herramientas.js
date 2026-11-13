@@ -377,16 +377,16 @@ function hEncajas(){
 }
 
 /* ---------- enganches ---------- */
-// Al ir a Herramientas, pintarlas. La usa ir (profesional/01-portal.js)
+// Al ir a Herramientas, pintarlas. La usa ir (profesional/01b-estado-navegacion-y-acceso.js)
   window.CERCO_irHerramientas = function(v, arg, noHist){
     if(v === 'herramientas'){ pintarHerr(); }
   };
-// Al refrescar: repintar Herramientas si está abierta. La usa refrescar (profesional/01-portal.js)
+// Al refrescar: repintar Herramientas si está abierta. La usa refrescar (profesional/01c-datos-alta-test-y-descubrir.js)
   window.CERCO_refrescarHerramientas = function(){
     if(S.vista === 'herramientas'){ var ae = document.activeElement; if(!(ae && /TEXTAREA|INPUT|SELECT/.test(ae.tagName))) pintarHerr(); }
   };
 // la solicitud lleva si la has preparado
-// Guardar perfil, paso 3: entrevistas preparadas. La usa Nube.guardarPerfil (profesional/01-portal.js)
+// Guardar perfil, paso 3: entrevistas preparadas. La usa Nube.guardarPerfil (profesional/01a-base-y-nube.js)
 window.CERCO_perfilEnsayos = function(p, r){
   var self = Nube;
     if(Array.isArray(p.ensayos)) return self.db().collection('candidatos').doc(self.uid).set({ensayos:p.ensayos.slice(-50).map(String)}, {merge:true}).then(function(){ return r; });

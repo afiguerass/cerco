@@ -511,11 +511,11 @@ function aplicarRecorte(v, meta){
   v.addEventListener('loadedmetadata', function(){ try{ v.currentTime = ini; }catch(e){} });
   v.addEventListener('timeupdate', function(){ if(fin && v.currentTime >= fin){ v.pause(); try{ v.currentTime = ini; }catch(e){} } if(v.currentTime < ini - 0.3){ try{ v.currentTime = ini; }catch(e){} } });
 }
-// Ver mi vídeo: aplicar el recorte guardado. La usa verMiVideo (profesional/01-portal.js)
+// Ver mi vídeo: aplicar el recorte guardado. La usa verMiVideo (profesional/01e-presentacion-foto-video-cv.js)
   window.CERCO_videoRecorteAlVer = function(){
     var meta = (S.perfil||{}).video, n = 0, iv = setInterval(function(){ var v = document.querySelector('#pf-vid video'); if(v){ clearInterval(iv); aplicarRecorte(v, meta); } else if(++n > 60) clearInterval(iv); }, 100);
   };
-// Mi presentación: botón «Editar» y portada del vídeo. La usa pintarMedia (profesional/01-portal.js)
+// Mi presentación: botón «Editar» y portada del vídeo. La usa pintarMedia (profesional/01e-presentacion-foto-video-cv.js)
   window.CERCO_mediaEditar = function(){
     try{
     var v = (S.perfil||{}).video, fila = document.querySelector('#pf-media .pm-row'), caja = $('pf-vid');

@@ -26,11 +26,11 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - Ahora está en `public/datos/municipios.js` (solo datos), y la búsqueda y los km en `public/comun/geo.js`. Las dos páginas comparten los mismos archivos y el navegador los descarga una sola vez.
   - Pruebas nuevas (`pruebas/unidad/geo.test.mjs`): 400 direcciones, 150 búsquedas y 300 distancias dan exactamente lo mismo que antes.
   - **Pendiente dentro de la Fase 1:** que la lista se cargue *solo cuando haga falta*. Hoy se sigue cargando al abrir la página, porque el código la pide «al instante» desde muchos sitios. Se podrá hacer en los pasos 1.6 y 1.7, cuando ese código esté ordenado.
-- [ ] **1.6 Código en carpetas:** clínica, profesional y común.
+- [x] **1.6 Código en carpetas:** clínica, profesional y común.
   - [x] **1.6a** Los 30 bloques de código que había dentro de las páginas están en archivos aparte, en el mismo orden: `public/clinica/` (16), `public/profesional/` (9) y `public/comun/` (los 2 que eran idénticos en las dos páginas, más los municipios). Las páginas pasan de 1,4 MB y 1,1 MB a 470 KB y 415 KB. Capturas idénticas.
-  - [ ] **1.6b** Dividir los dos archivos grandes, que mezclan Firebase, textos y pantallas.
+  - [x] **1.6b** Dividir los dos archivos grandes, que mezclan Firebase, textos y pantallas.
     - [x] `clinica/01-panel.js` (281 KB) → 9 archivos por pantallas, en el mismo orden: `01a-alta-y-test-disc`, `01b-candidatos-y-seimian`, `01c-entrevista-ofertas-y-guia`, `01d-nueva-oferta-herramientas-y-cuenta`, `01e-cuentas-y-sesion`, `01f-entrevista-calendario-y-ubicaciones`, `01g-datos-de-la-clinica`, `01h-nube`, `01i-navegacion`. Comprobado que el código es exactamente el mismo y que ningún trozo usa, al cargar, algo de un trozo posterior. Capturas idénticas.
-    - [ ] `profesional/01-portal.js` (206 KB).
+    - [x] `profesional/01-portal.js` (206 KB) → 6 archivos, en el mismo orden: `01a-base-y-nube`, `01b-estado-navegacion-y-acceso`, `01c-datos-alta-test-y-descubrir`, `01d-pantallas-y-guia`, `01e-presentacion-foto-video-cv`, `01f-seimian-cita-y-mensajes`. Mismas comprobaciones. Capturas idénticas.
 - [x] **1.7 Deshacer las «capas»:** cada función con una sola versión final.
   - Hay unas 45 funciones redefinidas de 2 a 7 veces en archivos distintos; por ejemplo, `abrirFichaCandidato`, `renderPortalReal` y `renderInicioReal` tienen 7 versiones cada una.
   - [x] **Antes de tocarlas, red de seguridad más grande.** Dos pruebas nuevas recorren el resto de pantallas con los datos del recorrido, en ordenador y en móvil:

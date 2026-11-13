@@ -206,6 +206,8 @@ function _pintarListaOfertas(){
     card.dataset.oid = o.id || '';
     if(est === 'cerrada') card.style.opacity = '.7';
     card.onclick = function(){ showScreen('portal'); };
+    // candidatos de esta oferta: contados con las solicitudes reales (clinica/02-solicitudes-reales.js)
+    var nCand = window.CERCO_candidatosDeOferta ? CERCO_candidatosDeOferta(o.id) : (parseInt(o.candidatos,10)||0);
 
     var fecha = '';
     try {
@@ -238,7 +240,7 @@ function _pintarListaOfertas(){
       + (letra ? '<span class="offer-disc" style="background:'+_discColor(letra)+';">'+esc(disc)+'</span>' : '')
       + '</div>'
       + '<div class="offer-meta-row">' + esc(o.ubicacion||'') + (o.jornada? ' · '+esc(o.jornada):'') + (fecha? ' · publicada '+fecha : '') + '</div>'
-      + '<div class="offer-cand-count">' + (parseInt(o.candidatos,10)||0) + ((parseInt(o.candidatos,10)||0) === 1 ? ' candidato' : ' candidatos') + '</div>'
+      + '<div class="offer-cand-count">' + nCand + (nCand === 1 ? ' candidato' : ' candidatos') + '</div>'
       + '<div class="offer-actions">' + acciones + '</div>';
 
     var header = col.querySelector('.board-col-header');

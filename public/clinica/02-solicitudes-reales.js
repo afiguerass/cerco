@@ -159,6 +159,11 @@
       if(cambia) setSavedOffers(of);
     }catch(x){}
   }
+  // Candidatos de una oferta, contados en el momento con las solicitudes reales
+  // (sin las retiradas). La usa pintarOfertasReales (clinica/01d-nueva-oferta-herramientas-y-cuenta.js)
+  window.CERCO_candidatosDeOferta = function(id){
+    return lista().filter(function(c){ return String(c.ofertaId) === String(id) && c.estado !== 'retirada'; }).length;
+  };
   window._escucharCandidaturas = function(){
     if(_unsubC){ try{ _unsubC(); }catch(x){} _unsubC = null; }
     _primera = true;

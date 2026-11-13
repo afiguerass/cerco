@@ -66,6 +66,20 @@ test('Estadísticas: «Me interesa» cuenta como contestada y las contrataciones
   await expect(c.locator('#screen-stats')).toContainText('Falta la parte de tu equipo');
   await expect(cifras.locator('.mk-kpi', { hasText: 'contratación' })).toContainText('1');
 
+  // Mis ofertas, desde otro ordenador: cada oferta dice cuántos candidatos tiene de verdad
+  // (antes salía «0 candidatos» en las ofertas cuyo número no se había subido a la nube)
+  const vo = await nuevaVentana(browser, testInfo), o = vo.page;
+  await o.goto('/index.html');
+  await o.fill('#login-email', 'stats-clinica@prueba.es');
+  await o.fill('#login-pwd', A.CLINICA.pwd);
+  await o.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(o.locator('#login-email')).toBeHidden();
+  await o.evaluate(() => showScreen('ofertes'));
+  await expect.poll(() => o.locator('#screen-ofertes .offer-card:not(.ejemplo)').locator('visible=true').allInnerTexts()
+    .then((l) => l.map((t) => (t.match(/Higienista [AB]/) || [''])[0] + ': ' + (t.match(/\d+ candidatos?/) || [''])[0]).sort()), { timeout: 20_000 })
+    .toEqual(['Higienista A: 1 candidato', 'Higienista B: 1 candidato']);
+
   expect(c.erroresPagina).toEqual([]);
-  await vc.context.close(); await vp.context.close();
+  expect(o.erroresPagina).toEqual([]);
+  await vc.context.close(); await vp.context.close(); await vo.context.close();
 });

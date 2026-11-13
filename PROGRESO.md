@@ -118,6 +118,7 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 
 ### Siguiente paso
 **Fase 1 terminada — esperando que Asish la pruebe y dé el visto bueno.** No se ha publicado nada en `main`.
+- Vista previa en línea (rama `vista-previa`, web compilada del commit 7895a82): clínica https://raw.githack.com/afiguerass/cerco/vista-previa/index.html y profesional https://raw.githack.com/afiguerass/cerco/vista-previa/candidato.html. Usa la base de datos real. Para entrar con Google hace falta autorizar `raw.githack.com` en Firebase.
 - Para publicarla: pull request de `profesional` a `main` y, antes de fusionar, cambiar en GitHub Settings → Pages → Source → «GitHub Actions» (ver 1.2).
 - Después empieza la **Fase 2** con 1.8b y 1.9, haciendo antes una copia de seguridad de los datos reales.
 

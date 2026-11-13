@@ -48,7 +48,15 @@ La web publicada (`afiguerass.github.io/cerco`) sale siempre de `main`. Los camb
 En GitHub, cambia a la rama `profesional` y abre la carpeta `pruebas/capturas/`. Hay una imagen de cada pantalla, en `ordenador/` y en `movil/`, tal como queda con los cambios.
 
 ### 2. Abrir la rama en el navegador
-Desde la Fase 1 la web se **compila** antes de publicarse (Vite junta y prepara los archivos). Por eso las direcciones de raw.githack.com que mostraban la rama tal cual **ya no sirven** para la rama `profesional`: enseñarían una página a medias. Si hace falta una vista previa en línea, hay que prepararla aparte (pídeselo a Claude).
+Desde la Fase 1 la web se **compila** antes de publicarse (Vite junta y prepara los archivos), así que no se puede abrir la rama `profesional` tal cual. Para verla en línea, la web compilada se sube a una rama aparte, `vista-previa`, que solo contiene eso:
+
+- Clínica: https://raw.githack.com/afiguerass/cerco/vista-previa/index.html
+- Profesional: https://raw.githack.com/afiguerass/cerco/vista-previa/candidato.html
+
+Cosas a tener en cuenta:
+- **Usa la base de datos real.** Entra con **cuentas de prueba** (correos nuevos) y no envíes desde aquí el enlace del test a ningún equipo.
+- La rama `vista-previa` no se actualiza sola: después de cambios en `profesional` hay que volver a generarla (`npm run build` y subir `dist/`). Su `LEEME.md` dice de qué commit sale.
+- Para entrar con Google, `raw.githack.com` tiene que estar en la consola de Firebase: Authentication → Configuración → Dominios autorizados.
 
 ### 3. En tu ordenador (hace falta instalar Node.js)
 1. En GitHub, en la rama `profesional`: botón verde «Code» → «Download ZIP», y descomprímelo.

@@ -119,6 +119,26 @@
   var btnP = 'background:#1A56DB;color:#fff;border:0;border-radius:10px;padding:11px 14px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;';
   var btnS = 'background:#fff;color:#1A56DB;border:1px solid #E5E7EB;border-radius:10px;padding:10px 13px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;';
   function recibido(c){ return !!(c.contrato && c.contratoRecibido && String(c.contratoRecibido) >= String(c.contrato.f)); }
+  // Inicio: contratos enviados que la persona aún no ha confirmado. Lo usa renderInicioReal (clinica/01g-datos-de-la-clinica.js)
+  window.CERCO_inicioContratos = function(){
+    var box = $('inicio-real'); if(!box || box.style.display === 'none') return;
+    var vieja = $('inicio-contratos'); if(vieja) vieja.remove();
+    var l = cands().filter(function(c){ return c.estado === 'contratada' && c.contrato && !recibido(c); });
+    if(!l.length) return;
+    var el = document.createElement('div'); el.id = 'inicio-contratos';
+    el.style.cssText = 'background:white;border:1px solid #EAECF0;border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);';
+    var h = '<div style="padding:14px 18px;border-bottom:1px solid #F3F4F6;font-size:13px;font-weight:800;color:#111827;letter-spacing:.3px;">CONTRATOS SIN CONFIRMAR · ' + l.length + '</div>';
+    l.slice(0, 5).forEach(function(c){
+      h += '<div onclick="abrirFichaCandidato(\'' + e(c.id) + '\')" style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid #F3F4F6;cursor:pointer;">'
+        + '<div style="width:38px;height:38px;border-radius:10px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></div>'
+        + '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:800;color:#111827;">' + e(c.nombre) + ' <span style="font-size:12px;font-weight:700;color:#B45309;">Aún no lo ha confirmado</span></div>'
+        + '<div style="font-size:12.5px;color:#6B7280;">Le enviaste el contrato' + (c.contrato.f ? ' el ' + e(fechaLarga(c.contrato.f)) : '') + (c.ofertaTitulo ? ' · ' + e(c.ofertaTitulo) : '') + '</div></div>'
+        + '<span style="font-size:12.5px;font-weight:700;color:#1A56DB;flex-shrink:0;">Ver ficha</span></div>';
+    });
+    el.innerHTML = h;
+    var ref = $('inicio-citas') || $('inicio-solicitudes') || box.querySelector('.inicio-kpis');
+    if(ref && ref.nextSibling) box.insertBefore(el, ref.nextSibling); else box.appendChild(el);
+  };
   function bloqueContrato(c, editar){
     var k = c.contrato, nom = primer(c.nombre) || 'la persona', rec = recibido(c);
     if(k && !editar){

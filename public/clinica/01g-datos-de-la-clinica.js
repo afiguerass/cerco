@@ -304,7 +304,7 @@ var ICO = {
    Un fallo en un bloque no impide pintar los demás, igual que antes. */
 function renderInicioReal(){
   try{ _pintarInicioBase(); }catch(x){}
-  ['CERCO_inicioSolicitudes', 'CERCO_inicioCitas', 'CERCO_inicioPlazos', 'CERCO_inicioLider', 'CERCO_inicioConfianza', 'CERCO_inicioAgenda']
+  ['CERCO_inicioSolicitudes', 'CERCO_inicioCitas', 'CERCO_inicioContratos', 'CERCO_inicioPlazos', 'CERCO_inicioLider', 'CERCO_inicioConfianza', 'CERCO_inicioAgenda']
     .forEach(function(bloque){ try{ if(window[bloque]) window[bloque](); }catch(x){} });
 }
 function _pintarInicioBase(){

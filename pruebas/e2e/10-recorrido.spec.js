@@ -358,6 +358,16 @@ test('5b. La clínica envía el contrato y marca el plan de acogida', async () =
   await page.getByText('Uniforme, taquilla y acceso al programa de la clínica preparados.').locator('visible=true').first().click();
   await expect(page.locator('body')).toContainText('2 de 8 hechos');
   await capturar(page, 'clinica-19-contrato-y-acogida', { centrar: page.getByText('Plan de acogida · primeros 90 días').locator('visible=true').first() });
+  // Inicio avisa del contrato enviado que Laura aún no ha confirmado; al pulsar, se abre su ficha
+  await page.evaluate(() => showScreen('inicio'));
+  const aviso = page.locator('#inicio-contratos');
+  await expect(aviso).toContainText('CONTRATOS SIN CONFIRMAR · 1');
+  await expect(aviso).toContainText('Laura Prueba');
+  await expect(aviso).toContainText('Aún no lo ha confirmado');
+  await aviso.getByText('Ver ficha').click();
+  await expect(page.locator('#screen-ficha')).toBeVisible();
+  await seVe(page, 'Aún no ha confirmado que lo ha visto.', { exact: false });
+  await page.evaluate(() => showScreen('inicio')); // se deja la clínica donde estaba antes de esta comprobación
 });
 
 test('6. La profesional ve el estado, «Tu incorporación», confirma el contrato y retira la otra', async () => {
@@ -380,6 +390,11 @@ test('6. La profesional ve el estado, «Tu incorporación», confirma el contrat
 
   await page.getByRole('button', { name: 'Lo he recibido' }).click();
   await expect(page.getByRole('button', { name: 'Lo he recibido' })).toHaveCount(0);
+  // (se espera a que la confirmación llegue de verdad a la nube antes de mirarla desde la clínica)
+  await expect.poll(async () => {
+    const r = await (await fetch(`http://${FIRESTORE.host}:${FIRESTORE.port}/v1/projects/${PROYECTO}/databases/(default)/documents/candidaturas`, { headers: { Authorization: 'Bearer owner' } })).json();
+    return (r.documents || []).some((d) => d.fields.contratoRecibido);
+  }, { timeout: 30_000 }).toBe(true);
   await page.click('#inc-ret');
   await expect(page.locator('#inc-ret')).toHaveCount(0);
   await capturar(page, 'pro-19-contrato-confirmado');
@@ -391,11 +406,17 @@ test('6. La profesional ve el estado, «Tu incorporación», confirma el contrat
   // La clínica ve que Laura ha confirmado el contrato
   const c = clinica.page;
   await c.reload();
+  // (tras recargar, se espera a que lleguen de la nube los datos al día)
+  await expect.poll(() => c.evaluate(() => (window.CERCO_candidaturas ? CERCO_candidaturas() : []).some((x) => x.contratoRecibido)), { timeout: 30_000 }).toBe(true);
   await c.evaluate(() => showScreen('portal'));
   await c.locator('[onclick="CERCO_etapa(\'contr\')"]').locator('visible=true').first().click();
   await c.getByRole('button', { name: 'Ver ficha' }).locator('visible=true').first().click();
   await expect(c.getByText('Aún no ha confirmado que lo ha visto.', { exact: false })).toHaveCount(0);
   await capturar(c, 'clinica-20-contrato-confirmado');
+  // …y en Inicio ya no sale el aviso de contrato sin confirmar
+  await c.evaluate(() => showScreen('inicio'));
+  await expect(c.locator('#screen-inicio')).toBeVisible();
+  await expect(c.locator('#inicio-contratos')).toHaveCount(0);
 
   // Nada se ha roto por el camino: ningún error de JavaScript en las páginas
   expect(clinica.page.erroresPagina).toEqual([]);

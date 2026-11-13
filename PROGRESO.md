@@ -208,6 +208,66 @@ d) **Herramienta que no se ofrece.** En el código hay una 7.ª herramienta del 
 
 **Si Asish ha visto un botón concreto que no hace nada**, hace falta saber la pantalla y el nombre del botón. Puede depender de sus datos reales (por ejemplo, una oferta pausada) o de la vista previa: «Continuar con Google» no funciona hasta autorizar raw.githack.com en Firebase.
 
+### Hecho después de la revisión (con el visto bueno de Asish)
+Cada cosa con su commit y con una prueba que fallaba con el código anterior:
+- [x] **Candidatos** se abre en «Por contestar». Las pestañas son: Por contestar · Me interesan · Entrevistas · Contratados · Cerrados · Todos.
+  - En «Todos», cada persona sale una sola vez, con su solicitud más avanzada.
+  - Al volver de una ficha, sigue en la pestaña donde estaba. «Ver guardados» los enseña en «Todos».
+- [x] **Agenda:** pulsando en cualquier parte de una entrevista se abre la ficha. Los botones de la entrevista siguen haciendo lo suyo.
+- [x] **Botón «Buscar»** en «Dirección de tu clínica», «Ubicación» (Nueva oferta) y «Ciudad» (Mi clínica). Enter hace lo mismo que el botón.
+  - Arreglado de paso: al cambiar la dirección de la clínica, los km de los candidatos se recalculan al momento. Antes se quedaban con la dirección anterior, también al elegirla de la lista.
+- [x] **Aviso «Escribe algo antes de enviar»** en Enviar (mensajes), la flecha y el Enviar de Seimian, y «Revisar con Seimian» (este dice «Escribe tu respuesta antes de revisarla.»).
+- [x] **Editor de vídeo:** ya no da error si se cierra mientras prepara las miniaturas.
+- «Dónde encajas»: se deja para más adelante, como pidió Asish.
+
+## Revisión de acciones y pantallas (13 de noviembre) — esperando el visto bueno de Asish
+**Cómo se ha hecho.** Un recorrido con una clínica y una profesional nuevas:
+- La clínica publica 3 ofertas (A, B y C) y la profesional solicita las tres.
+- La clínica marca «Me interesa» en A, la invita a entrevista, descarta B con motivo, contrata en A y envía el contrato.
+- La profesional confirma el contrato y retira C.
+- Después de cada acción se guarda lo que se ve en Inicio, Candidatos, Agenda, Estadísticas, Mi equipo y Mis ofertas (clínica), y en Inicio, Ofertas, Mis solicitudes y cada solicitud con «Tu incorporación» (profesional). En los pasos importantes, también después de recargar.
+- Al final se entra con la clínica desde un navegador nuevo, como si fuera otro ordenador.
+
+**Lo que funciona bien** (cambia lo que tiene que cambiar, en los dos lados y sin recargar):
+- **Publicar oferta:** Mis ofertas, Inicio y Estadísticas de la clínica; Inicio y Ofertas del profesional.
+- **Solicitar:** Inicio («Necesitan tu respuesta»), Candidatos («Por contestar») y Estadísticas de la clínica; Inicio, Ofertas («Solicitada») y Mis solicitudes del profesional.
+- **Me interesa:** Inicio («Me interesan») y Candidatos de la clínica; el profesional ve «Les interesas».
+- **Entrevista:** Inicio («Próximas entrevistas»), Candidatos, Agenda y Estadísticas de la clínica; el profesional ve «Confirma tu entrevista».
+- **Descartar:** Inicio, Candidatos («Cerrados») y Estadísticas («Por qué descartas»); el profesional ve «No seleccionada» y el motivo.
+- **Contratar:**
+  - Clínica: Candidatos («Contratados»), Agenda («Contratada»), Mis ofertas (la oferta pasa a Cerradas) y Estadísticas («1 contratación»), en el navegador donde se hizo el test.
+  - Profesional: «¡Elegida!», «¡Te han contratado!», «Tu incorporación», y la oferta deja de salir en Ofertas.
+- **Enviar contrato:** el profesional lo ve en Inicio y en «Tu incorporación». La clínica ve en la ficha si ya lo ha confirmado.
+- **Retirar:** la persona sale de «Necesitan tu respuesta», pasa a «Cerrados» como «Retirada» y las Estadísticas se ajustan.
+
+**Lo que falla:**
+1. **El test DISC de la clínica solo se guarda en el navegador.** No se sube a la nube (lo guardado en la nube es: nombre, ciudad, descripción, correo, responsable, plantilla, teléfono y web). Al entrar desde otro ordenador, otro navegador o la vista previa:
+   - «Mi equipo» sale sin la persona responsable;
+   - **Estadísticas** enseña «Falta la parte de tu equipo» en lugar de las cifras, y **el recuadro de contrataciones no se ve**. La contratación solo aparece dentro de una frase: «2 solicitudes → 1 entrevista → 1 contratación».
+
+   Esto explica que la contratación de asish figueras no apareciera en Estadísticas.
+2. **Mis ofertas dice «0 candidatos»** en cada oferta al entrar o recargar, aunque tengan candidatos. Las solicitudes llegan de la nube un momento después y esa pantalla no se vuelve a pintar.
+3. **Una persona contratada no pasa a «Mi equipo».** Hoy «Mi equipo» solo tiene el test de la responsable y los de quienes usan el enlace.
+4. **Falta de ortografía visible** en Estadísticas: «0 contrataciónes».
+
+**Propuesta** (cada una con su commit y su prueba):
+1. **Guardar el test DISC de la clínica en la nube**, en la ficha de la clínica, y traerlo al entrar desde cualquier sitio.
+   - Las reglas de seguridad ya lo permiten: no hay que tocar Firebase.
+   - No se borra ni se cambia nada de lo que ya hay; solo se añade un dato. Las clínicas que ya hicieron el test lo subirán la próxima vez que abran CERCO en el navegador donde lo hicieron.
+   - Antes, copia de seguridad, como acordamos.
+2. **Estadísticas enseña siempre las contrataciones**, aunque todavía no haya tests del equipo: «contrataciones» se añade a las cifras de «Tu contratación», que ya salen siempre.
+3. **Mis ofertas se vuelve a pintar** cuando llegan las solicitudes, para que el número de candidatos de cada oferta sea el real.
+4. **Al contratar, la persona pasa a «Mi equipo» con su perfil DISC** (el de su test en CERCO) y el puesto de la oferta, con la etiqueta «Contratada en CERCO».
+   - Cuenta en las estadísticas del equipo, igual que un test hecho con el enlace.
+   - Se guarda en la nube, como los demás miembros del equipo.
+   - Si un día no sigue (la pregunta de los 90 días), se puede quitar del equipo como a cualquier otro.
+   - Si además hace el test con el enlace del equipo, saldría dos veces. Propuesta: se reconoce por el nombre y se deja una sola.
+5. **Corregir «contrataciónes»** → «contrataciones».
+
+**Dos preguntas para Asish:**
+- ¿«Me interesa» cuenta como contestada en Estadísticas? Hoy no cuenta: después de «Me interesa», «contestadas» sigue en 0 %, aunque el profesional ya ve «Les interesas».
+- ¿Quieres que el Inicio de la clínica avise de los contratos enviados que la persona aún no ha confirmado? Hoy solo se ve dentro de su ficha.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

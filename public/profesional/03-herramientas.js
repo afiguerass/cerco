@@ -145,7 +145,7 @@ function hEnsayo(){
       + (rv && rv.tips.length ? '<ul class="hr-tips">'+rv.tips.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join('')+'</ul>' : (rv ? '<div class="hr-ok">'+svg('check','#0E9F6E',15)+'Respuesta completa: caso, lo que hiciste y el resultado.</div>' : ''))
       + '</div>';
   });
-  h += '<div class="card dark"><div class="eyebrow" style="color:rgba(255,255,255,.6);">'+svg('compass','rgba(255,255,255,.6)',13)+'PARA TU PERFIL</div><p style="margin:0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);">Eres '+NOMBRE[p.disc.dom].toLowerCase()+': cuida '+esc(CUIDA[p.disc.dom])+'</p></div>';
+  h += '<div class="card dark"><div class="eyebrow" style="color:rgba(255,255,255,.6);">'+svg('compass','rgba(255,255,255,.6)',13)+'PARA TU PERFIL</div><p style="margin:0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);">Tu perfil es '+NOMBRE[p.disc.dom].toLowerCase()+': cuida '+esc(CUIDA[p.disc.dom])+'</p></div>';
   var lista = hechas >= Math.min(3, qs.length);
   h += '<div class="card"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;"><div style="flex:1;min-width:200px;"><b style="font-size:15px;">'+(lista ? 'Lista para la entrevista' : 'Responde al menos 3 preguntas')+'</b><div style="font-size:13px;color:var(--muted);margin-top:2px;">'
     + (sol ? 'Al terminar, '+esc(o.clinica||'la clínica')+' verá en tu solicitud que has preparado la entrevista (no lo que has escrito).' : 'Si luego solicitas esta oferta, la clínica verá que la has preparado.')+'</div></div>'
@@ -363,7 +363,7 @@ function clinicasQueTeBuscan(){
 function hEncajas(){
   var p = S.perfil || {}; if(!p.disc) return '<div class="aviso aviso-info">'+svg('compass','#1E3A8A',16)+'<span>Haz el test para saber dónde encajas. <button class="link" onclick="abrirTest(false)">Hacer el test</button></span></div>';
   var l = clinicasQueTeBuscan(), d = p.disc;
-  var h = '<div class="card dark"><div style="display:flex;gap:14px;align-items:center;"><div class="disc-big" style="background:'+COLOR[d.dom]+';width:48px;height:48px;font-size:19px;border-radius:13px;">'+d.dom+'</div><div style="font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);">Eres <b style="color:#fff;">'+NOMBRE[d.dom]+'</b> con rasgo '+NOMBRE[d.sec].toLowerCase()+'. Aportas '+esc(APORTA[d.dom])+'.</div></div></div>';
+  var h = '<div class="card dark"><div style="display:flex;gap:14px;align-items:center;"><div class="disc-big" style="background:'+COLOR[d.dom]+';width:48px;height:48px;font-size:19px;border-radius:13px;">'+d.dom+'</div><div style="font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);">Tu perfil es <b style="color:#fff;">'+NOMBRE[d.dom]+'</b> con rasgo '+NOMBRE[d.sec].toLowerCase()+'. Aportas '+esc(APORTA[d.dom])+'.</div></div></div>';
   if(!l.length) h += '<div class="vacio"><b>Ahora mismo ninguna clínica de tu zona tiene ese hueco</b><p>Las clínicas actualizan el perfil de su equipo cuando su gente hace el test. Te avisaremos cuando una busque tu forma de trabajar.</p></div>';
   else l.forEach(function(x){
     var o = x.o, k = kmDe(o, p.geo), s = solDeOferta(o.id), c = x.eq.comp || {};

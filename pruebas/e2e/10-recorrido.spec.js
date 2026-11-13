@@ -451,6 +451,9 @@ test('8. El resto de pantallas del profesional se ven bien y sin errores', async
   await page.fill('#sei-q', '¿Cómo van mis solicitudes?');
   await page.keyboard.press('Enter');
   await expect(page.locator('#sei-msgs')).toContainText('Tienes 2 solicitudes', { timeout: 10_000 });
+  // Seimian no da por hecho el género: describe el perfil («Tu perfil es concienzudo…»)
+  await expect(page.locator('#sei-msgs')).toContainText('Tu perfil es concienzudo con rasgo influyente');
+  await expect(page.locator('#sei-msgs')).not.toContainText('Eres concienzudo');
   await capturar(page, 'pro-33-seimian', { tapar: [page.locator('#sei-msgs')] });
   expect(page.erroresPagina).toEqual([]);
 });

@@ -2429,7 +2429,7 @@ function abrirSeimian(){
   var hola = 'Hola' + (p.nombre ? ', ' + esc(primerNom(p.nombre)) : '') + '. ';
   if(!p.disc) hola += 'Aún no has hecho el test de personalidad. Sin él no puedo decirte qué ofertas te encajan ni prepararte la entrevista.';
   else if(!p.video) hola += 'Tu perfil está casi listo. Lo que más te ayudaría ahora es un vídeo corto: las clínicas lo ven antes que el CV.';
-  else hola += 'Eres ' + NOMBRE[p.disc.dom].toLowerCase() + ' con rasgo ' + NOMBRE[p.disc.sec].toLowerCase() + '. ¿Miramos qué ofertas te encajan más?';
+  else hola += 'Tu perfil es ' + NOMBRE[p.disc.dom].toLowerCase() + ' con rasgo ' + NOMBRE[p.disc.sec].toLowerCase() + '. ¿Miramos qué ofertas te encajan más?';
   seiDice(hola, true);
   try{ $('sei-q').focus({preventScroll:true}); }catch(e){}
 }

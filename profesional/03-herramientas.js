@@ -156,6 +156,7 @@ function revisarEnsayo(i){
   var o = buscarOferta(HER.of); if(!o) return;
   var r = leerEnsayo(o.id); r[i] = (($('hr-a'+i)||{}).value || '').trim(); guardarEnsayo(o.id, r);
   var y = window.scrollY; pintarHerr(); window.scrollTo(0, y);
+  if(!r[i] && window.CERCO_avisoVacio) CERCO_avisoVacio($('hr-a'+i), 'Escribe tu respuesta antes de revisarla.');
 }
 function terminarEnsayo(oid){
   var p = S.perfil || {}, l = (p.ensayos || []).slice(); if(l.indexOf(String(oid)) === -1) l.push(String(oid));

@@ -859,7 +859,8 @@ function _respuestaSeimianAntigua(pregunta){
 function sendChatMsg(){
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
-  if(!text || chatTyping) return;
+  if(!text){ if(window.CERCO_avisoVacio) CERCO_avisoVacio(input); return; }
+  if(chatTyping) return;
   addChatMsg(text, 'me');
   input.value = '';
   chatTyping = true;

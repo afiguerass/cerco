@@ -90,6 +90,8 @@ window.showScreen = function(id){
   // Al salir de la ficha de un candidato, se quita la ficha provisional (clinica/16-ficha-candidato.js)
   if(window.CERCO_fichaAlCambiarPantalla) CERCO_fichaAlCambiarPantalla(id);
   var pedida = id;
+  // Al entrar en Candidatos desde otra pantalla (no al volver de una ficha), se abre en «Por contestar» (clinica/09-cada-profesion.js)
+  if(id === 'portal' && !document.querySelector('#screen-portal.active, #screen-ficha.active, #screen-candidat.active') && window.CERCO_candidatosAlEntrar) CERCO_candidatosAlEntrar();
   // Las entrevistas de ejemplo llevan a la Agenda real (clinica/12-todo-conectado.js)
   if(window.CERCO_agendaRedirigir) id = CERCO_agendaRedirigir(id);
   var r = _mostrarPantallaBase.apply(this, [id].concat([].slice.call(arguments, 1)));

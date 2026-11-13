@@ -208,7 +208,9 @@
     // preguntas que la ley no permite en un proceso de selección (clinica/07-fallos-del-sector.js)
     if(window.CERCO_preguntaProhibida && CERCO_preguntaProhibida()) return;
     var c = buscar(id), i = document.getElementById('ficha-msg-in'); if(!c || !i) return;
-    var t = (i.value || '').trim(); if(!t || !window._unaSolaVez('msgC', 600)) return;
+    var t = (i.value || '').trim();
+    if(!t){ if(window.CERCO_avisoVacio) CERCO_avisoVacio(i); return; }
+    if(!window._unaSolaVez('msgC', 600)) return;
     var m = (c.mensajes || []).concat([{de:'clinica', t:t.slice(0,600), f:new Date().toISOString()}]).slice(-100);
     i.value = '';
     Nube.cambiarCandidatura(c, {mensajes: m}).then(function(){ marcarVistos(buscar(id)); abrirFichaCandidato(id, 'ver'); setTimeout(function(){ var b = document.getElementById('ficha-msgs'); if(b) b.scrollTop = b.scrollHeight; var ii = document.getElementById('ficha-msg-in'); if(ii) try{ ii.focus({preventScroll:true}); }catch(x){} }, 30); })

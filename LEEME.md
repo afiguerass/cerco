@@ -1,6 +1,6 @@
 # Vista previa de la rama profesional
 
-Esta rama solo contiene la web **compilada** de la rama `profesional` (commit 7895a82), para poder probarla en el navegador sin instalar nada:
+Esta rama solo contiene la web **compilada** de la rama `profesional` (commit f48fa22), para poder probarla en el navegador sin instalar nada:
 
 - Clínica: https://raw.githack.com/afiguerass/cerco/vista-previa/index.html
 - Profesional: https://raw.githack.com/afiguerass/cerco/vista-previa/candidato.html

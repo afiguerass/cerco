@@ -388,8 +388,19 @@ test('6. La profesional ve el estado, «Tu incorporación», confirma el contrat
   await expect(page.locator('body')).toContainText(/Tus primeros 90 días\s*2 de 8/);
   await capturar(page, 'pro-18-tu-incorporacion');
 
+  // La clínica tiene la ficha de Laura abierta y está escribiéndole un mensaje
+  const cl = clinica.page;
+  await cl.evaluate(() => abrirFichaCandidato(CERCO_candidaturas().find((x) => x.estado === 'contratada').id));
+  await expect(cl.getByText('Aún no ha confirmado que lo ha visto.', { exact: false }).locator('visible=true').first()).toBeVisible();
+  await cl.fill('#ficha-msg-in', 'Te esperamos el lunes');
   await page.getByRole('button', { name: 'Lo he recibido' }).click();
   await expect(page.getByRole('button', { name: 'Lo he recibido' })).toHaveCount(0);
+  // Sin recargar, la ficha abierta se pone al día sola y no se pierde lo que estaba escribiendo
+  await expect(cl.getByText('Aún no ha confirmado que lo ha visto.', { exact: false }).locator('visible=true')).toHaveCount(0, { timeout: 30_000 });
+  await expect(cl.getByText('confirmó que lo tiene', { exact: false }).locator('visible=true').first()).toBeVisible();
+  await expect(cl.locator('#ficha-msg-in')).toHaveValue('Te esperamos el lunes');
+  await cl.fill('#ficha-msg-in', '');
+  await cl.evaluate(() => showScreen('inicio'));
   // (se espera a que la confirmación llegue de verdad a la nube antes de mirarla desde la clínica)
   await expect.poll(async () => {
     const r = await (await fetch(`http://${FIRESTORE.host}:${FIRESTORE.port}/v1/projects/${PROYECTO}/databases/(default)/documents/candidaturas`, { headers: { Authorization: 'Bearer owner' } })).json();

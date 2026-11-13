@@ -251,6 +251,11 @@
     if(s) s.style.minHeight = '';
     try{ pintar(id); if(modo && actual === id) window.scrollTo(0, y); }catch(x){ try{ console.error(x); }catch(z){} }
   };
+  // La ficha que está abierta ahora (o null). La usa CERCO_fichaAlDia (clinica/02-solicitudes-reales.js)
+  window.CERCO_fichaAbierta = function(){
+    var s = $('screen-ficha');
+    return (actual && s && s.classList.contains('active') && $('modal-cand')) ? actual : null;
+  };
   // La usa cerrarFichaCandidato (clinica/02-solicitudes-reales.js)
   window.CERCO_fichaVolverSiAbierta = function(){
     if($('screen-ficha') && $('screen-ficha').classList.contains('active')) CERCO_fichaVolver();

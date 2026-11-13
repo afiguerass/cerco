@@ -164,11 +164,51 @@
   window.CERCO_candidatosDeOferta = function(id){
     return lista().filter(function(c){ return String(c.ofertaId) === String(id) && c.estado !== 'retirada'; }).length;
   };
+  /* La ficha abierta se pone al día sola cuando el candidato hace algo (confirma la cita,
+     escribe, confirma el contrato, retira…). Se conserva lo que se estaba escribiendo en el
+     mensaje y la posición. Si la clínica está a medias de algo (programar entrevista,
+     contratar, descartar, rellenar el contrato, ver el vídeo o el CV…), espera a que acabe. */
+  var _fichaPendiente = null;
+  // ¿Lo que ha cambiado lo ha hecho el candidato? (lo que hace la clínica ya vuelve a pintar la ficha)
+  function cambioDelCandidato(a, b){
+    if(!a || !b) return false;
+    var igual = function(x, y){ return JSON.stringify(x == null ? null : x) === JSON.stringify(y == null ? null : y); };
+    var ma = a.mensajes || [], mb = b.mensajes || [], ult = mb[mb.length - 1];
+    if(mb.length > ma.length && ult && ult.de === 'candidato') return true;                               // escribe
+    var ca = (a.cita || {}).estado, cb = (b.cita || {}).estado;
+    if(ca !== cb && (cb === 'confirmada' || cb === 'cambio')) return true;                              // confirma la cita o pide otro día
+    if(a.estado !== b.estado && (b.estado === 'retirada' || b.estado === 'caducada')) return true;      // retira, o se cierra por plazo
+    return ['contratoRecibido', 'preparada', 'seguimientoC', 'valorada', 'disc'].some(function(k){ return !igual(a[k], b[k]); });
+  }
+  function ocupada(){
+    if(document.querySelector('#cita-ok, #hire-ok, #cand-ok, #mk-motivos, #den-ok, #correo-menu, #cv-x, #ficha-video.vid-visor, #cmp-modal')) return true;
+    var a = document.activeElement, m = document.getElementById('modal-cand');
+    if(a && m && m.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.id !== 'ficha-msg-in') return true;
+    var f = document.getElementById('ct-file'); if(f && f.files && f.files.length) return true;
+    return false;
+  }
+  window.CERCO_fichaAlDia = function(id){
+    var abierta = window.CERCO_fichaAbierta ? CERCO_fichaAbierta() : null;
+    if(!abierta || abierta !== id){ _fichaPendiente = null; return; }
+    if(ocupada()){
+      _fichaPendiente = id;
+      setTimeout(function(){ if(_fichaPendiente === id) CERCO_fichaAlDia(id); }, 1500);
+      return;
+    }
+    _fichaPendiente = null;
+    var i = document.getElementById('ficha-msg-in'), txt = i ? i.value : '', foco = i && document.activeElement === i;
+    abrirFichaCandidato(id, 'ver');
+    var j = document.getElementById('ficha-msg-in');
+    if(j && txt){ j.value = txt; }
+    if(j && foco){ try{ j.focus({preventScroll:true}); }catch(x){} }
+  };
   window._escucharCandidaturas = function(){
     if(_unsubC){ try{ _unsubC(); }catch(x){} _unsubC = null; }
     _primera = true;
     _unsubC = Nube.escucharCandidaturas(function(l){
       var antes = {}; lista().forEach(function(c){ antes[c.id] = c.estado; });
+      var abierta = window.CERCO_fichaAbierta ? CERCO_fichaAbierta() : null;
+      var abiertaAntes = abierta ? JSON.parse(JSON.stringify(buscar(abierta) || null)) : null;
       l.sort(function(a,b){ return String(b.fecha||'').localeCompare(String(a.fecha||'')); });
       guardarLista(l);
       contarPorOferta(l);
@@ -183,6 +223,8 @@
       try{ if(window.CERCO_contratadosAlEquipo) CERCO_contratadosAlEquipo(); }catch(x){}
       try{ CDB.renderTodo(); }catch(x){}
       try{ if(typeof pintarOfertasReales === 'function') pintarOfertasReales(); }catch(x){}
+      // si ha cambiado la solicitud de la ficha abierta, se pone al día
+      try{ if(abierta && cambioDelCandidato(abiertaAntes, buscar(abierta))) CERCO_fichaAlDia(abierta); }catch(x){}
     });
   };
   // Al cerrar sesión, lo de esta clínica no se queda en el navegador

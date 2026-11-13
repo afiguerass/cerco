@@ -237,9 +237,15 @@ Se comprobó, acción por acción, qué cambia en cada pantalla de los dos lados
   - Las contrataciones de antes, como la de asish figueras, pasan solas al entrar.
 - [x] **Inicio avisa de los contratos enviados sin confirmar** («Contratos sin confirmar»), con acceso a la ficha. El aviso se quita cuando la persona confirma.
 
+**Arreglado después, con el visto bueno de Asish** (cada uno con su commit y su prueba):
+- [x] **Una clínica que ya existe en la nube entra directa a Inicio** desde cualquier navegador, con correo o con Google, sin las pantallas de bienvenida. Una cuenta que aún no ha configurado su clínica sigue viendo la bienvenida.
+- [x] **La ficha abierta se pone al día sola** cuando el candidato hace algo: escribe, confirma la cita o pide otro día, confirma el contrato, retira… Se conserva lo que se estaba escribiendo. Si la clínica está a medias de algo, espera a que acabe.
+
 **Encontrado durante las pruebas, sin tocar (pendiente de lo que diga Asish):**
-- **Al entrar con una clínica ya configurada desde un navegador nuevo, salen las pantallas de bienvenida**, como si la cuenta fuera nueva. El menú, eso sí, ya tiene los datos. Viene de lo mismo: al entrar, la web mira primero lo que hay en el navegador. Propuesta: si la clínica ya existe en la nube, ir directamente a Inicio.
-- **Una ficha abierta no se actualiza sola** cuando el candidato hace algo (por ejemplo, confirmar el contrato). Se ve al volver a abrirla. Propuesta: volver a pintar la ficha abierta cuando llegan cambios de esa solicitud.
+- **Una cuenta nueva que se registra en un navegador que ya usó otra clínica hereda los datos de esa clínica** (nombre, ciudad, responsable…) y se suben a su ficha en la nube.
+  - Pasa porque al cerrar sesión los datos se quedan en el navegador («Tus datos siguen guardados»).
+  - Solo ocurre si dos clínicas usan el mismo navegador.
+  - Propuesta: al crear una cuenta nueva o entrar con otra cuenta, empezar con los datos del navegador vacíos (guardando antes una copia de los de la cuenta anterior), igual que ya se hace con el test DISC.
 
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):

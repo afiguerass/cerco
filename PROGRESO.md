@@ -81,8 +81,8 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - [x] **1.8a** Firebase (10.12.0, igual que antes) va dentro de la web compilada (`src/comun/firebase.js`), en su propio archivo (`firebase-….js`), en lugar de descargarse de www.gstatic.com al abrir la página.
     - La versión de pruebas se conecta sola al Firebase falso. Comprobado que la versión publicable no tiene ningún rastro de él.
     - Las pruebas ya no cambian archivos al vuelo: si la web volviera a pedir Firebase a Google, la petición estaría bloqueada y fallarían.
-  - [ ] **1.8b** Pasar las llamadas a la forma modular, archivo por archivo, y quitar *compat* al final.
-- [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias.
+  - [ ] **1.8b** Pasar las llamadas a la forma modular, archivo por archivo, y quitar *compat* al final. **Se pasa al principio de la Fase 2** (decisión de Asish), con copia de seguridad antes.
+- [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias. **Se pasa al principio de la Fase 2** (decisión de Asish), con copia de seguridad antes.
 - [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.
 
 ## Fase 0 — Preparar el terreno (terminada y publicada)
@@ -113,14 +113,11 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-**Esperando una decisión de Asish.** Queda lo más delicado de la Fase 1:
-- **1.8b:** reescribir unas 80 llamadas a la base de datos y 26 de inicio de sesión por cada lado.
-- **1.9:** leer de Firestore lo que hoy se lee de `localStorage`.
+Asish eligió la **opción C**:
+- Terminar ahora la Fase 1 sin tocar datos: dividir los dos archivos grandes por pantallas (1.6b) y cargar los municipios solo cuando hagan falta (1.5).
+- Dejar **1.8b y 1.9 para el principio de la Fase 2**, con copia de seguridad de los datos reales antes.
 
-Las dos tocan cómo se leen y guardan los datos reales. Opciones:
-- **(A)** Seguir ahora con todo.
-- **(B)** Pasarlas al principio de la Fase 2, que reescribe esa misma parte (vídeos y CV a Storage, Functions), con una copia de seguridad de los datos reales antes.
-- **(C) Recomendada.** Hacer ahora lo que no toca datos (dividir los archivos grandes por pantallas y cargar los municipios solo cuando hagan falta) y dejar 1.8b y 1.9 para el principio de la Fase 2.
+Siguiente: 1.6b.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:
@@ -145,12 +142,14 @@ Cada uno tiene su propio commit en la rama `profesional`:
 - [x] El seguimiento del profesional dice «Será el…» si la entrevista aún no ha llegado y «Fue el…» si ya pasó.
 - [x] El rol «Responsable de personal» se llama «Coordinador/a de clínica». El dato guardado sigue siendo el mismo.
 
+## Arreglos pedidos por Asish durante la Fase 1 (hechos)
+Cada uno con su commit y con una prueba que fallaba con el código anterior:
+- [x] **La Agenda** enseña también la entrevista de quien ya está contratado (la del 12 de noviembre), con la etiqueta «Contratada». También en el bloque de Inicio.
+- [x] **Seimian no da por hecho el género.** El perfil no guarda el género y deducirlo del nombre falla, así que se describe el perfil: «Tu perfil es concienzudo con rasgo influyente». En el saludo de Seimian y en dos tarjetas de Herramientas.
+- [x] **iPad en modo escritorio:** ahora se reconoce como iPad (lado profesional).
+- [x] **Protección de textos de la clínica (`_esc`):** trata bien las comillas dobles y simples, y un valor vacío deja de escribirse como «null».
+
 ## Pendiente para más adelante
-- **iPad:** la función que detecta si el aparato es un iPhone o un iPad (`esIOS`, lado profesional) no reconoce los iPad en modo escritorio, que es como vienen por defecto. Ya había una versión que sí los reconocía, pero no era la que funcionaba. Se ha dejado igual; habría que probar en un iPad si algo del vídeo falla.
-- **Seguridad, para la Fase 3:** la función que protege los textos antes de ponerlos en la página (`_esc`, lado clínica) no protege las comillas («"»). Un nombre con comillas, por ejemplo el de una clínica, podría romper un trozo de la página. Ya había una versión corregida, pero nunca llegaba a usarse. No se ha cambiado para que todo funcione igual.
-- **Cosas vistas en las capturas nuevas (sin tocar; decide Asish):**
-  - **Agenda** de la clínica: dice «Todavía no tienes entrevistas» aunque hubo una entrevista programada para el 12 de noviembre. Puede ser a propósito, porque después esa persona fue contratada.
-  - **Seimian del profesional:** a Laura le dice «Eres concienzudo con rasgo influyente», en masculino.
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.
   - `tiempos_respuesta`, `condiciones` y `valoraciones` no comprueban bien quién escribe ni qué escribe.

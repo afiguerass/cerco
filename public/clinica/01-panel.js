@@ -691,7 +691,10 @@ function mostrarGracias(){
   }
   showScreen('gracias');
 }
-function _esc(t){ return String(t).replace(/[<>&]/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]; }); }
+// Protege un texto antes de meterlo en la página: también las comillas (dobles y
+// simples), para que un nombre como «Clínica "La Sonrisa"» no rompa nada, y un
+// valor vacío (null o undefined) queda vacío en lugar de escribir «null».
+function _esc(t){ return String(t == null ? '' : t).replace(/[<>&"']/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
 function goToRealDiscTest_aplicar(){
   discTestReturnTo_aplicar = true;

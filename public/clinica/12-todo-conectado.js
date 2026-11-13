@@ -304,7 +304,7 @@
   };
 
   // Inicio: lo próximo de la agenda y quién tiene plazo en «Me interesan»
-  // Inicio: próximas entrevistas y «Me interesan». Lo usa renderInicioReal (clinica/01-panel.js)
+  // Inicio: próximas entrevistas y «Me interesan». Lo usa renderInicioReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_inicioAgenda = function(){
     try{
       var box = $('inicio-real'); if(!box) return;
@@ -333,7 +333,7 @@
   };
 
   /* =============== 3. PANTALLAS DE MUESTRA =============== */
-  // Las usa showScreen (clinica/01-panel.js)
+  // Las usa showScreen (clinica/01i-navegacion.js)
   window.CERCO_agendaRedirigir = function(id){
     if(id === 'entrevista' && real()){
       var desde = (document.querySelector('.app-screen.active') || {}).id;

@@ -39,7 +39,7 @@
     if(el) el.addEventListener('input', function(){ var n = num(el.value); el.value = n ? miles(n) : ''; });
   });
 
-  window.CERCO_llenarSalarioDesdeTexto = llenarDesdeTexto; // la usa editarOferta (clinica/01-panel.js)
+  window.CERCO_llenarSalarioDesdeTexto = llenarDesdeTexto; // la usa editarOferta (clinica/01d-nueva-oferta-herramientas-y-cuenta.js)
 
   /* ---------- página pública ---------- */
   var VENTAJAS = ['Formación pagada','Horario sin partir','Plan de carrera','Tecnología digital','Buen ambiente de equipo','Tratamiento dental gratis','Parking','Flexibilidad de turnos'];
@@ -149,14 +149,14 @@
       if(primero && primero.nextSibling) real.insertBefore(nuevo, primero.nextSibling); else real.appendChild(nuevo);
     }
   };
-  // Las usa _pintarPerfilPublico (clinica/01-panel.js)
+  // Las usa _pintarPerfilPublico (clinica/01d-nueva-oferta-herramientas-y-cuenta.js)
   window.CERCO_perfilPublico = {
     guardarBorrador: function(){ if(document.getElementById('pub-editor')) guardarLocal(leerEditor(pub())); },
     pintarEditor: function(){ var demo = CDB.demo(); if(!demo) _pintarEditor(); }
   };
 
   /* ---------- tu propia tasa de respuesta, en Candidatos ---------- */
-  // Candidatos: tu tasa de respuesta en la cabecera. Lo usa renderPortalReal (clinica/01-panel.js)
+  // Candidatos: tu tasa de respuesta en la cabecera. Lo usa renderPortalReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_candidatosTasaRespuesta = function(){
     try{
       if(CDB.demo()) return;

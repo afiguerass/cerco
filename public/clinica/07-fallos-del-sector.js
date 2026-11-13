@@ -79,7 +79,7 @@
     [/\b(embaraz\w*|sin (problemas|limitaciones) de salud)\b/i, 'salud o embarazo']
   ];
   function vetada(t){ for(var i=0;i<VETADAS.length;i++){ var m = String(t||'').match(VETADAS[i][0]); if(m) return {palabra:m[0], motivo:VETADAS[i][1]}; } return null; }
-  window.CERCO_ofertaVetada = vetada; // la usa submitNewOffer (clinica/01-panel.js)
+  window.CERCO_ofertaVetada = vetada; // la usa submitNewOffer (clinica/01d-nueva-oferta-herramientas-y-cuenta.js)
     
   /* ---------- 4. mensajes sin preguntas prohibidas ---------- */
   var PREG_NO = /(embaraz|quedarte embarazada|tener hijos|tienes hijos|planes? de familia|qué edad|que edad|cuántos años tienes|cuantos años tienes|estás casad|estas casad|tienes pareja|enfermedad|baja médica|baja medica|religi|de dónde eres|de donde eres|nacionalidad|sindicat)/i;
@@ -135,7 +135,7 @@
   };
 
   /* ---------- Inicio: confianza y plazos ---------- */
-  // Inicio: «Confianza y plazos» (ofertas antiguas, verificación, vacaciones). Lo usa renderInicioReal (clinica/01-panel.js)
+  // Inicio: «Confianza y plazos» (ofertas antiguas, verificación, vacaciones). Lo usa renderInicioReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_inicioConfianza = function(){
     try{
       var box = document.getElementById('inicio-real'), v = document.getElementById('inicio-confianza');

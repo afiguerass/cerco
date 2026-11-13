@@ -199,7 +199,7 @@
     cont.appendChild(caixa); cont.scrollTop = cont.scrollHeight;
   };
   // al abrir: primero lo urgente
-  // La usa abrirSeimian (clinica/01-panel.js), un momento después de abrir el chat
+  // La usa abrirSeimian (clinica/01b-candidatos-y-seimian.js), un momento después de abrir el chat
   window.CERCO_seimianSaludo = function(){
     var cont = document.getElementById('chat-messages'); if(!cont || !window.__chatSeimian) return;
     if(esperan().length || sinValorar().length || activas().some(function(o){ return faltaOferta(o).length; })){

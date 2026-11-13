@@ -70,7 +70,7 @@
   window.CERCO_candidaturas = lista;
 
   CDB.candidaturas = activas;
-  // La usa CDB.candidatosRecibidos (clinica/01-panel.js)
+  // La usa CDB.candidatosRecibidos (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_contarCandidatosReales = function(){ return unaPorPersona(activas()).length; };
 
   function perfilesOferta(o){
@@ -180,7 +180,7 @@
     });
   };
   // Al cerrar sesión, lo de esta clínica no se queda en el navegador
-  // La usa cerrarSesion (clinica/01-panel.js)
+  // La usa cerrarSesion (clinica/01e-cuentas-y-sesion.js)
   window.CERCO_soltarCandidaturas = function(){
     if(_unsubC){ try{ _unsubC(); }catch(x){} _unsubC = null; }
     try{ localStorage.removeItem(KCAND); }catch(x){}
@@ -306,7 +306,7 @@
     });
     try{ window._geoDespuesReal && _geoDespuesReal(); }catch(x){}
   }
-  // Candidatos: cabecera con el número de personas y las solicitudes reales. Lo usa renderPortalReal (clinica/01-panel.js)
+  // Candidatos: cabecera con el número de personas y las solicitudes reales. Lo usa renderPortalReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_candidatosReales = function(){
     var enDemo = false; try{ enDemo = CDB.demo(); }catch(x){}
     if(!enDemo){
@@ -318,7 +318,7 @@
     }
     pintarReales();
   };
-  // La usa applyFilters_portal (clinica/01-panel.js)
+  // La usa applyFilters_portal (clinica/01b-candidatos-y-seimian.js)
   window.CERCO_filtrarSolicitudesReales = function(){
     filtrarReales();
     // El aviso "sin resultados" de los ejemplos no vale si hay reales visibles
@@ -336,10 +336,10 @@
       ch.addEventListener('click', function(){ setTimeout(function(){ try{ filtrarReales(); }catch(x){} }, 0); });
     });
   })();
-  window.CERCO_pintarSolicitudesReales = pintarReales; // la usa _cabeceraPortal (clinica/01-panel.js)
+  window.CERCO_pintarSolicitudesReales = pintarReales; // la usa _cabeceraPortal (clinica/01b-candidatos-y-seimian.js)
 
   /* ---------- Inicio: lo que necesita respuesta ---------- */
-  // Inicio: bloque «Necesitan tu respuesta». Lo usa renderInicioReal (clinica/01-panel.js)
+  // Inicio: bloque «Necesitan tu respuesta». Lo usa renderInicioReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_inicioSolicitudes = function(){
     var box = document.getElementById('inicio-real');
     if(!box || box.style.display === 'none') return;

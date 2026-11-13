@@ -255,7 +255,7 @@
       pintarTalento();
     }).catch(function(){ if(b){ b.disabled = false; b.textContent = 'Volver a enviar'; } document.getElementById('inv-err').textContent = 'No se ha podido enviar. Revisa tu conexión.'; });
   };
-  // Candidatos: «Talento que encaja». Lo usa renderPortalReal (clinica/01-panel.js)
+  // Candidatos: «Talento que encaja». Lo usa renderPortalReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_candidatosTalento = function(){
     try{ pintarTalento(); cargarTalento(); }catch(x){}
   };
@@ -280,7 +280,7 @@
       try{ renderInicioReal(); }catch(x){}
     }).catch(function(){ if(typeof showToast === 'function') showToast('No se ha podido guardar.'); });
   };
-  // Inicio: seguimiento a los 90 días, plazos y valoraciones. Lo usa renderInicioReal (clinica/01-panel.js)
+  // Inicio: seguimiento a los 90 días, plazos y valoraciones. Lo usa renderInicioReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_inicioLider = function(){
     try{
       var box = document.getElementById('inicio-real'); var v = document.getElementById('inicio-lider'); if(v) v.remove();

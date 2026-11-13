@@ -121,6 +121,6 @@
 
   function listo(){ try{ montarTitulo(); pintarSal(); }catch(x){} }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', listo); else listo();
-  window.CERCO_formularioOfertaListo = listo; // la usa showScreen (clinica/01-panel.js) al abrir «Nueva oferta»
+  window.CERCO_formularioOfertaListo = listo; // la usa showScreen (clinica/01i-navegacion.js) al abrir «Nueva oferta»
 })();
 

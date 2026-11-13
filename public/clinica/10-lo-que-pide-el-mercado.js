@@ -346,7 +346,7 @@
     b.onclick = function(){ CERCO_comparar(); };
     lista.parentElement.insertBefore(b, lista);
   }
-  // Candidatos: entrada a las herramientas. Lo usa renderPortalReal (clinica/01-panel.js)
+  // Candidatos: entrada a las herramientas. Lo usa renderPortalReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_candidatosEntrada = function(){
     try{ entradaCandidatos(); }catch(x){}
   };
@@ -397,7 +397,7 @@
     }
     return h;
   }
-  // La usa renderStatsReal (clinica/01-panel.js)
+  // La usa renderStatsReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_cifrasEstadisticas = function(){
     var box = $('stats-real'), h = bloqueCifras();
     if(box && h && box.firstElementChild){

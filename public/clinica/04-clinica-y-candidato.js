@@ -282,7 +282,7 @@
   // "Invitar a entrevista" y "Proponer visita" pasan por el día y la hora
 
   /* ---------- estados nuevos en las tarjetas ---------- */
-  // Candidatos: etiquetas en las tarjetas (mensajes, contratada, cita, plazo). Lo usa renderPortalReal (clinica/01-panel.js)
+  // Candidatos: etiquetas en las tarjetas (mensajes, contratada, cita, plazo). Lo usa renderPortalReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_candidatosEtiquetas = function(){
     try{
       document.querySelectorAll('#portal-reales .cand-real').forEach(function(card){
@@ -319,7 +319,7 @@
   };
 
   /* ---------- Inicio: próxima cita y respuestas del candidato ---------- */
-  // Inicio: bloque «Próximas citas y mensajes». Lo usa renderInicioReal (clinica/01-panel.js)
+  // Inicio: bloque «Próximas citas y mensajes». Lo usa renderInicioReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_inicioCitas = function(){
     try{
       var box = document.getElementById('inicio-real'); if(!box || box.style.display === 'none') return;
@@ -353,7 +353,7 @@
   };
 
   /* ---------- 24 h en el bloque "Necesitan tu respuesta" ---------- */
-  // Inicio: etiquetas de plazo en «Necesitan tu respuesta». Lo usa renderInicioReal (clinica/01-panel.js)
+  // Inicio: etiquetas de plazo en «Necesitan tu respuesta». Lo usa renderInicioReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_inicioPlazos = function(){
     try{
       var bl = document.getElementById('inicio-solicitudes'); if(!bl) return;
@@ -369,7 +369,7 @@
 
   /* ---------- avisos cuando el candidato hace algo ---------- */
   var _prev = null;
-  // La usa CDB.renderTodo (clinica/01-panel.js)
+  // La usa CDB.renderTodo (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_avisosCandidatos = function(){
     var ahora = {}; lista().forEach(function(c){ ahora[c.id] = { m:(c.mensajes||[]).length, ult:((c.mensajes||[]).slice(-1)[0]||{}).de, cita:c.cita ? c.cita.estado + '|' + c.cita.v : '', nombre:c.nombre, msgC:c.cita && c.cita.msgCambio }; });
     if(_prev && typeof showToast === 'function'){
@@ -384,7 +384,7 @@
   };
 
   /* ---------- cerrar o borrar una oferta con gente esperando ---------- */
-  // La usan cambiarEstadoOferta y eliminarOferta (clinica/01-panel.js): si hay
+  // La usan cambiarEstadoOferta y eliminarOferta (clinica/01d-nueva-oferta-herramientas-y-cuenta.js): si hay
   // gente esperando respuesta en esa oferta, enseña la ventana de cierre y
   // devuelve true; «seguir» se hace cuando la clínica confirma.
   window.CERCO_avisarCierreOferta = function(id, seguir, borrar){
@@ -416,6 +416,6 @@
   }
 
   /* ---------- cifras: contratados ---------- */
-  window.CERCO_contarContratados = function(){ return lista().filter(function(c){ return c.estado === 'contratada'; }).length; }; // la usa CDB.resumen (clinica/01-panel.js)
+  window.CERCO_contarContratados = function(){ return lista().filter(function(c){ return c.estado === 'contratada'; }).length; }; // la usa CDB.resumen (clinica/01g-datos-de-la-clinica.js)
   try{ CDB.renderTodo(); }catch(x){}
 })();

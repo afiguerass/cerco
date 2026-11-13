@@ -256,7 +256,7 @@
     if($('screen-ficha') && $('screen-ficha').classList.contains('active')) CERCO_fichaVolver();
   };
   // si se va a otra pantalla, la ficha deja de estar «abierta»
-  // La usa showScreen (clinica/01-panel.js): al salir de la ficha se quita la provisional
+  // La usa showScreen (clinica/01i-navegacion.js): al salir de la ficha se quita la provisional
   window.CERCO_fichaAlCambiarPantalla = function(id){
     if(id !== 'ficha'){ var st = $('modal-cand'); if(st && st.dataset.stub) st.remove(); actual = null; }
   };

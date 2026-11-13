@@ -188,7 +188,7 @@
     try{ pintarGuardFicha(id); }catch(x){}
   };
   window.CERCO_agruparCandidatos = agruparCandidatos;
-  // Candidatos: agrupados por profesión. Lo usa renderPortalReal (clinica/01-panel.js)
+  // Candidatos: agrupados por profesión. Lo usa renderPortalReal (clinica/01g-datos-de-la-clinica.js)
   window.CERCO_candidatosPorProfesion = function(){
     try{ agruparCandidatos(); }catch(x){}
   };
@@ -196,7 +196,7 @@
   function luego(){ setTimeout(function(){ try{ agruparCandidatos(); }catch(x){} }, 30); }
   document.addEventListener('input', function(ev){ if(ev.target && ev.target.id === 'search-portal') luego(); });
   document.addEventListener('click', function(ev){ if(ev.target.closest && ev.target.closest('#screen-portal .filter-chip, #screen-portal .radius-chip')) luego(); });
-  window.CERCO_agruparTrasFiltrar = luego; // la usa applyFilters_portal (clinica/01-panel.js)
+  window.CERCO_agruparTrasFiltrar = luego; // la usa applyFilters_portal (clinica/01b-candidatos-y-seimian.js)
 
   /* ---------- Mis ofertas ---------- */
   var PROF_O = '';

@@ -24,7 +24,7 @@
     try{ var c = (window.CDB && CDB.clinica && CDB.clinica()) || {}; if(c.ciutat) return c.ciutat; }catch(x){}
     try{ var e = JSON.parse(localStorage.getItem('cerco_empresa') || '{}'); return e.ciutat || ''; }catch(x){ return ''; }
   }
-  // La usa showScreen (clinica/01-panel.js) después de cambiar de pantalla
+  // La usa showScreen (clinica/01i-navegacion.js) después de cambiar de pantalla
   window.CERCO_interfazTrasPantalla = function(id){
     document.body.classList.toggle('en-bienvenida', id === 'benvinguda'); document.body.classList.remove('baja');
     if(id === 'crear-oferta'){ var u = document.getElementById('co-ubicacion'); if(u && !u.value.trim()){ var c = ciudadClinica(); if(c) u.value = c; } }

@@ -40,16 +40,20 @@
   }
 
   /* ---------- Candidatos ---------- */
-  var PROF_C = '', ETAPA = '';
+  // Candidatos se abre en «Por contestar»: cada persona sale solo en la pestaña de su fase.
+  var PROF_C = '', ETAPA = 'nuevas';
   // Cada solicitud está en una etapa. Es lo que contesta a «¿dónde ha ido?».
   var ETAPAS = [
-    ['', 'Todos', ''],
     ['nuevas', 'Por contestar', 'Solicitudes que aún no has contestado. Lo acordado son 2 días laborables; a los 5 se cierran solas y el candidato lo ve.'],
     ['int', 'Me interesan', 'Quienes has marcado con «Me interesa». Ellos ven que siguen en el proceso. Se quedan aquí 5 días laborables: en ese tiempo proponles entrevista o ciérralo con un motivo. Si no, la solicitud se cierra sola.'],
     ['entr', 'Entrevistas', 'Con entrevista propuesta o confirmada. Las tienes también, por día y hora, en tu Agenda.'],
     ['contr', 'Contratados', 'Personas que has contratado. En su ficha tienes el plan de acogida de 90 días.'],
-    ['cerr', 'Cerrados', 'Descartados, retirados o cerrados por plazo. Se guardan por si quieres volver a alguno.']
+    ['cerr', 'Cerrados', 'Descartados, retirados o cerrados por plazo. Se guardan por si quieres volver a alguno.'],
+    ['', 'Todos', 'Cada persona una sola vez, aunque haya solicitado más de una oferta: se enseña su solicitud más avanzada.']
   ];
+  // En «Todos», si una persona tiene varias solicitudes, se enseña la más avanzada
+  var PESO_ETAPA = {contr:5, entr:4, int:3, nuevas:2, cerr:1};
+  function personaDe(x){ return x.candidatoUid || x.email || x.id; }
   function etapaDe(x){
     var s = x.estado;
     if(s === 'descartada' || s === 'caducada' || s === 'retirada') return 'cerr';
@@ -60,10 +64,13 @@
   window.CERCO_etapaDe = etapaDe;
   window.verProfesionCand = function(k){ PROF_C = k; agruparCandidatos(); try{ document.getElementById('portal-reales').scrollIntoView({block:'start', behavior:'smooth'}); }catch(x){} };
   window.CERCO_etapa = function(k){ ETAPA = k || ''; agruparCandidatos(); };
+  // La usa showScreen (clinica/01i-navegacion.js) al entrar en Candidatos
+  window.CERCO_candidatosAlEntrar = function(){ ETAPA = 'nuevas'; };
   window.CERCO_verEtapa = function(k){
-    ETAPA = k || ''; if(PROF_C === 'guardados') PROF_C = '';
+    if(PROF_C === 'guardados') PROF_C = '';
     var m = document.getElementById('modal-cand'); if(m){ m.remove(); document.body.style.overflow = ''; }
     if(!document.querySelector('#screen-portal.active')){ try{ ofertaEnPortal = null; }catch(x){} showScreen('portal'); }
+    ETAPA = k || '';
     setTimeout(function(){ agruparCandidatos(); try{ document.getElementById('etapa-tabs').scrollIntoView({block:'start', behavior:'smooth'}); }catch(x){} }, 140);
   };
   function marcarEtapa(card, x, k){
@@ -92,8 +99,18 @@
       var k = etapaDe(x); nEt[k]++; totalEt++; c.dataset.etapa = k;
       marcarEtapa(c, x, k);
     });
-    if(ETAPA && !totalEt) ETAPA = '';
-    cards.forEach(function(c){ c.classList.toggle('oculta-e', !!ETAPA && c.dataset.etapa !== ETAPA); });
+    // «Todos»: una tarjeta por persona (la de su solicitud más avanzada)
+    var mejor = {}, nPersonas = 0;
+    cards.forEach(function(c){
+      var x = por[c.dataset.id]; if(!x) return;
+      var k = personaDe(x), m = mejor[k];
+      if(!m){ nPersonas++; mejor[k] = c; }
+      else if((PESO_ETAPA[c.dataset.etapa] || 0) > (PESO_ETAPA[m.dataset.etapa] || 0)) mejor[k] = c;
+    });
+    cards.forEach(function(c){
+      var x = por[c.dataset.id], repetida = !!x && mejor[personaDe(x)] !== c;
+      c.classList.toggle('oculta-e', ETAPA ? c.dataset.etapa !== ETAPA : repetida);
+    });
     cards.forEach(function(c){
       var on = gs.indexOf(c.dataset.id) > -1; if(on && (por[c.dataset.id]||{}).estado !== 'retirada') nGuard++;
       c.classList.toggle('oculta-g', PROF_C === 'guardados' && !on);
@@ -130,11 +147,11 @@
     ['etapa-tabs','etapa-nota'].forEach(function(id){ var v = document.getElementById(id); if(v) v.remove(); });
     if(totalEt){
       var th = '<div class="etapas" id="etapa-tabs" role="tablist" aria-label="Etapa del proceso">' + ETAPAS.map(function(t){
-        var n = t[0] ? nEt[t[0]] : totalEt, on = ETAPA === t[0];
+        var n = t[0] ? nEt[t[0]] : nPersonas, on = ETAPA === t[0];
         return '<button type="button" role="tab" class="etapa'+(on ? ' on' : '')+(t[0] === 'nuevas' && n ? ' urg' : '')+'" aria-selected="'+on+'" onclick="CERCO_etapa(\''+t[0]+'\')">'+t[1]+' <b>'+n+'</b></button>';
       }).join('') + '</div>';
       var et = ETAPAS.filter(function(t){ return t[0] === ETAPA; })[0];
-      if(ETAPA && et) th += '<div class="etapa-nota" id="etapa-nota">'+e(et[2])+(visTotal ? '' : ' <b>Ahora no hay nadie aquí.</b>')+'</div>';
+      if(et && (ETAPA || !visTotal)) th += '<div class="etapa-nota" id="etapa-nota">'+e(et[2])+(visTotal ? '' : ' <b>Ahora no hay nadie aquí.</b>')+'</div>';
       (document.getElementById('prof-chips-c') || document.getElementById('cmp-entry') || box).insertAdjacentHTML('beforebegin', th);
     }
   }
@@ -156,6 +173,7 @@
     var m = document.getElementById('modal-cand'); if(m) m.remove();
     PROF_C = 'guardados';
     if(!document.querySelector('#screen-portal.active')){ try{ ofertaEnPortal = null; }catch(x){} showScreen('portal'); }
+    ETAPA = ''; // los guardados se ven todos juntos, en «Todos»
     setTimeout(function(){ agruparCandidatos(); try{ document.getElementById('prof-chips-c').scrollIntoView({block:'start', behavior:'smooth'}); }catch(x){} }, 120);
   };
   function avisoGuard(txt, accion){

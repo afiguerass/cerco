@@ -402,6 +402,41 @@ test('6. La profesional ve el estado, «Tu incorporación», confirma el contrat
   expect(pro.page.erroresPagina).toEqual([]);
 });
 
+test('6b. Candidatos: se abre en «Por contestar» y cada persona sale solo en su fase', async () => {
+  const c = clinica.page;
+  await c.evaluate(() => { try { ofertaEnPortal = null; } catch (e) {} showScreen('inicio'); });
+  await c.locator('.shell-nav-item[data-screen="portal"], .mtab[data-tab="portal"]').locator('visible=true').first().click();
+  const tabs = c.locator('#etapa-tabs').locator('visible=true').first();
+  await expect(tabs).toBeVisible();
+  // Orden de las pestañas: «Todos» al final
+  await expect(tabs.locator('button')).toHaveText([/^Por contestar/, /^Me interesan/, /^Entrevistas/, /^Contratados/, /^Cerrados/, /^Todos/]);
+  await expect(tabs.locator('button[aria-selected="true"]')).toHaveText(/^Por contestar\s*0/);
+  await seVe(c, 'Ahora no hay nadie aquí.');
+  const visibles = c.locator('#portal-reales-lista .cand-real').locator('visible=true');
+  await expect(visibles).toHaveCount(0);
+  // Laura tiene dos solicitudes: la contratada y la retirada. Cada una en su pestaña…
+  await tabs.getByRole('tab', { name: /^Contratados/ }).click();
+  await expect(visibles).toHaveCount(1);
+  await expect(visibles.first()).toContainText('Contratada');
+  await tabs.getByRole('tab', { name: /^Cerrados/ }).click();
+  await expect(visibles).toHaveCount(1);
+  await expect(visibles.first()).toContainText('Retirada');
+  // …y en «Todos» sale una sola vez, con la más avanzada (la contratada)
+  await c.locator('#etapa-tabs').locator('visible=true').first().getByRole('tab', { name: /^Todos/ }).click();
+  await expect(c.locator('#etapa-tabs').locator('visible=true').first().getByRole('tab', { name: /^Todos/ })).toHaveText(/Todos\s*1/);
+  await expect(visibles).toHaveCount(1);
+  await expect(visibles.first()).toContainText('Contratada');
+  // Al abrir una ficha y volver, sigue en la pestaña donde estaba
+  await c.locator('#etapa-tabs').locator('visible=true').first().getByRole('tab', { name: /^Contratados/ }).click();
+  await c.locator('#portal-reales-lista [onclick^="abrirFichaCandidato"]').locator('visible=true').first().click();
+  await c.locator('#screen-ficha .back').locator('visible=true').first().click();
+  await expect(c.locator('#etapa-tabs').locator('visible=true').first().locator('button[aria-selected="true"]')).toHaveText(/^Contratados/);
+  // Al ir a otra pantalla y volver a Candidatos, se abre otra vez en «Por contestar»
+  await c.evaluate(() => showScreen('inicio'));
+  await c.evaluate(() => showScreen('portal'));
+  await expect(c.locator('#etapa-tabs').locator('visible=true').first().locator('button[aria-selected="true"]')).toHaveText(/^Por contestar/);
+});
+
 test('7. El resto de pantallas de la clínica se ven bien y sin errores', async () => {
   const page = clinica.page;
   await page.reload();
@@ -464,6 +499,7 @@ test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entr
   if (await page.locator('#global-chat-modal').count()) await page.locator('#global-chat-modal button[onclick*="remove()"]').first().click();
   // «Recomendados para mi equipo» se activa y Candidatos se vuelve a pintar
   await page.evaluate(() => showScreen('portal'));
+  await page.locator('#etapa-tabs').locator('visible=true').first().getByRole('tab', { name: /^Todos/ }).click(); // Candidatos se abre en «Por contestar»
   await page.locator('#chip-recomanats').click();
   await seVe(page, 'Laura Prueba');
   await page.locator('#chip-recomanats').click();
@@ -488,6 +524,7 @@ test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entr
   await page.evaluate(() => showScreen('ofertes'));
   await expect(page.locator('#screen-ofertes')).toContainText('Higienista dental de tarde');
   await page.evaluate(() => showScreen('portal'));
+  await page.locator('#etapa-tabs').locator('visible=true').first().getByRole('tab', { name: /^Todos/ }).click(); // Candidatos se abre en «Por contestar»
   await seVe(page, 'Laura Prueba');
   expect(page.erroresPagina).toEqual([]);
 
@@ -503,7 +540,6 @@ test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entr
   await expect(p.locator('#ev2-t')).toHaveCount(0);
   await p.waitForTimeout(4000); // lo que tardaría en preparar las miniaturas
   expect(p.erroresPagina).toEqual([]);
-  await p.evaluate(() => salir());
   await p.evaluate(() => salir());
   await seVe(p, 'Tu futuro está en tus manos.', { exact: false });
   await p.getByText('Ya tengo cuenta').locator('visible=true').first().click();

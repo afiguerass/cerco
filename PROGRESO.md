@@ -3,7 +3,7 @@
 Este archivo resume en qué punto está el trabajo. Se actualiza después de cada paso.
 Se trabaja en la rama `profesional`; la web publicada (rama `main`) no se toca sin el visto bueno de Asish.
 
-## Fase actual: Fase 1 — Ordenar el código sin cambiar nada
+## Fase 1 — Ordenar el código sin cambiar nada (terminada en la rama `profesional`, sin publicar)
 
 Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un commit en la rama `profesional`, con todas las pruebas y capturas en verde. No se publica nada en `main` sin el visto bueno de Asish.
 
@@ -81,13 +81,13 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - [x] **Profesional, primer grupo** (una sola versión cada una): `refrescar` (antes 4 versiones), `ir`, `pintarDetalle`, `pintarSolicitud` (antes 3) y `pintarAjustes`.
   - [x] **Profesional, segundo grupo** (una sola versión cada una): `testEmpezar` (consentimiento antes del test), `ofertasVisibles` (sin las clínicas bloqueadas), `extrasSolicitud`, `bloqueInicioExtra`. Prueba ampliada: sin marcar la casilla de consentimiento no se puede empezar el test (igual con el código anterior y con el nuevo).
   - **Falta en el profesional:** `Nube.guardarPerfil` (3 capas), `verMiVideo` (3), `pintarMedia` y las del editor de vídeo (`abrirEditorVideo`, `evTab`, `evGuardar`, `usarVideo`).
-- [ ] **1.8 Firebase** del SDK *compat* al modular, sin cambiar datos ni rutas.
+- [ ] **1.8 Firebase** (1.8a hecho; 1.8b pasa a la Fase 2) del SDK *compat* al modular, sin cambiar datos ni rutas.
   - [x] **1.8a** Firebase (10.12.0, igual que antes) va dentro de la web compilada (`src/comun/firebase.js`), en su propio archivo (`firebase-….js`), en lugar de descargarse de www.gstatic.com al abrir la página.
     - La versión de pruebas se conecta sola al Firebase falso. Comprobado que la versión publicable no tiene ningún rastro de él.
     - Las pruebas ya no cambian archivos al vuelo: si la web volviera a pedir Firebase a Google, la petición estaría bloqueada y fallarían.
   - [ ] **1.8b** Pasar las llamadas a la forma modular, archivo por archivo, y quitar *compat* al final. **Se pasa al principio de la Fase 2** (decisión de Asish), con copia de seguridad antes.
 - [ ] **1.9 Datos de `localStorage`** pasan a leerse de Firestore; `localStorage` queda solo para preferencias. **Se pasa al principio de la Fase 2** (decisión de Asish), con copia de seguridad antes.
-- [ ] **1.10 Comprobación final:** todas las pruebas de la Fase 0 en verde y las capturas iguales.
+- [x] **1.10 Comprobación final** con `npm test` desde cero: 11 pruebas de cálculo (DISC y municipios), 33 de reglas de la base de datos y 51 de navegador, todas en verde, con las capturas idénticas. La web real compilada (`npm run build`) no lleva nada de las pruebas (ni emulador ni proyecto de pruebas).
 
 ## Fase 0 — Preparar el terreno (terminada y publicada)
 
@@ -106,7 +106,7 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
 - [x] **Paso 6** — 88 capturas de referencia (44 en ordenador y 44 en móvil) en `pruebas/capturas/`. Cada vez que se pasan las pruebas se comparan con estas. Para que salgan siempre igual: fecha y hora fijas (lunes 9 de noviembre de 2026, 10:00), y se tapan los vídeos, las frases del test (salen en orden aleatorio) y los avisos flotantes. En el móvil la web se desplaza por dentro, así que cada captura muestra lo que cabe en la pantalla.
 - [x] **Paso 7** — Todo en verde con `npm test` desde cero: 33 pruebas de reglas y 24 de navegador (12 en ordenador y 12 en móvil). En la Fase 0 no se cambió ni una línea de la web; después, con el visto bueno de Asish, se han hecho los arreglos de abajo.
 
-## Fase 0 terminada — esperando el visto bueno de Asish
+## Fase 0 — notas de cuando terminó
 
 ### Lista corta para probar a mano
 En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo sigue igual:
@@ -117,11 +117,9 @@ En la web publicada (`main`) todavía no ha cambiado nada. Comprueba que todo si
 ### Falta (Fase 0)
 
 ### Siguiente paso
-Asish eligió la **opción C**:
-- Terminar ahora la Fase 1 sin tocar datos: dividir los dos archivos grandes por pantallas (1.6b) y cargar los municipios solo cuando hagan falta (1.5).
-- Dejar **1.8b y 1.9 para el principio de la Fase 2**, con copia de seguridad de los datos reales antes.
-
-Siguiente: 1.6b.
+**Fase 1 terminada — esperando que Asish la pruebe y dé el visto bueno.** No se ha publicado nada en `main`.
+- Para publicarla: pull request de `profesional` a `main` y, antes de fusionar, cambiar en GitHub Settings → Pages → Source → «GitHub Actions» (ver 1.2).
+- Después empieza la **Fase 2** con 1.8b y 1.9, haciendo antes una copia de seguridad de los datos reales.
 
 ## Arreglos hechos después de la Fase 0 (pedidos por Asish)
 Cada uno tiene su propio commit en la rama `profesional`:

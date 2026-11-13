@@ -13,8 +13,8 @@ La web se publica con GitHub Pages desde la rama principal (`main`). Lo que se s
 
 | Archivo | Para qué sirve |
 | --- | --- |
-| `index.html` | **Lado clínica.** Perfil de la clínica, test DISC del equipo (con enlace para los trabajadores), ofertas, candidatos, solicitudes, entrevistas, contratación, contrato y plan de acogida de 90 días. Es un solo archivo con todo dentro (diseño, textos y funcionamiento). |
-| `candidato.html` | **Lado profesional.** Registro, test DISC, vídeo de presentación, CV, ofertas con su % de encaje y distancia, solicitudes, chat con la clínica, contrato y «Tu incorporación». También es un solo archivo. |
+| `index.html` | **Lado clínica.** Perfil de la clínica, test DISC del equipo (con enlace para los trabajadores), ofertas, candidatos, solicitudes, entrevistas, contratación, contrato y plan de acogida de 90 días. Desde la Fase 1 su código está en `public/clinica/` y sus estilos en `src/estilos/`. |
+| `candidato.html` | **Lado profesional.** Registro, test DISC, vídeo de presentación, CV, ofertas con su % de encaje y distancia, solicitudes, chat con la clínica, contrato y «Tu incorporación». Su código está en `public/profesional/`. |
 | `firestore.rules` | **Reglas de seguridad de la base de datos** (Firebase Firestore). Dicen quién puede leer y escribir cada dato. Es la misma versión que está publicada en Firebase (proyecto `cerco-c5724`). Si se cambia aquí, hay que publicarla también en la consola de Firebase. |
 | `Encargo para Claude Code CERCO profesional.md` | El encargo: qué es CERCO, las reglas que no se pueden romper y el plan por fases para profesionalizarlo. |
 | `PROGRESO.md` | Cuaderno de trabajo: qué está hecho, qué falta y cuál es el siguiente paso. |
@@ -23,7 +23,7 @@ La web se publica con GitHub Pages desde la rama principal (`main`). Lo que se s
 | `.github/workflows/publicar.yml` | **Publicación automática**: pasa las pruebas en cada pull request y, al llegar un cambio a `main`, compila y publica la web si todo está en verde. |
 | `src/estilos/` | Estilos (aspecto) de las dos páginas. |
 | `src/comun/` | Código común que Vite compila: el test DISC y el % de encaje (`disc.js`). |
-| `public/clinica/`, `public/profesional/`, `public/comun/`, `public/datos/` | Código de cada lado, el que comparten (municipios y km, vídeo) y la lista de municipios. Se ordena poco a poco durante la Fase 1. |
+| `public/clinica/`, `public/profesional/`, `public/comun/`, `public/datos/` | Código de cada lado, el que comparten (municipios y km, vídeo) y la lista de municipios. Cada archivo lleva al principio qué parte de la web contiene. |
 | `pruebas/` | Pruebas automáticas (ver más abajo). **No forma parte de la web**: solo sirve para comprobar que todo sigue funcionando después de cada cambio. |
 
 ## Dónde se guardan los datos
@@ -42,27 +42,22 @@ Las instrucciones para ejecutarlas están en [`pruebas/LEEME.md`](pruebas/LEEME.
 
 ## Probar la rama `profesional` antes de publicarla
 
-La web publicada (`afiguerass.github.io/cerco`) sale siempre de `main`. Los cambios de la rama `profesional` no se ven ahí hasta que se aprueban y se pasan a `main`. Para probarlos antes hay tres formas, de más fácil a menos:
+La web publicada (`afiguerass.github.io/cerco`) sale siempre de `main`. Los cambios de la rama `profesional` no se ven ahí hasta que se aprueban y se pasan a `main`. Para probarlos antes:
 
 ### 1. Ver las capturas (sin riesgo, sin instalar nada)
 En GitHub, cambia a la rama `profesional` y abre la carpeta `pruebas/capturas/`. Hay una imagen de cada pantalla, en `ordenador/` y en `movil/`, tal como queda con los cambios.
 
-### 2. Abrir la rama en el navegador (sin instalar nada)
-Estas dos direcciones enseñan los archivos de la rama `profesional` como si fueran una web:
-
-- Clínica: https://raw.githack.com/afiguerass/cerco/profesional/index.html
-- Profesional: https://raw.githack.com/afiguerass/cerco/profesional/candidato.html
-
-Cosas a tener en cuenta:
-- **Usa la base de datos real** (la misma que la web publicada). Entra con **cuentas de prueba** (correos nuevos), no con las de clínicas reales, y no envíes desde aquí el enlace del test a ningún equipo.
-- raw.githack.com es un servicio gratuito externo. Solo funciona si el repositorio es público. Después de cada cambio puede tardar unos minutos en verse.
-- Entrar con correo y contraseña debería funcionar. «Continuar con Google» probablemente no funcionará hasta que se añada `raw.githack.com` en la consola de Firebase: Authentication → Configuración → Dominios autorizados.
+### 2. Abrir la rama en el navegador
+Desde la Fase 1 la web se **compila** antes de publicarse (Vite junta y prepara los archivos). Por eso las direcciones de raw.githack.com que mostraban la rama tal cual **ya no sirven** para la rama `profesional`: enseñarían una página a medias. Si hace falta una vista previa en línea, hay que prepararla aparte (pídeselo a Claude).
 
 ### 3. En tu ordenador (hace falta instalar Node.js)
 1. En GitHub, en la rama `profesional`: botón verde «Code» → «Download ZIP», y descomprímelo.
-2. Abre una terminal en esa carpeta y escribe `npx serve .`
-3. Abre en el navegador la dirección que te indica (normalmente `http://localhost:3000`).
+2. Abre una terminal en esa carpeta y escribe, uno detrás de otro:
+   - `npm install` (solo la primera vez)
+   - `npm run build`
+   - `npx vite preview`
+3. Abre en el navegador la dirección que te indica (normalmente `http://localhost:4173`).
 
-También usa la base de datos real, así que conviene hacerlo con cuentas de prueba. «localhost» ya está autorizado en Firebase, así que también funciona entrar con Google.
+Usa la base de datos real, así que conviene hacerlo con **cuentas de prueba** (correos nuevos), no con las de clínicas reales, y no enviar desde aquí el enlace del test a ningún equipo. «localhost» ya está autorizado en Firebase, así que también funciona entrar con Google.
 
 Las pruebas automáticas (que no tocan datos reales) se explican en [`pruebas/LEEME.md`](pruebas/LEEME.md).

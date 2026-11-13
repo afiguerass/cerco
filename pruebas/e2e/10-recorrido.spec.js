@@ -493,6 +493,17 @@ test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entr
 
   // El profesional también: sale y vuelve a entrar
   const p = pro.page;
+  // Antes, en el editor de vídeo: abrirlo y cerrarlo enseguida, mientras prepara las
+  // miniaturas, no da ningún error. (Va aquí, después de las capturas del profesional,
+  // porque la espera cambiaría los «Hace N min» de las capturas.)
+  await p.evaluate(() => { if (document.getElementById('sei')) cerrarSeimian(); ir('perfil'); }); // Seimian quedó abierto en la prueba anterior
+  await p.locator('#pf-media .pm-editar').locator('visible=true').first().click();
+  await expect(p.locator('#ev2-t')).toHaveText('Editar vídeo');
+  await p.locator('.ev2-top').getByRole('button', { name: 'Cancelar' }).click();
+  await expect(p.locator('#ev2-t')).toHaveCount(0);
+  await p.waitForTimeout(4000); // lo que tardaría en preparar las miniaturas
+  expect(p.erroresPagina).toEqual([]);
+  await p.evaluate(() => salir());
   await p.evaluate(() => salir());
   await seVe(p, 'Tu futuro está en tus manos.', { exact: false });
   await p.getByText('Ya tengo cuenta').locator('visible=true').first().click();

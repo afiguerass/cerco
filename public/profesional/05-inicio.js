@@ -410,6 +410,8 @@ function evTiras(u){
     if(i >= n || !$('ev2-fr')){ EV.frames = out; return; }
     var t = Math.min(EV.dur - 0.05, (i + 0.5) * EV.dur / n), hecho = false;
     var cb = function(){ if(hecho) return; hecho = true;
+      // si el editor se ha cerrado mientras se preparaban las miniaturas, se deja de trabajar
+      if(!$('ev2-fr') || !$('ev2-fr-p')){ EV.frames = out; return; }
       try{ var h = 96, w = Math.max(40, Math.round(h * (v.videoWidth || 9) / (v.videoHeight || 16))); c.width = w; c.height = h; c.getContext('2d').drawImage(v, 0, 0, w, h); out.push(c.toDataURL('image/jpeg', 0.6)); }catch(e){ out.push(''); }
       var img = '<span style="background-image:url(\''+out[out.length-1]+'\')"></span>';
       $('ev2-fr').insertAdjacentHTML('beforeend', img); $('ev2-fr-p').insertAdjacentHTML('beforeend', img);

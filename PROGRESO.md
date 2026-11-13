@@ -220,53 +220,26 @@ Cada cosa con su commit y con una prueba que fallaba con el código anterior:
 - [x] **Editor de vídeo:** ya no da error si se cierra mientras prepara las miniaturas.
 - «Dónde encajas»: se deja para más adelante, como pidió Asish.
 
-## Revisión de acciones y pantallas (13 de noviembre) — esperando el visto bueno de Asish
-**Cómo se ha hecho.** Un recorrido con una clínica y una profesional nuevas:
-- La clínica publica 3 ofertas (A, B y C) y la profesional solicita las tres.
-- La clínica marca «Me interesa» en A, la invita a entrevista, descarta B con motivo, contrata en A y envía el contrato.
-- La profesional confirma el contrato y retira C.
-- Después de cada acción se guarda lo que se ve en Inicio, Candidatos, Agenda, Estadísticas, Mi equipo y Mis ofertas (clínica), y en Inicio, Ofertas, Mis solicitudes y cada solicitud con «Tu incorporación» (profesional). En los pasos importantes, también después de recargar.
-- Al final se entra con la clínica desde un navegador nuevo, como si fuera otro ordenador.
+## Revisión de acciones y pantallas (13 de noviembre) — hecha
+Se comprobó, acción por acción, qué cambia en cada pantalla de los dos lados. Lo que fallaba ya está arreglado, cada cosa con su commit y con una prueba que fallaba antes:
+- [x] **El test DISC de la clínica, también en la nube.** Antes solo estaba en el navegador: desde otro ordenador o la vista previa, «Mi equipo» salía sin la responsable y Estadísticas escondía sus cifras. Esto explica que no apareciera la contratación de asish figueras.
+  - Al terminar el test se guarda en la ficha de la clínica (`discResponsable`). Solo se **añade** ese dato: no se borra ni se cambia nada más.
+  - Las clínicas que ya tenían el test solo en el navegador lo **suben solas** la próxima vez que entran desde ese navegador, con los mismos resultados. Si la subida falla, se reintenta la vez siguiente.
+  - Desde otro navegador, el test se trae de la nube.
+  - El test queda marcado con su cuenta: si en el mismo navegador entra otra clínica, no se le sube ni se le enseña, y se guarda una copia en el navegador.
+  - **Copia de seguridad:** desde aquí no hay acceso a la base de datos real. Como el cambio solo añade un dato y no toca nada de lo que ya hay, no hace falta borrar ni migrar nada.
+- [x] **Estadísticas enseña siempre las contrataciones**, dentro de «Tu contratación», aunque el equipo aún no tenga tests.
+- [x] **«Me interesa» cuenta como contestada**, y quien la tiene ya no sale en «esperan tu respuesta».
+- [x] **Textos de Estadísticas:** «contrataciónes» → «contrataciones», y singulares con 1 («1 solicitud», «1 oferta publicada», «1 activa», «1 candidato recibido»).
+- [x] **Mis ofertas:** el número de candidatos de cada oferta se cuenta en el momento con las solicitudes reales. Antes salía «0 candidatos» al entrar desde otro ordenador.
+- [x] **Quien se contrata pasa a «Mi equipo»** con su perfil DISC, el puesto y la etiqueta «Contratación en CERCO», y cuenta en las estadísticas del equipo.
+  - Una sola vez: si la clínica la quita, no vuelve. Si ya está en el equipo con el mismo nombre (por ejemplo, hizo el test con el enlace), no se repite.
+  - Las contrataciones de antes, como la de asish figueras, pasan solas al entrar.
+- [x] **Inicio avisa de los contratos enviados sin confirmar** («Contratos sin confirmar»), con acceso a la ficha. El aviso se quita cuando la persona confirma.
 
-**Lo que funciona bien** (cambia lo que tiene que cambiar, en los dos lados y sin recargar):
-- **Publicar oferta:** Mis ofertas, Inicio y Estadísticas de la clínica; Inicio y Ofertas del profesional.
-- **Solicitar:** Inicio («Necesitan tu respuesta»), Candidatos («Por contestar») y Estadísticas de la clínica; Inicio, Ofertas («Solicitada») y Mis solicitudes del profesional.
-- **Me interesa:** Inicio («Me interesan») y Candidatos de la clínica; el profesional ve «Les interesas».
-- **Entrevista:** Inicio («Próximas entrevistas»), Candidatos, Agenda y Estadísticas de la clínica; el profesional ve «Confirma tu entrevista».
-- **Descartar:** Inicio, Candidatos («Cerrados») y Estadísticas («Por qué descartas»); el profesional ve «No seleccionada» y el motivo.
-- **Contratar:**
-  - Clínica: Candidatos («Contratados»), Agenda («Contratada»), Mis ofertas (la oferta pasa a Cerradas) y Estadísticas («1 contratación»), en el navegador donde se hizo el test.
-  - Profesional: «¡Elegida!», «¡Te han contratado!», «Tu incorporación», y la oferta deja de salir en Ofertas.
-- **Enviar contrato:** el profesional lo ve en Inicio y en «Tu incorporación». La clínica ve en la ficha si ya lo ha confirmado.
-- **Retirar:** la persona sale de «Necesitan tu respuesta», pasa a «Cerrados» como «Retirada» y las Estadísticas se ajustan.
-
-**Lo que falla:**
-1. **El test DISC de la clínica solo se guarda en el navegador.** No se sube a la nube (lo guardado en la nube es: nombre, ciudad, descripción, correo, responsable, plantilla, teléfono y web). Al entrar desde otro ordenador, otro navegador o la vista previa:
-   - «Mi equipo» sale sin la persona responsable;
-   - **Estadísticas** enseña «Falta la parte de tu equipo» en lugar de las cifras, y **el recuadro de contrataciones no se ve**. La contratación solo aparece dentro de una frase: «2 solicitudes → 1 entrevista → 1 contratación».
-
-   Esto explica que la contratación de asish figueras no apareciera en Estadísticas.
-2. **Mis ofertas dice «0 candidatos»** en cada oferta al entrar o recargar, aunque tengan candidatos. Las solicitudes llegan de la nube un momento después y esa pantalla no se vuelve a pintar.
-3. **Una persona contratada no pasa a «Mi equipo».** Hoy «Mi equipo» solo tiene el test de la responsable y los de quienes usan el enlace.
-4. **Falta de ortografía visible** en Estadísticas: «0 contrataciónes».
-
-**Propuesta** (cada una con su commit y su prueba):
-1. **Guardar el test DISC de la clínica en la nube**, en la ficha de la clínica, y traerlo al entrar desde cualquier sitio.
-   - Las reglas de seguridad ya lo permiten: no hay que tocar Firebase.
-   - No se borra ni se cambia nada de lo que ya hay; solo se añade un dato. Las clínicas que ya hicieron el test lo subirán la próxima vez que abran CERCO en el navegador donde lo hicieron.
-   - Antes, copia de seguridad, como acordamos.
-2. **Estadísticas enseña siempre las contrataciones**, aunque todavía no haya tests del equipo: «contrataciones» se añade a las cifras de «Tu contratación», que ya salen siempre.
-3. **Mis ofertas se vuelve a pintar** cuando llegan las solicitudes, para que el número de candidatos de cada oferta sea el real.
-4. **Al contratar, la persona pasa a «Mi equipo» con su perfil DISC** (el de su test en CERCO) y el puesto de la oferta, con la etiqueta «Contratada en CERCO».
-   - Cuenta en las estadísticas del equipo, igual que un test hecho con el enlace.
-   - Se guarda en la nube, como los demás miembros del equipo.
-   - Si un día no sigue (la pregunta de los 90 días), se puede quitar del equipo como a cualquier otro.
-   - Si además hace el test con el enlace del equipo, saldría dos veces. Propuesta: se reconoce por el nombre y se deja una sola.
-5. **Corregir «contrataciónes»** → «contrataciones».
-
-**Dos preguntas para Asish:**
-- ¿«Me interesa» cuenta como contestada en Estadísticas? Hoy no cuenta: después de «Me interesa», «contestadas» sigue en 0 %, aunque el profesional ya ve «Les interesas».
-- ¿Quieres que el Inicio de la clínica avise de los contratos enviados que la persona aún no ha confirmado? Hoy solo se ve dentro de su ficha.
+**Encontrado durante las pruebas, sin tocar (pendiente de lo que diga Asish):**
+- **Al entrar con una clínica ya configurada desde un navegador nuevo, salen las pantallas de bienvenida**, como si la cuenta fuera nueva. El menú, eso sí, ya tiene los datos. Viene de lo mismo: al entrar, la web mira primero lo que hay en el navegador. Propuesta: si la clínica ya existe en la nube, ir directamente a Inicio.
+- **Una ficha abierta no se actualiza sola** cuando el candidato hace algo (por ejemplo, confirmar el contrato). Se ve al volver a abrirla. Propuesta: volver a pintar la ficha abierta cuando llegan cambios de esa solicitud.
 
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):

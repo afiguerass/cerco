@@ -129,7 +129,8 @@
   var MODO = { video:'Videollamada', clinica:'En la clínica', tel:'Por teléfono' };
   var AG = { y:new Date().getFullYear(), m:new Date().getMonth(), dia:null };
   function citas(){
-    return cands().filter(function(c){ return c.cita && c.cita.fecha && c.estado === 'entrevista'; })
+    // también las de quien ya está contratada: la entrevista sigue en la agenda
+    return cands().filter(function(c){ return c.cita && c.cita.fecha && (c.estado === 'entrevista' || c.estado === 'contratada'); })
       .sort(function(a,b){ return new Date(a.cita.fecha) - new Date(b.cita.fecha); });
   }
   function clave(d){ d = new Date(d); return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
@@ -138,6 +139,7 @@
   function valorada(c){ var v = ((leer('cerco_valoraciones', {})[c.id] || {}).v || []); return v.some(function(x){ return x > 0; }); }
   function pill(c){
     var t = c.cita.estado;
+    if(c.estado === 'contratada') return '<span class="ag-pill" style="background:#E8F8F1;color:#0B6B4F;">Contratada</span>';
     return t === 'confirmada' ? '<span class="ag-pill" style="background:#E8F8F1;color:#0B6B4F;">Confirmada</span>'
       : t === 'cambio' ? '<span class="ag-pill" style="background:#FFF4E5;color:#B45309;">Pide otro día</span>'
       : '<span class="ag-pill" style="background:#F1F3F6;color:#4B5563;">Sin confirmar</span>';
@@ -315,7 +317,7 @@
       if(prox.length){
         h += '<div class="ia-h"><b>PRÓXIMAS ENTREVISTAS</b><button type="button" class="ag-btn" onclick="showScreen(\'agenda\')">Ver agenda</button></div>'
           + prox.map(function(c){ var d = new Date(c.cita.fecha), hoy = clave(d) === clave(new Date());
-              return '<button type="button" class="ia-f" onclick="abrirFichaCandidato(\''+e(c.id)+'\')"><i>'+(hoy ? 'Hoy' : d.toLocaleDateString('es-ES',{weekday:'short', day:'numeric', month:'short'}))+' · '+hora(d)+'</i><span>'+e(c.nombre || '')+'<small>'+e(MODO[c.cita.modo] || '')+' · '+(c.cita.estado === 'confirmada' ? 'confirmada' : (c.cita.estado === 'cambio' ? 'pide otro día' : 'sin confirmar'))+'</small></span>'+ico(I.der,'#9CA3AF',16)+'</button>'; }).join('');
+              return '<button type="button" class="ia-f" onclick="abrirFichaCandidato(\''+e(c.id)+'\')"><i>'+(hoy ? 'Hoy' : d.toLocaleDateString('es-ES',{weekday:'short', day:'numeric', month:'short'}))+' · '+hora(d)+'</i><span>'+e(c.nombre || '')+'<small>'+e(MODO[c.cita.modo] || '')+' · '+(c.estado === 'contratada' ? 'contratada' : c.cita.estado === 'confirmada' ? 'confirmada' : (c.cita.estado === 'cambio' ? 'pide otro día' : 'sin confirmar'))+'</small></span>'+ico(I.der,'#9CA3AF',16)+'</button>'; }).join('');
       }
       if(ints.length){
         var min = ints.map(quedan).filter(function(x){ return x !== null; }).sort(function(a,b){ return a-b; })[0];

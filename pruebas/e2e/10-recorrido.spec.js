@@ -413,6 +413,8 @@ test('7. El resto de pantallas de la clínica se ven bien y sin errores', async 
   for (const [id] of pantallas) {
     await page.evaluate((x) => showScreen(x), id);
     await expect(page.locator('#screen-' + id)).toBeVisible();
+    // La Agenda enseña la entrevista del 12 de noviembre, aunque Laura ya esté contratada
+    if (id === 'agenda') { await expect(page.locator('#screen-agenda')).toContainText('Laura Prueba'); await expect(page.locator('#screen-agenda')).toContainText('Contratada'); }
     await capturar(page, 'clinica-30-pantalla-' + id);
   }
   // Seimian: se abre y contesta

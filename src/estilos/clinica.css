@@ -670,6 +670,8 @@ __SCREENS_CSS__/* ===== onboarding ===== */
 #screen-onboarding input:focus, #screen-onboarding textarea:focus {outline:none;border-color:#2F6FED;}
 #screen-onboarding textarea {resize:vertical;min-height:70px;}
 #screen-onboarding .row2 {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* Ciudad lleva el botón «Buscar»: más ancho que Nº trabajadores */
+#screen-onboarding .row2.row2-ciudad {grid-template-columns:2fr 1fr;}
 #screen-onboarding .upload-box {
     border:1.5px dashed #E5E7EB;border-radius:10px;
     padding:18px;text-align:center;color:#4B5563;font-size:13px;

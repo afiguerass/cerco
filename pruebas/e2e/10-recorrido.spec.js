@@ -526,6 +526,34 @@ test('9. Recomendados, dirección de la clínica, cerrar sesión y volver a entr
   await page.locator(`div[onclick="pickLocation('clinic-address-portal','Salt')"]`).first().click();
   await expect(page.locator('#clinic-address-portal')).toHaveValue('Salt');
   await seVe(page, 'Laura Prueba');
+  const tarjeta = page.locator('#portal-reales-lista .cand-real').locator('visible=true').first();
+  await expect(tarjeta).toContainText('Vive en Salt, al lado de tu clínica');
+  // Botón «Buscar» junto a la dirección: si el municipio no existe, avisa…
+  await page.fill('#clinic-address-portal', 'Biurex');
+  await page.click('#clinic-address-portal-buscar');
+  await expect(page.locator('#clinic-address-portal-nota')).toHaveText('No encontramos «Biurex». Escribe el nombre del pueblo o la ciudad y elígelo de la lista.');
+  // …y con Enter, igual que con el botón: lo escribe bien y los km cambian al momento
+  await page.fill('#clinic-address-portal', 'biure');
+  await page.press('#clinic-address-portal', 'Enter');
+  await expect(page.locator('#clinic-address-portal')).toHaveValue('Biure');
+  await expect(page.locator('#clinic-address-portal-nota')).toHaveCount(0);
+  await expect(tarjeta).toContainText('Vive en Salt, a 41 km');
+  await page.fill('#clinic-address-portal', 'Salt');
+  await page.click('#clinic-address-portal-buscar');
+  await expect(tarjeta).toContainText('Vive en Salt, al lado de tu clínica');
+  // Los otros dos campos de municipio (Nueva oferta y Mi clínica) también tienen «Buscar»
+  for (const [pantalla, id] of [['crear-oferta', 'co-ubicacion'], ['onboarding', 'f-ciutat-onboarding']]) {
+    await page.evaluate((p) => showScreen(p), pantalla);
+    const antes = await page.inputValue('#' + id);
+    await page.fill('#' + id, 'Biurex');
+    await page.click('#' + id + '-buscar');
+    await expect(page.locator('#' + id + '-nota')).toContainText('No encontramos «Biurex»');
+    await page.fill('#' + id, 'biure');
+    await page.press('#' + id, 'Enter');
+    await expect(page.locator('#' + id)).toHaveValue('Biure');
+    await expect(page.locator('#' + id + '-nota')).toHaveCount(0);
+    await page.fill('#' + id, antes);
+  }
 
   // Cerrar sesión (Mi cuenta) y volver a entrar: los datos vuelven de la nube
   await page.evaluate(() => showScreen('mi-cuenta'));

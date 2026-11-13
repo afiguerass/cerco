@@ -487,11 +487,29 @@ function initLocationPicker(inputId){
   }
   input.addEventListener('focus', function(){ render(''); dd.style.display='block'; });
   input.addEventListener('input', function(){ render(input.value); dd.style.display='block'; });
+  // Municipio de la clínica o de la oferta: botón «Buscar», como en el lado profesional.
+  // «Buscar» y Enter hacen lo mismo: buscan el municipio (buscarUbicacion).
+  if(soloMuni){
+    const fila = document.createElement('div');
+    fila.style.cssText = 'display:flex;gap:8px;align-items:center;flex:1;min-width:0;';
+    wrap.parentNode.insertBefore(fila, wrap);
+    fila.appendChild(wrap);
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'lp-buscar'; b.id = inputId + '-buscar';
+    b.style.cssText = 'flex-shrink:0;display:inline-flex;align-items:center;gap:6px;background:#1A56DB;color:white;border:none;border-radius:10px;padding:0 14px;height:'+(inputId === 'clinic-address-portal' ? '34px' : '40px')+';font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;';
+    b.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Buscar';
+    // al pulsar, que no se pierda lo escrito al cerrarse la lista
+    b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    b.addEventListener('click', function(){ dd.style.display = 'none'; buscarUbicacion(inputId); });
+    fila.appendChild(b);
+    input.addEventListener('input', function(){ const n = document.getElementById(inputId + '-nota'); if(n) n.remove(); });
+  }
   // Enter confirma lo escrito aunque no esté en la lista
   input.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){
       e.preventDefault();
       dd.style.display = 'none';
+      if(soloMuni){ buscarUbicacion(inputId); return; }
       input.blur();
       if(inputId === 'location-input-portal' && typeof applyFilters_portal === 'function') applyFilters_portal();
       if(inputId === 'clinic-address-portal' && typeof updateOriginNote === 'function') updateOriginNote();
@@ -500,11 +518,37 @@ function initLocationPicker(inputId){
   });
   document.addEventListener('click', function(e){ if(!wrap.contains(e.target)) dd.style.display='none'; });
 }
-/* Elegir un municipio de la lista; si es la dirección de la clínica, se vuelven a filtrar los candidatos por km (Fase 1: una sola versión) */
+/* Elegir un municipio de la lista; si es la dirección de la clínica, se vuelven a pintar los candidatos con sus km y a filtrar (Fase 1: una sola versión) */
 function pickLocation(inputId, value){
   var r = _pickLocationBase.apply(this, arguments);
-  if(inputId === 'clinic-address-portal' && typeof applyFilters_portal === 'function') applyFilters_portal();
+  var nota = document.getElementById(inputId + '-nota'); if(nota) nota.remove();
+  if(inputId === 'clinic-address-portal'){
+    try{ if(typeof renderPortalReal === 'function') renderPortalReal(); }catch(e){}
+    if(typeof applyFilters_portal === 'function') applyFilters_portal();
+  }
   return r;
+}
+/* «Buscar» (o Enter) en un campo de municipio de la clínica: si el municipio existe, se
+   escribe bien («biure» → «Biure») y se aplica como si se hubiera elegido de la lista;
+   si no, se avisa debajo, con el mismo texto que el lado profesional. */
+function buscarUbicacion(inputId){
+  var input = document.getElementById(inputId); if(!input) return;
+  var t = input.value.trim(), l = null;
+  try{ l = t && window.CGeo ? CGeo.lugar(t) : null; }catch(e){}
+  var vieja = document.getElementById(inputId + '-nota'); if(vieja) vieja.remove();
+  if(!l){
+    var n = document.createElement('div'); n.id = inputId + '-nota'; n.setAttribute('role', 'alert');
+    n.style.cssText = 'font-size:12.5px;color:#B45309;margin-top:6px;line-height:1.45;';
+    n.textContent = t ? 'No encontramos «' + t + '». Escribe el nombre del pueblo o la ciudad y elígelo de la lista.' : 'Escribe el nombre del pueblo o la ciudad.';
+    var fila = input.parentNode && input.parentNode.parentNode;
+    if(fila && fila.parentNode) fila.parentNode.insertBefore(n, fila.nextSibling);
+    try{ input.focus(); }catch(e){}
+    return;
+  }
+  // si se ha escrito solo el municipio, se deja con su nombre bien escrito; una dirección completa se respeta
+  var valor = (window.CGeo && CGeo.norm(t) === CGeo.norm(l.n)) ? l.n : t;
+  pickLocation(inputId, valor);
+  try{ input.blur(); }catch(e){}
 }
 function _pickLocationBase(inputId, value){
   const input = document.getElementById(inputId);

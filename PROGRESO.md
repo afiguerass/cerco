@@ -152,6 +152,62 @@ Cada uno con su commit y con una prueba que fallaba con el código anterior:
 - [x] **iPad en modo escritorio:** ahora se reconoce como iPad (lado profesional).
 - [x] **Protección de textos de la clínica (`_esc`):** trata bien las comillas dobles y simples, y un valor vacío deja de escribirse como «null».
 
+## Revisión pedida por Asish el 13 de noviembre — esperando su visto bueno (no se ha tocado nada)
+
+### 1. Candidatos: cada persona solo en la pestaña de su fase
+**Qué pasa ahora.** «Candidatos» se abre en la pestaña «Todos», donde salen todas las personas mezcladas. Al invitar a alguien a entrevista, sí pasa a «Entrevistas» (el dato se guarda bien), pero como la pantalla se abre en «Todos», sigue saliendo junto a los demás. Si una persona tiene dos solicitudes (por ejemplo, una contratada y otra retirada), en «Todos» sale dos veces.
+
+**Propuesta:**
+- Quitar la pestaña «Todos». Quedan: Por contestar · Me interesan · Entrevistas · Contratados · Cerrados, cada una con su número.
+- «Candidatos» se abre siempre en «Por contestar», aunque esté vacía (sale el aviso que ya existe: «Ahora no hay nadie aquí»). Si eliges otra pestaña, se queda elegida mientras no cierres la web.
+- La búsqueda, la distancia, los filtros por profesión y «Guardados» siguen funcionando dentro de cada pestaña.
+- Los accesos de Inicio (por ejemplo, «Ver «Me interesan»») siguen llevando a su pestaña.
+
+**Agenda.** Cada entrevista ya tiene un botón «Abrir ficha» que funciona (probado en ordenador y en móvil). Propuesta: que la ficha se abra también al pulsar en cualquier parte de la entrevista (nombre, hora, oferta). Los demás botones (Entrar en la sala, Cambiar día u hora, Google Calendar, Apple u Outlook) siguen haciendo lo mismo.
+
+### 2. Botón «Buscar» junto a la ciudad (lado clínica)
+Hay tres campos de municipio: «Dirección de tu clínica» (en Candidatos), «Ubicación» (en Nueva oferta) y «Ciudad» (en Mi clínica). Ninguno tiene botón.
+
+**Qué pasa ahora:**
+- **Fallo:** en Candidatos, si escribes «Biure» y pulsas Enter, los km de los candidatos no se recalculan. Siguen «a 3 km» (desde Girona) hasta que cambias de pantalla; desde Biure son 41 km.
+- En Nueva oferta y en Mi clínica, Enter acepta el texto tal como está escrito: si escribes «biure» en minúsculas, se queda así.
+
+**Propuesta:**
+- Un botón «Buscar», igual que el del lado profesional (azul, con lupa), a la derecha de los tres campos.
+- «Buscar» y Enter hacen lo mismo:
+  - si el municipio existe, lo escriben bien («Biure») y, en Candidatos, recalculan los km al momento;
+  - si no existe, avisan debajo con el mismo texto que el lado profesional: «No encontramos «…». Escribe el nombre del pueblo o la ciudad y elígelo de la lista.»
+- Con una prueba nueva.
+
+### 3. Todos los botones, uno por uno
+**Cómo se ha hecho.** Un programa ha pulsado, uno a uno, todo lo que se puede pulsar en cada pantalla y en cada ventana que se abre. Ha recorrido los dos lados, en ordenador y en móvil, y la clínica también con «Datos de ejemplo». Usa los datos del recorrido completo: clínica, dos ofertas, candidata con entrevista, contratada y otra solicitud retirada.
+- En total, unas 1.700 pulsaciones.
+- Después de cada una mira si cambia la pantalla, si se guarda algo, si se descarga o se abre algo, o si sale un error.
+- Lo que salía como «no hace nada» se ha vuelto a probar a mano.
+
+**Resultado: usados con normalidad, no ha aparecido ningún botón que no haga nada.** Sí han salido estas cosas:
+
+a) **Botones que, con el campo vacío, no hacen nada y no avisan:**
+- «Enviar» de los mensajes, en la ficha del candidato (clínica) y en la solicitud (profesional);
+- la flecha de Seimian (clínica) y «Enviar» de Seimian (profesional);
+- «Revisar con Seimian», en «Ensaya tu entrevista».
+
+Con texto, todos funcionan. Propuesta: si el campo está vacío, que salga un aviso corto («Escribe algo antes de enviar») y que el cursor se ponga en el campo.
+
+b) **«Dirección de tu clínica» + Enter no recalcula los km.** Es el fallo del punto 2.
+
+c) **Error en el editor de vídeo (profesional).** Si el editor se cierra mientras prepara las miniaturas de la tira, da un error de programa. No se ve en pantalla, pero queda registrado. Propuesta: comprobar que el editor sigue abierto antes de añadir cada miniatura, con una prueba nueva.
+
+d) **Herramienta que no se ofrece.** En el código hay una 7.ª herramienta del profesional, «Dónde encajas», que nunca aparece en el menú, y si se abriera daría error. No la ve nadie. Propuesta: dejarla para cuando se revisen las herramientas.
+
+**Qué no se ha pulsado, y por qué:**
+- «Eliminar mi cuenta»: a propósito.
+- Entrar con Google: necesita Google de verdad.
+- Los enlaces de correo, teléfono y web: se ha comprobado que llevan a la dirección correcta.
+- Los botones de las solicitudes «Por contestar» y «Me interesan» (Me interesa, Invitar a entrevista, Descartar con motivo) no estaban en estos datos, pero ya los pulsan las pruebas automáticas del recorrido.
+
+**Si Asish ha visto un botón concreto que no hace nada**, hace falta saber la pantalla y el nombre del botón. Puede depender de sus datos reales (por ejemplo, una oferta pausada) o de la vista previa: «Continuar con Google» no funciona hasta autorizar raw.githack.com en Firebase.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

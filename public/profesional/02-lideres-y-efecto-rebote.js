@@ -61,7 +61,9 @@ function instalarApp(){
   AV.instalar.prompt();
   AV.instalar.userChoice.then(function(){ AV.instalar = null; refrescarAjustes(); }).catch(function(){});
 }
-function esIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent || ''); }
+// iPhone o iPad. Los iPad en modo escritorio (lo normal desde iPadOS 13) dicen
+// ser un Mac, pero con pantalla táctil: también cuentan.
+function esIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
 function enApp(){ try{ return matchMedia('(display-mode: standalone)').matches || !!navigator.standalone; }catch(e){ return false; } }
 
 /* ---------- 2. perfil: ajustes nuevos ---------- */

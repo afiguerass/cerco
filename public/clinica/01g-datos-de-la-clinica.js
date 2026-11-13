@@ -481,11 +481,11 @@ function _renderStatsRealBase(){
   }
 
   /* KPIs honestos: solo lo que podemos contar */
-  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" class="stats-kpis">'
+  // (las contrataciones están arriba, en «Tu contratación», que sale siempre)
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;" class="stats-kpis">'
         + _kpiStat(eq.length, eq.length === 1 ? 'persona con el test hecho' : 'personas con el test hecho', r.pendientes ? r.pendientes+' pendientes' : 'todo el equipo', r.pendientes?'#D97706':'#059669')
-        + _kpiStat(r.ofertas, 'ofertas publicadas', r.activas + ' activas', '#6B7280')
-        + _kpiStat(r.candidatos, 'candidatos recibidos', r.candidatos ? 'en tus ofertas' : 'aún ninguno', '#6B7280')
-        + _kpiStat(r.contratados, 'contrataciones', r.contratados ? '' : 'aún ninguna', '#6B7280')
+        + _kpiStat(r.ofertas, r.ofertas === 1 ? 'oferta publicada' : 'ofertas publicadas', r.activas + (r.activas === 1 ? ' activa' : ' activas'), '#6B7280')
+        + _kpiStat(r.candidatos, r.candidatos === 1 ? 'candidato recibido' : 'candidatos recibidos', r.candidatos ? 'en tus ofertas' : 'aún ninguno', '#6B7280')
         + '</div>';
 
   /* composición real */

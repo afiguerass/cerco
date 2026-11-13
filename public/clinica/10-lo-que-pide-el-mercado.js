@@ -49,7 +49,7 @@
   + '.mk-plan label:first-of-type{border-top:0;}'
   + '.mk-plan input{width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:#059669;}'
   + '.mk-plan small{display:block;color:#6B7280;font-size:12px;}'
-  + '.mk-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px;}'
+  + '.mk-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px;}.mk-kpis.mk-5{grid-template-columns:repeat(5,minmax(0,1fr));}'
   + '.mk-kpi{background:#fff;border:1px solid #EAECF0;border-radius:14px;padding:16px;}'
   + '.mk-kpi b{display:block;font-size:26px;font-weight:800;color:#111827;line-height:1.1;}'
   + '.mk-kpi span{font-size:12px;font-weight:600;color:#6B7280;}'
@@ -69,7 +69,7 @@
   + '.cmp-t .mej{color:#047857;font-weight:800;}'
   + '.cmp-btn{border:1px solid #C9D6F5;background:#F5F8FF;color:#1A56DB;border-radius:10px;padding:9px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;}'
   + '.cmp-entry{display:inline-flex;align-items:center;gap:7px;border:1px solid #D5DAE1;background:#fff;color:#0F1C3F;border-radius:999px;padding:9px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;margin:0 0 12px;min-height:40px;}'
-  + '@media(max-width:720px){.mk-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}#cmp-modal{padding:0;align-items:flex-end;}#cmp-modal .cmp{border-radius:18px 18px 0 0;max-height:94vh;}.cmp-t th,.cmp-t td{min-width:132px;}}';
+  + '@media(max-width:720px){.mk-kpis,.mk-kpis.mk-5{grid-template-columns:repeat(2,minmax(0,1fr));}#cmp-modal{padding:0;align-items:flex-end;}#cmp-modal .cmp{border-radius:18px 18px 0 0;max-height:94vh;}.cmp-t th,.cmp-t td{min-width:132px;}}';
   document.head.appendChild(css);
 
   /* =============== 1. OFERTA CLARA =============== */
@@ -370,9 +370,9 @@
     if(!l.length) return '';
     var resp = [], esperan = 0, entrev = 0, contr = 0, mot = {};
     l.forEach(function(c){
-      var h = (c.historial || []).filter(function(x){ return ['entrevista','descartada','contratada'].indexOf(x.estado) > -1; })[0];
+      var h = (c.historial || []).filter(function(x){ return ['interesa','entrevista','descartada','contratada'].indexOf(x.estado) > -1; })[0];
       if(h) resp.push((new Date(h.fecha) - new Date(c.fecha)) / 3600000);
-      if(c.estado === 'enviada' || c.estado === 'vista') esperan++;
+      if((c.estado === 'enviada' || c.estado === 'vista') && !c.interesa) esperan++;
       if((c.historial || []).some(function(x){ return x.estado === 'entrevista'; })) entrev++;
       if(c.estado === 'contratada') contr++;
       if(c.estado === 'descartada' && c.motivo) mot[c.motivo] = (mot[c.motivo] || 0) + 1;
@@ -381,13 +381,14 @@
     var base = resp.length + cerradas + esperan;
     var pct = base ? Math.round(resp.length / base * 100) : 0;
     var medio = resp.length ? resp.reduce(function(a,b){ return a+b; }, 0) / resp.length : null;
-    var h = '<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#6B7280;margin:0 0 10px;">TU CONTRATACIÓN</div><div class="mk-kpis">'
-      + '<div class="mk-kpi"><b>'+l.length+'</b><span>solicitudes recibidas</span></div>'
+    var h = '<div style="font-size:11px;font-weight:800;letter-spacing:.8px;color:#6B7280;margin:0 0 10px;">TU CONTRATACIÓN</div><div class="mk-kpis mk-5">'
+      + '<div class="mk-kpi"><b>'+l.length+'</b><span>'+(l.length === 1 ? 'solicitud recibida' : 'solicitudes recibidas')+'</span></div>'
       + '<div class="mk-kpi"><b>'+pct+' %</b><span>contestadas</span></div>'
       + '<div class="mk-kpi"><b>'+(medio == null ? '—' : dur(medio))+'</b><span>tardas en contestar</span></div>'
       + '<div class="mk-kpi'+(esperan ? ' al' : '')+'"'+(esperan ? ' role="button" tabindex="0" style="cursor:pointer;" onclick="showScreen(\'portal\')" onkeydown="if(event.key===\'Enter\')showScreen(\'portal\')"' : '')+'><b>'+esperan+'</b><span>'+(esperan ? 'esperan tu respuesta · contestar' : 'esperando respuesta')+'</span></div>'
+      + '<div class="mk-kpi"><b>'+contr+'</b><span>'+(contr === 1 ? 'contratación' : 'contrataciones')+'</span></div>'
       + '</div>';
-    h += '<div class="mk-lin"><h4>De la solicitud al contrato</h4>'+l.length+' solicitudes → '+entrev+' entrevista'+(entrev === 1 ? '' : 's')+' → '+contr+' contratación'+(contr === 1 ? '' : 'es')+'.'
+    h += '<div class="mk-lin"><h4>De la solicitud al contrato</h4>'+l.length+(l.length === 1 ? ' solicitud → ' : ' solicitudes → ')+entrev+' entrevista'+(entrev === 1 ? '' : 's')+' → '+contr+' '+(contr === 1 ? 'contratación' : 'contrataciones')+'.'
       + (medio != null ? ' La mitad de los candidatos espera noticias en 3 días o menos: ' + (medio <= 72 ? 'vas dentro.' : 'ahora tardas más que eso.') : '') + '</div>';
     var ks = Object.keys(mot).sort(function(a,b){ return mot[b] - mot[a]; });
     if(ks.length){

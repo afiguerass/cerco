@@ -437,6 +437,22 @@ test('6b. Candidatos: se abre en «Por contestar» y cada persona sale solo en s
   await expect(c.locator('#etapa-tabs').locator('visible=true').first().locator('button[aria-selected="true"]')).toHaveText(/^Por contestar/);
 });
 
+test('6c. Agenda: pulsando en cualquier parte de la entrevista se abre la ficha', async () => {
+  const c = clinica.page;
+  await c.evaluate(() => showScreen('agenda'));
+  const cita = c.locator('#agenda-box .ag-it', { hasText: 'Laura Prueba' }).locator('visible=true').first();
+  await expect(cita).toBeVisible();
+  await cita.locator('.ag-h').click(); // en la hora, no en un botón
+  await expect(c.locator('#screen-ficha')).toBeVisible();
+  await expect(c.locator('#screen-ficha')).toContainText('Laura Prueba');
+  // Los botones de la entrevista siguen haciendo lo suyo: «Apple u Outlook» descarga la cita, sin abrir la ficha
+  await c.evaluate(() => showScreen('agenda'));
+  const descarga = c.waitForEvent('download');
+  await c.locator('#agenda-box .ag-it', { hasText: 'Laura Prueba' }).locator('visible=true').first().getByRole('button', { name: 'Apple u Outlook' }).click();
+  await descarga;
+  await expect(c.locator('#screen-agenda')).toBeVisible();
+});
+
 test('7. El resto de pantallas de la clínica se ven bien y sin errores', async () => {
   const page = clinica.page;
   await page.reload();

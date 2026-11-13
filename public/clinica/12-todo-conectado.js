@@ -68,6 +68,7 @@
   + '.ag-dia{font-size:11px;font-weight:800;letter-spacing:.6px;color:#6B7280;text-transform:uppercase;margin:16px 0 8px;}'
   + '.ag-dia:first-child{margin-top:0;}'
   + '.ag-it{display:flex;gap:14px;background:#fff;border:1px solid #EAECF0;border-radius:14px;padding:14px;margin-bottom:10px;}'
+  + '.ag-it{cursor:pointer;transition:border-color .15s;}.ag-it:hover{border-color:#C7D2FE;}'
   + '.ag-it.cambio{border-color:#F5D9A8;background:#FFFBF2;}'
   + '.ag-h{flex-shrink:0;width:58px;text-align:center;border-right:1px solid #F1F3F5;padding-right:12px;}'
   + '.ag-h b{display:block;font-size:17px;font-weight:800;color:#111827;}.ag-h span{font-size:11px;color:#6B7280;}'
@@ -179,7 +180,7 @@
   }
   function itemAgenda(c, pasada){
     var t = c.cita, id = e(c.id);
-    return '<div class="ag-it'+(t.estado === 'cambio' ? ' cambio' : '')+'"><div class="ag-h"><b>'+hora(t.fecha)+'</b><span>30 min</span></div><div class="ag-c">'
+    return '<div class="ag-it'+(t.estado === 'cambio' ? ' cambio' : '')+'" onclick="CERCO_agendaClic(event,\''+id+'\')" title="Abrir la ficha"><div class="ag-h"><b>'+hora(t.fecha)+'</b><span>30 min</span></div><div class="ag-c">'
       + '<b>'+e(c.nombre || 'Sin nombre')+'</b>'+pill(c)
       + '<span>'+(visita(c) ? 'Visita a la clínica' : 'Entrevista') + (c.ofertaTitulo ? ' · ' + e(c.ofertaTitulo) : '')+'</span>'
       + '<span style="display:flex;align-items:center;gap:6px;">'+ico(t.modo === 'video' ? I.video : (t.modo === 'tel' ? I.tel : I.pin),'#6B7280',13)+e(MODO[t.modo] || '')+(t.modo === 'clinica' && t.lugar ? ' · ' + e(t.lugar) : '')+(t.modo === 'tel' && c.telefono ? ' · ' + e(c.telefono) : '')+'</span>'
@@ -191,6 +192,8 @@
       + (pasada ? '' : '<button type="button" class="ag-btn" onclick="CERCO_abrirDesdeAgenda(\''+id+'\',true)">'+(t.estado === 'cambio' ? 'Proponer otro día' : 'Cambiar día u hora')+'</button>' + botonesCal(c))
       + '</div></div></div>';
   }
+  // Pulsar en cualquier parte de la entrevista abre la ficha (los botones y enlaces siguen haciendo lo suyo)
+  window.CERCO_agendaClic = function(ev, id){ if(ev && ev.target && ev.target.closest && ev.target.closest('button, a')) return; CERCO_abrirDesdeAgenda(id); };
   window.CERCO_abrirDesdeAgenda = function(id, cambiar){ abrirFichaCandidato(id); if(cambiar) setTimeout(function(){ try{ programarCita(id); }catch(x){} }, 250); };
   window.CERCO_agMes = function(n){ if(n === 0){ var h = new Date(); AG.y = h.getFullYear(); AG.m = h.getMonth(); AG.dia = null; } else { var d = new Date(AG.y, AG.m + n, 1); AG.y = d.getFullYear(); AG.m = d.getMonth(); AG.dia = null; } pintarAgenda(); };
   window.CERCO_agDia = function(k){ AG.dia = AG.dia === k ? null : k; pintarAgenda(); };

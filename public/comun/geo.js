@@ -5,12 +5,28 @@
    servicio externo. Los datos están en datos/municipios.js.
    ================================================================ */
 window.CGeo = (function(){
-  var P = window.CERCO_MUNICIPIOS.provincias;
-  var RAW = window.CERCO_MUNICIPIOS.lista;
+  /* La lista de municipios (datos/municipios.js, unos 200 KB) ya no frena el
+     arranque de la página: se descarga aparte, en segundo plano. CGeo.listo
+     avisa cuando ha llegado; lo que muestra km (después de entrar en la
+     cuenta) espera a que esté: ver Nube.cargar en los dos lados. */
+  var listo = new Promise(function(res){
+    if(window.CERCO_MUNICIPIOS || !document.createElement) return res(true);
+    var s = document.createElement('script');
+    s.src = './datos/municipios.js';
+    s.onload = function(){ res(true); };
+    s.onerror = function(){ res(false); };   // sin la lista: la web sigue, sin km
+    document.head.appendChild(s);
+  });
+  var P = [], RAW = '';
   var L = null;
+  function datos(){
+    if(!RAW && window.CERCO_MUNICIPIOS){ P = window.CERCO_MUNICIPIOS.provincias; RAW = window.CERCO_MUNICIPIOS.lista; }
+    return !!RAW;
+  }
   function norm(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9ñ ]+/g,' ').replace(/\s+/g,' ').trim(); }
   function carga(){
     if(L) return L;
+    if(!datos()) return [];
     var REN = { 'Gasteiz / Vitoria':'Vitoria-Gasteiz', 'Castello de la Plana':'Castellón de la Plana', 'Mao':'Maó', 'Fuenterrabia':'Hondarribia' };
     L = RAW.split(';').map(function(x){ var a = x.split('|'), n = REN[a[0]] || a[0]; return { n:n, lat:+a[1], lng:+a[2], p:P[+a[3]], k:norm(n) }; });
     // nombres en otra lengua o antiguos -> el que tenemos
@@ -101,5 +117,5 @@ window.CGeo = (function(){
     dd.addEventListener('mousedown', function(e){ var o = e.target.closest('.geo-op'); if(o){ e.preventDefault(); elige(hits[+o.dataset.i]); } });
     document.addEventListener('click', function(e){ if(!w.contains(e.target)) dd.hidden = true; });
   }
-  return { buscar:buscar, lugar:lugar, km:km, txtKm:txtKm, geo:geo, dentro:dentro, autocompletar:autocompletar, norm:norm, provincias:P, todos:function(){ return carga(); } };
+  return { buscar:buscar, lugar:lugar, km:km, txtKm:txtKm, geo:geo, dentro:dentro, autocompletar:autocompletar, norm:norm, get provincias(){ datos(); return P; }, todos:function(){ return carga(); }, listo:listo };
 })();

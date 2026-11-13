@@ -25,7 +25,9 @@ Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un
   - Antes la lista (6.801 municipios, 200 KB) estaba **copiada dentro de las dos páginas**.
   - Ahora está en `public/datos/municipios.js` (solo datos), y la búsqueda y los km en `public/comun/geo.js`. Las dos páginas comparten los mismos archivos y el navegador los descarga una sola vez.
   - Pruebas nuevas (`pruebas/unidad/geo.test.mjs`): 400 direcciones, 150 búsquedas y 300 distancias dan exactamente lo mismo que antes.
-  - **Pendiente dentro de la Fase 1:** que la lista se cargue *solo cuando haga falta*. Hoy se sigue cargando al abrir la página, porque el código la pide «al instante» desde muchos sitios. Se podrá hacer en los pasos 1.6 y 1.7, cuando ese código esté ordenado.
+  - [x] **La lista ya no frena el arranque de la página.** Se descarga aparte, en segundo plano (`CGeo.listo` avisa cuando llega). Todo lo que muestra km (después de entrar en la cuenta) espera a que esté; el buscador de ciudad de la clínica añade los municipios en cuanto llegan; y si una clínica ya tenía la sesión abierta, Inicio se vuelve a pintar al llegar la lista. Si la lista no llegara (sin conexión), la web sigue funcionando, sin km.
+    - Por qué no «solo al abrir un buscador»: casi todas las pantallas después de entrar enseñan km, así que la lista se necesita casi siempre; cargarla más tarde haría que los km aparecieran con retraso, y eso cambiaría lo que se ve.
+    - Prueba nueva (`52-municipios-aparte`): con la lista retrasada 2 segundos, las páginas arrancan sin ella y los km salen bien; sin lista, la web funciona sin errores.
 - [x] **1.6 Código en carpetas:** clínica, profesional y común.
   - [x] **1.6a** Los 30 bloques de código que había dentro de las páginas están en archivos aparte, en el mismo orden: `public/clinica/` (16), `public/profesional/` (9) y `public/comun/` (los 2 que eran idénticos en las dos páginas, más los municipios). Las páginas pasan de 1,4 MB y 1,1 MB a 470 KB y 415 KB. Capturas idénticas.
   - [x] **1.6b** Dividir los dos archivos grandes, que mezclan Firebase, textos y pantallas.

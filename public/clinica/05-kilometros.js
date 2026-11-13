@@ -13,7 +13,8 @@
   var e = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
 
   /* ---------- 1. el buscador de ubicación conoce todos los municipios ---------- */
-  try{
+  // La lista de municipios llega aparte (comun/geo.js): se añaden en cuanto está.
+  function sumarMunicipios(){ try{
     var AL = {'Bizkaia':'Vizcaya', 'Gipuzkoa':'Guipúzcoa', 'Illes Balears':'Baleares', 'Santa Cruz de Tenerife':'S.C. Tenerife'};
     var reg = {}, ya = {};
     ES_LOCATIONS.forEach(function(l){ reg[l.p] = l.r; ya[CGeo.norm(l.c) + '|' + l.p] = 1; });
@@ -23,7 +24,8 @@
       if(ya[k]) return; ya[k] = 1;
       ES_LOCATIONS.push({c:l.n, p:p, r:reg[p] || ''});
     });
-  }catch(x){}
+  }catch(x){} }
+  if(window.CERCO_MUNICIPIOS || !CGeo.listo) sumarMunicipios(); else CGeo.listo.then(sumarMunicipios);
 
   /* ---------- 2. al publicar: la ubicación tiene que ser un municipio ---------- */
     

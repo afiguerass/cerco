@@ -51,6 +51,9 @@ window.Nube = {
       window.addEventListener('cerco-firebase-listo', iniciar, { once: true });
       // si en 8 segundos no ha cargado, seguimos sin nube
       setTimeout(function(){ if(!self.lista) res(false); }, 8000);
+    }).then(function(ok){
+      // y la lista de municipios (comun/geo.js), para que los km salgan desde el principio
+      return (window.CGeo && CGeo.listo ? CGeo.listo : Promise.resolve()).then(function(){ return ok; });
     });
     return this._cargando;
   },

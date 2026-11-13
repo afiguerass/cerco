@@ -159,6 +159,9 @@ document.querySelectorAll('.shell-nav-item').forEach(item=>{
     return;
   }
   try{ CDB.aplicarModo(); CDB.renderTodo(); }catch(e){}
+  // Si la lista de municipios (comun/geo.js) aún no había llegado, se vuelve a
+  // pintar cuando llega, para que los km salgan igual que antes.
+  try{ if(!window.CERCO_MUNICIPIOS && window.CGeo && CGeo.listo) CGeo.listo.then(function(){ try{ CDB.renderTodo(); }catch(e){} }); }catch(e){}
   try{ if(window._arrancarNube) _arrancarNube(); }catch(e){}
 
   var tieneClinica = false;

@@ -217,6 +217,9 @@ var Nube = {
       if(window.__cercoFirebaseListo) return inicia();
       window.addEventListener('cerco-firebase-listo', inicia, { once: true });
       setTimeout(function(){ acaba(false); }, 12000);
+    }).then(function(ok){
+      // y la lista de municipios (comun/geo.js), para que los km salgan desde el principio
+      return (window.CGeo && CGeo.listo ? CGeo.listo : Promise.resolve()).then(function(){ return ok; });
     });
     return this._c;
   },

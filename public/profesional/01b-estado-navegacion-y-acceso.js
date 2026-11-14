@@ -8,14 +8,7 @@ var S = { perfil:null, ofertas:[], ofertasCargadas:false, sols:[], solsCargadas:
 var _unsubSol = null;
 var _estadosVistos = {}, _msgsVistos = {}, _citasVistas = {};
 
-var EJEMPLOS = [
-  {id:'ej1', ejemplo:true, titulo:'Higienista dental', clinica:'Clínica Dental Mar Blau', ubicacion:'Girona', jornada:'Completa', salario:'20.000–24.000 €', disponibilidad:'Inmediata', perfiles:['I','S'],
-   descripcion:'Buscamos higienista para un equipo de seis personas. Trato muy cercano con el paciente, agenda bien organizada y formación continua pagada por la clínica.', requisitos:'Técnico Superior en Higiene Bucodental\nExperiencia en periodoncia valorable\nGanas de trabajar en equipo', fecha:new Date(Date.now()-2*86400000).toISOString()},
-  {id:'ej2', ejemplo:true, titulo:'Auxiliar de clínica dental', clinica:'Centro Odontológico Sants', ubicacion:'Barcelona', jornada:'Parcial', salario:'A convenir', disponibilidad:'En 15 días', perfiles:['S','C'],
-   descripcion:'Asistencia en gabinete, esterilización y preparación de material. Horario de tardes.', requisitos:'Título de Auxiliar de Enfermería o similar\nRigor con los protocolos de esterilización', fecha:new Date(Date.now()-5*86400000).toISOString()},
-  {id:'ej3', ejemplo:true, titulo:'Coordinador/a de recepción', clinica:'Clínica Dental Retiro', ubicacion:'Madrid', jornada:'Completa', salario:'22.000 €', disponibilidad:'En 1 mes', perfiles:['D','I'],
-   descripcion:'Llevarás la agenda de cuatro doctores, la relación con los pacientes y los presupuestos.', requisitos:'Experiencia en atención al paciente\nManejo de software de gestión clínica', fecha:new Date(Date.now()-86400000).toISOString()}
-];
+// (Las ofertas de ejemplo se han quitado: en la web real nunca salen datos inventados.)
 
 /* Ofertas que se ven: todas menos las de clínicas que la persona ha bloqueado (Fase 1: una sola versión) */
 function ofertasVisibles(){
@@ -59,7 +52,7 @@ function ofertasCerca(l){
   return { dentro:dentro, fuera:fuera };
 }
 function buscarOferta(id){
-  var l = S.ofertas.concat(EJEMPLOS);
+  var l = S.ofertas;
   for(var i=0;i<l.length;i++) if(String(l[i].id) === String(id)) return l[i];
   return null;
 }

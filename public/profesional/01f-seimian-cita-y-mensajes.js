@@ -163,8 +163,7 @@ function seiOfertas(d){
     .map(function(o){ return {o:o, p:encaje(d, o)}; }).filter(function(x){ return x.p !== null; })
     .sort(function(a,b){ return b.p - a.p; }).slice(0,3);
   if(!l.length) return 'Ahora mismo no hay ofertas nuevas que no hayas solicitado. Te aviso aquí cuando se publiquen.';
-  var h = (!hayReales() ? 'Todavía no hay ofertas reales; con las de ejemplo, así lo vería:'
-    : lejos ? 'No hay ofertas ' + esc(txtRadio(pf.radio||25, pf.geo)) + '. De las que hay más lejos, estas te encajan mejor:'
+  var h = (lejos ? 'No hay ofertas ' + esc(txtRadio(pf.radio||25, pf.geo)) + '. De las que hay más lejos, estas te encajan mejor:'
     : 'Estas son las que mejor te encajan' + (pf.geo ? ' ' + esc(txtRadio(pf.radio||25, pf.geo)) : '') + ':') + '<ol class="sei-ol">';
   l.forEach(function(x){
     var ps = perfilesDe(x.o), coinc = ps.filter(function(k){ return k === d.dom || k === d.sec; });
@@ -219,7 +218,7 @@ function seiSalario(){
   var d = S.perfil && S.perfil.disc;
   l = l.slice().sort(function(a,b){ return (encaje(d,b)||0) - (encaje(d,a)||0); }).slice(0,4);
   var rolP = (S.perfil||{}).profesion, gs = txtGuia(guiaSalarial(PROF_RE[rolP] ? rolP : null, ((S.perfil||{}).geo||{}).prov), rolP);
-  return (gs ? gs + '<br><br>' : '') + 'Lo que pagan las ofertas que más te encajan' + (hayReales() ? '' : ' (de ejemplo)') + ':<ol class="sei-ol">'
+  return (gs ? gs + '<br><br>' : '') + 'Lo que pagan las ofertas que más te encajan:<ol class="sei-ol">'
     + l.map(function(o){ return '<li><button class="sei-link" onclick="cerrarSeimian(); ir(\'oferta\',\''+esc(o.id)+'\')">'+esc(o.titulo)+'</button>: <b>'+esc(o.salario)+'</b></li>'; }).join('')
     + '</ol>Todas las clínicas de CERCO tienen que indicar el salario antes de la entrevista. En la entrevista no te pueden preguntar cuánto cobrabas antes.';
 }

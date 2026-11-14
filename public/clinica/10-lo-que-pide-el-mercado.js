@@ -97,7 +97,8 @@
     prot:['Prótesis fija','Prótesis removible','CAD/CAM','Cerámica'],
     otros:['Atención al paciente','Trabajo en equipo','Organización del día']
   };
-  var REF = { hig:['higienistas',18000,32000], aux:['auxiliares',15000,23000], recep:['recepción',15000,24000], odo:['odontólogos',30000,90000], orto:['ortodoncistas',30000,90000] };
+  // Las cifras están en un solo sitio: comun/sueldos.js
+  function REFde(t){ var d = window.CERCO_sueldoDe ? CERCO_sueldoDe(t) : null, r = d && CERCO_sueldoRango(t); return r ? [d.plural, r[0], r[1], d.odonto] : null; }
   var OF = { turnos:[], funciones:[], proceso:'', horario:'' };
 
   function val(id){ var x = $(id); return x ? String(x.value || '').trim() : ''; }
@@ -147,11 +148,11 @@
     var h = '<b>Tu oferta responde '+ok+' de '+q.length+' preguntas que se hace un candidato</b>'
       + '<div class="mk-bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+q.length+'" aria-valuenow="'+ok+'"><i style="width:'+Math.round(ok/q.length*100)+'%"></i></div>'
       + '<div class="mk-falta">' + (falta.length ? 'Te falta: ' + e(falta.join(' · ')) + '.' : 'Completa. Una oferta así recibe solicitudes de gente que ya sabe a qué viene.') + '</div>';
-    var r = REF[grupo(val('co-titulo'))], a = anual();
+    var r = REFde(val('co-titulo')), a = anual();
     if(r && a){
       var medio = (a[0] + a[1]) / 2, t1 = r[1] + (r[2]-r[1])/3, t2 = r[1] + (r[2]-r[1])*2/3;
       var donde = medio < r[1] ? 'por debajo de' : (medio < t1 ? 'en la parte baja de' : (medio < t2 ? 'en la parte media de' : (medio <= r[2] ? 'en la parte alta de' : 'por encima de')));
-      h += '<div class="mk-sal">Referencia del sector para '+r[0]+': '+r[1].toLocaleString('es-ES')+'–'+r[2].toLocaleString('es-ES')+' € brutos/año. Tu sueldo está <b>'+donde+'</b> ese rango.'+(medio < t1 ? ' El sueldo es lo primero que decide: si no puedes subirlo, compénsalo con horario o formación y dilo.' : '')+' <span style="color:#6B7280;">Orientativo.</span></div>';
+      h += '<div class="mk-sal">'+CERCO_SUELDOS.titulo+' para '+r[0]+': '+r[1].toLocaleString('es-ES')+'–'+r[2].toLocaleString('es-ES')+' € brutos/año. Tu sueldo está <b>'+donde+'</b> ese rango.'+(medio < t1 ? ' El sueldo es lo primero que decide: si no puedes subirlo, compénsalo con horario o formación y dilo.' : '')+(r[3] ? ' '+CERCO_SUELDOS.notaOdonto : '')+'</div>';
     }
     box.innerHTML = h;
   }

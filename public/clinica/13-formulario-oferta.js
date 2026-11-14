@@ -28,15 +28,7 @@
     ['Gerente de clínica dental','Recepción y gestión'],
     ['Protésico/a dental','Laboratorio']
   ];
-  var BANDAS = {
-    hig:[[18000,20000],[20000,24000],[24000,28000]],
-    aux:[[15500,17500],[17500,20000],[20000,23000]],
-    recep:[[15500,18000],[18000,21000],[21000,24000]],
-    odo:[[30000,40000],[40000,55000],[55000,70000]],
-    orto:[[35000,50000],[50000,65000],[65000,85000]],
-    coord:[[20000,24000],[24000,28000],[28000,34000]],
-    prot:[[17000,20000],[20000,24000],[24000,30000]]
-  };
+  // Las cifras están en un solo sitio: comun/sueldos.js
   function grupo(t){ try{ return CERCO_grupo(t).k; }catch(x){ return 'otros'; } }
   function disparar(el){ if(!el) return; el.dispatchEvent(new Event('input', {bubbles:true})); el.dispatchEvent(new Event('change', {bubbles:true})); }
 
@@ -101,11 +93,11 @@
     var fila = document.querySelector('#screen-crear-oferta .sal-row'); if(!fila) return;
     var box = $('co-sal-sug');
     if(!box){ box = document.createElement('div'); box.id = 'co-sal-sug'; fila.parentElement.insertBefore(box, fila.nextSibling); }
-    var b = BANDAS[grupo(($('co-titulo') || {}).value)];
+    var ref = window.CERCO_sueldoDe ? CERCO_sueldoDe(($('co-titulo') || {}).value) : null, b = ref && ref.bandas;
     if(!b){ box.innerHTML = ''; return; }
     var mi = String(($('co-sal-min') || {}).value || '').replace(/\D/g,''), ma = String(($('co-sal-max') || {}).value || '').replace(/\D/g,''), per = ($('co-sal-per') || {}).value;
-    var nombres = ['parte baja','media','parte alta'];
-    box.innerHTML = '<div style="font-size:12px;color:#6B7280;margin-top:8px;">Referencia del sector para este puesto (jornada completa). Pulsa una o escribe tu cifra:</div><div class="sal-sug" role="group" aria-label="Rangos de referencia">'
+    var nombres = CERCO_SUELDOS.tramos;
+    box.innerHTML = '<div style="font-size:12px;color:#6B7280;margin-top:8px;">' + CERCO_SUELDOS.titulo + ' para ' + ref.plural + ' (jornada completa, según experiencia).' + (ref.odonto ? ' ' + CERCO_SUELDOS.notaOdonto : '') + ' Pulsa una o escribe tu cifra:</div><div class="sal-sug" role="group" aria-label="Rangos de referencia">'
       + b.map(function(r, k){ var on = per === 'año' && +mi === r[0] && +ma === r[1]; return '<button type="button" aria-pressed="' + on + '" class="' + (on ? 'on' : '') + '" onclick="CERCO_salBanda(' + r[0] + ',' + r[1] + ')">' + num(r[0]) + '–' + num(r[1]) + ' €/año<small>' + nombres[k] + '</small></button>'; }).join('')
       + '</div>';
   }

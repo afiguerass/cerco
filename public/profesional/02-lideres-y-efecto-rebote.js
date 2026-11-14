@@ -299,10 +299,7 @@ function ofertaParaMi(o){
 }
 
 /* ---------- 7. guía salarial (con las ofertas reales de CERCO) ---------- */
-var REF_SALARIO = { // referencia del sector, orientativa (EmpleoDental 2026)
-  'Auxiliar de clínica dental':[15000,23000], 'Recepción y atención al paciente':[15000,24000],
-  'Higienista dental':[18000,32000], 'Odontólogo/a':[30000,90000], 'Ortodoncista':[30000,90000]
-};
+// Las cifras de referencia están en un solo sitio: comun/sueldos.js
 function rolDe(o){ for(var k in PROF_RE) if(PROF_RE[k].test(o.titulo || '')) return k; return null; }
 function anualDe(txt){
   var t = String(txt || ''); if(!/año/i.test(t)) return null;
@@ -322,7 +319,7 @@ function guiaSalarial(rol, prov){
     var med = function(a){ return a[Math.floor((a.length-1)/2)]; };
     return { min:med(mins), max:med(maxs), n:base.length, donde: base === enProv ? prov : 'España', fuente:'cerco' };
   }
-  var r = REF_SALARIO[rol];
+  var r = window.CERCO_sueldoRango ? CERCO_sueldoRango(rol) : null;
   return r ? { min:r[0], max:r[1], n:0, donde:'España', fuente:'sector' } : null;
 }
 function txtGuia(g, rol){
@@ -330,7 +327,8 @@ function txtGuia(g, rol){
   var quien = {'Higienista dental':'higienistas','Auxiliar de clínica dental':'auxiliares','Odontólogo/a':'odontólogos','Ortodoncista':'ortodoncistas','Recepción y atención al paciente':'recepción','Protésico/a dental':'protésicos','Coordinación o gerencia de clínica':'coordinación'}[rol] || 'este puesto';
   return g.fuente === 'cerco'
     ? 'En CERCO, las ofertas de ' + quien + ' en ' + g.donde + ' pagan entre ' + milesK(g.min) + ' y ' + milesK(g.max) + ' € brutos al año (mediana de ' + g.n + ' ofertas).'
-    : 'Referencia del sector para ' + quien + ': entre ' + milesK(g.min) + ' y ' + milesK(g.max) + ' € brutos al año (orientativo, EmpleoDental 2026).';
+    : CERCO_SUELDOS.titulo + ' para ' + ((window.CERCO_sueldoDe && (CERCO_sueldoDe(rol) || {}).plural) || quien) + ': entre ' + milesK(g.min) + ' y ' + milesK(g.max) + ' € brutos al año.'
+      + ((window.CERCO_sueldoDe && (CERCO_sueldoDe(rol) || {}).odonto) ? ' ' + CERCO_SUELDOS.notaOdonto : '');
 }
 
 /* ---------- 8. solicitud: destacada, invitada, rebote ---------- */

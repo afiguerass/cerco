@@ -21,7 +21,8 @@
   function cerrar(){ return "var m=document.getElementById('global-chat-modal');if(m)m.remove();"; }
   function ficha(c){ return btn('Abrir a ' + e(nom(c)), cerrar() + "showScreen('portal');setTimeout(function(){abrirFichaCandidato('" + e(c.id) + "')},350)"); }
   function nota(id){ var v = ((leer('cerco_valoraciones', {})[id] || {}).v || []).filter(function(x){ return x > 0; }); return v.length ? v.reduce(function(a,b){ return a+b; }, 0) / v.length : null; }
-  var REF = { hig:['higienista',18000,32000], aux:['auxiliar',15000,23000], recep:['recepción',15000,24000], odo:['odontólogo/a',30000,90000], orto:['ortodoncista',30000,90000] };
+  // Las cifras están en un solo sitio: comun/sueldos.js. [plural, mínimo, máximo, odontología]
+  function REFde(t){ var d = window.CERCO_sueldoDe ? CERCO_sueldoDe(t) : null, r = d && CERCO_sueldoRango(t); return r ? [d.plural, r[0], r[1], d.odonto] : null; }
   var EXP = ['sin','menos de 1','1','2','3','5','más de 5','10'];
   function expN(c){ if(c.sinExperiencia) return 0; var t = norm(c.experiencia), m = t.match(/\d+/); var n = m ? +m[0] : 0; return /mas de/.test(t) ? n + 1 : (/menos/.test(t) ? 0.5 : n); }
 
@@ -103,7 +104,7 @@
     if(!l.length) return 'No tienes ninguna oferta publicada. Las que más solicitudes reciben dejan claro cinco cosas: sueldo, horario, tareas, contrato y cómo es el proceso.<br>' + btn('Crear oferta', cerrar() + "showScreen('crear-oferta')");
     var h = '';
     l.slice(0,4).forEach(function(o){
-      var n = porOferta(o.id).length, f = faltaOferta(o), g = REF[grupo(o.titulo)];
+      var n = porOferta(o.id).length, f = faltaOferta(o), g = REFde(o.titulo);
       h += '<b>' + e(o.titulo || 'Sin título') + '</b> · ' + n + ' solicitud' + (n === 1 ? '' : 'es') + '<br>';
       if(f.length) h += '• Le falta ' + f.join(', ') + '. Cada cosa que falta es gente que no solicita.<br>'; else h += '• Está completa.<br>';
       var nums = (String(o.salario || '').match(/\d{1,3}(?:[.\s]\d{3})+|\d{4,6}/g) || []).map(function(x){ return +x.replace(/[.\s]/g,''); }).filter(function(x){ return x >= 8000; });
@@ -112,10 +113,11 @@
     return h + btn('Ver mis ofertas', cerrar() + "showScreen('ofertes')");
   }
   function rSueldo(q){
-    var k = /higien/.test(q) ? 'hig' : /auxiliar/.test(q) ? 'aux' : /recep/.test(q) ? 'recep' : /ortodon/.test(q) ? 'orto' : /odontol|dentista/.test(q) ? 'odo' : null;
-    var f = function(g){ return '<b>' + g[0].charAt(0).toUpperCase() + g[0].slice(1) + '</b>: ' + g[1].toLocaleString('es-ES') + '–' + g[2].toLocaleString('es-ES') + ' € brutos/año'; };
-    return (k ? f(REF[k]) : ['hig','aux','recep','odo'].map(function(x){ return f(REF[x]); }).join('<br>'))
-      + '.<br>Es una referencia orientativa del sector a jornada completa; el convenio de tu provincia marca el mínimo. El sueldo es lo primero que mira un candidato: 6 de cada 10 no solicitan si no aparece.';
+    var f = function(g){ return '<b>' + g[0].charAt(0).toUpperCase() + g[0].slice(1) + '</b>: ' + g[1].toLocaleString('es-ES') + '–' + g[2].toLocaleString('es-ES') + ' € brutos/año' + (g[3] ? ' (' + CERCO_SUELDOS.notaOdonto.replace(/\.$/, '').toLowerCase() + ')' : ''); };
+    var uno = REFde(q);
+    var todos = (window.CERCO_SUELDOS ? CERCO_SUELDOS.puestos : []).filter(function(p){ return p.bandas; }).map(function(p){ return REFde(p.puesto); }).filter(Boolean);
+    return (uno ? f(uno) : todos.map(f).join('<br>'))
+      + '.<br>' + (window.CERCO_SUELDOS ? CERCO_SUELDOS.titulo : 'Referencia orientativa del sector') + ', a jornada completa; el convenio de tu provincia marca el mínimo. El sueldo es lo primero que mira un candidato: 6 de cada 10 no solicitan si no aparece.';
   }
   function rPreguntas(c){
     var g = grupo((c && (c.profesion || c.ofertaTitulo)) || ((activas()[0] || {}).titulo));

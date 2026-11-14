@@ -258,6 +258,11 @@ Hecho (cada uno con su commit y una prueba que fallaba antes):
   - un aviso explica cuándo aparece un profesional.
 - [x] **6. Opciones que se pueden quitar** volviendo a tocarlas: «Te ayudo a presentarte» de Seimian y las preguntas de una sola opción del perfil.
 
+- [x] **1 bis. Clínicas antiguas (16 nov):** la clínica real de Asish, creada con una versión antigua, seguía viendo la bienvenida.
+  - Ahora una clínica se reconoce por cualquier dato suyo en la nube (ficha, página pública, ofertas, equipo o solicitudes), y su nombre se recupera de donde esté.
+  - Arreglado de paso: al entrar desde un navegador nuevo, la página pública se sobrescribía vacía; y un nombre vacío podía pisar el guardado.
+  - Si aun así fallara: mirar en la consola de Firebase (Firestore → `clinicas` → el documento de la cuenta) qué campos tiene.
+
 Hecho después, con el visto bueno de Asish:
 - [x] **4. Test DISC:**
   - el mismo diseño en los dos lados (el de la clínica) y el texto «Puedes repetir nota»;

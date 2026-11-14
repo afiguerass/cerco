@@ -246,6 +246,26 @@ Se comprobó, acción por acción, qué cambia en cada pantalla de los dos lados
   - Si la anterior vuelve a entrar en ese navegador, recupera su copia, y encima lo de la nube.
   - Lo del lado del profesional ya iba separado por cuenta.
 
+## Pruebas de Asish con la vista previa (14 de noviembre)
+Hecho (cada uno con su commit y una prueba que fallaba antes):
+- [x] **1. Google:** una clínica que ya existe entra directa a Inicio, sin la bienvenida, por cualquier camino: los botones, abrir la página con la sesión iniciada o volver de Google.
+- [x] **2. Lado del profesional:**
+  - una cuenta de clínica ve siempre el aviso «Esta cuenta es de una clínica», aunque no la haya configurado;
+  - fuera las ofertas de ejemplo;
+  - la portada ya no nombra una clínica inventada.
+- [x] **3. Clínica sin «Datos de ejemplo»:**
+  - nunca salen candidatos inventados ni sus cuentas («Todos (12)»);
+  - un aviso explica cuándo aparece un profesional.
+- [x] **6. Opciones que se pueden quitar** volviendo a tocarlas: «Te ayudo a presentarte» de Seimian y las preguntas de una sola opción del perfil.
+
+Pendiente del visto bueno de Asish (propuesta enseñada, sin tocar):
+- **4.** Test DISC igual en los dos lados (el modelo es el de la clínica), y que ninguna frase se salga del recuadro.
+- **5.** Sugerencias de sueldo anual para todas las profesiones (tabla con fuentes, para revisar).
+- **7.** Ofertas del profesional: que se vea claro qué son «las de tu profesión» y dónde están todas.
+
+Para el final de la prueba piloto:
+- **8.** Al registrarse: contraseña segura y correo de verificación.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

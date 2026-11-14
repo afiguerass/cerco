@@ -170,11 +170,26 @@ function rechazarPropuesta(tipo, oid){
 /* ---------- 4. efecto rebote ---------- */
 var PROF_RE = {
   'Higienista dental':/higien/i, 'Auxiliar de clínica dental':/auxiliar|asistente|ayudante/i,
-  'Odontólogo/a':/odont|dentist|implant|endodon|periodon|est[eé]tica dental|general/i, 'Ortodoncista':/ortodon/i,
+  'Odontólogo/a':/odont|dentist|implant|endodon|periodon|prostodon|ciruj|maxilofac|est[eé]tica dental|general/i, 'Ortodoncista':/ortodon/i,
   'Protésico/a dental':/prot[eé]sic|laboratorio/i, 'Recepción y atención al paciente':/recepci|atenci[oó]n al paciente|front ?desk|administrativ/i,
   'Coordinación o gerencia de clínica':/coordinad|gerent|direct|manager|responsable/i
 };
-function mismaProfesion(o, p){ var re = PROF_RE[(p||{}).profesion]; return re ? re.test(o.titulo || '') : true; }
+// Lo que has estudiado también cuenta como «tu profesión» (p. ej., con el título de higiene
+// bucodental ves también las ofertas de higienista, aunque tu profesión sea auxiliar)
+var PROF_TITULO = [
+  [/higien/i, 'Higienista dental'], [/auxiliar|cuidados auxiliares|tcae/i, 'Auxiliar de clínica dental'],
+  [/prot[eé]sic/i, 'Protésico/a dental'], [/odontolog|estomatolog|dentista/i, 'Odontólogo/a'],
+  [/ortodon/i, 'Ortodoncista'], [/administra|recepci/i, 'Recepción y atención al paciente']
+];
+function profesionesDe(p){
+  p = p || {}; var l = PROF_RE[p.profesion] ? [p.profesion] : [];
+  PROF_TITULO.forEach(function(x){ if(x[0].test(p.titulacion || '') && l.indexOf(x[1]) === -1) l.push(x[1]); });
+  return l;
+}
+function mismaProfesion(o, p){
+  var l = profesionesDe(p); if(!PROF_RE[(p||{}).profesion]) return true;
+  return l.some(function(k){ return PROF_RE[k].test(o.titulo || ''); });
+}
 function clinicasQueDescartaron(){ var no = {}; S.sols.forEach(function(s){ if(s.estado === 'descartada') no[s.clinicaId] = 1; }); return no; }
 function elegirRebote(s){
   var p = S.perfil || {}, d = p.disc; if(!d) return null;
@@ -299,10 +314,7 @@ function ofertaParaMi(o){
 }
 
 /* ---------- 7. guía salarial (con las ofertas reales de CERCO) ---------- */
-var REF_SALARIO = { // referencia del sector, orientativa (EmpleoDental 2026)
-  'Auxiliar de clínica dental':[15000,23000], 'Recepción y atención al paciente':[15000,24000],
-  'Higienista dental':[18000,32000], 'Odontólogo/a':[30000,90000], 'Ortodoncista':[30000,90000]
-};
+// Las cifras de referencia están en un solo sitio: comun/sueldos.js
 function rolDe(o){ for(var k in PROF_RE) if(PROF_RE[k].test(o.titulo || '')) return k; return null; }
 function anualDe(txt){
   var t = String(txt || ''); if(!/año/i.test(t)) return null;
@@ -322,7 +334,7 @@ function guiaSalarial(rol, prov){
     var med = function(a){ return a[Math.floor((a.length-1)/2)]; };
     return { min:med(mins), max:med(maxs), n:base.length, donde: base === enProv ? prov : 'España', fuente:'cerco' };
   }
-  var r = REF_SALARIO[rol];
+  var r = window.CERCO_sueldoRango ? CERCO_sueldoRango(rol) : null;
   return r ? { min:r[0], max:r[1], n:0, donde:'España', fuente:'sector' } : null;
 }
 function txtGuia(g, rol){
@@ -330,7 +342,8 @@ function txtGuia(g, rol){
   var quien = {'Higienista dental':'higienistas','Auxiliar de clínica dental':'auxiliares','Odontólogo/a':'odontólogos','Ortodoncista':'ortodoncistas','Recepción y atención al paciente':'recepción','Protésico/a dental':'protésicos','Coordinación o gerencia de clínica':'coordinación'}[rol] || 'este puesto';
   return g.fuente === 'cerco'
     ? 'En CERCO, las ofertas de ' + quien + ' en ' + g.donde + ' pagan entre ' + milesK(g.min) + ' y ' + milesK(g.max) + ' € brutos al año (mediana de ' + g.n + ' ofertas).'
-    : 'Referencia del sector para ' + quien + ': entre ' + milesK(g.min) + ' y ' + milesK(g.max) + ' € brutos al año (orientativo, EmpleoDental 2026).';
+    : CERCO_SUELDOS.titulo + ' para ' + ((window.CERCO_sueldoDe && (CERCO_sueldoDe(rol) || {}).plural) || quien) + ': entre ' + milesK(g.min) + ' y ' + milesK(g.max) + ' € brutos al año.'
+      + ((window.CERCO_sueldoDe && (CERCO_sueldoDe(rol) || {}).odonto) ? ' ' + CERCO_SUELDOS.notaOdonto : '');
 }
 
 /* ---------- 8. solicitud: destacada, invitada, rebote ---------- */

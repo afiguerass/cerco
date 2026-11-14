@@ -306,9 +306,14 @@
       return String(b.fecha||'').localeCompare(String(a.fecha||''));
     });
     var hay = activas().length > 0;
-    // Con candidatos de verdad, los de ejemplo sobran
-    if(grid) grid.style.display = hay ? 'none' : '';
-    ajustarFiltros(hay);
+    // Sin «Datos de ejemplo», nunca se enseñan candidatos inventados, haya o no de verdad
+    if(grid) grid.style.display = 'none';
+    ajustarFiltros(true);
+    // sin candidatos reales, los filtros y la cuenta de «disponibles» no tienen nada que contar
+    ['.filters-row', '#location-result-note'].forEach(function(sel){
+      var el = document.querySelector('#screen-portal ' + sel);
+      if(el){ if(hay) el.style.removeProperty('display'); else el.style.setProperty('display', 'none', 'important'); }
+    });
     var av = document.getElementById('portal-aviso-real');
     if(av && hay){ av.innerHTML = ''; av.style.display = 'none'; }
     if(!l.length){

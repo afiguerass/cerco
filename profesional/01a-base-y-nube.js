@@ -265,7 +265,7 @@ var Nube = {
   },
   esClinica: function(){
     return this.db().collection('clinicas').doc(this.uid).get()
-      .then(function(d){ return d.exists && !!(d.data()||{}).nom; }).catch(function(){ return false; });
+      .then(function(d){ return d.exists; }).catch(function(){ return false; });   // aunque aún no la haya configurado
   },
   escucharOfertas: function(fn){
     return this.db().collection('ofertas_publicas').where('estado','==','activa').onSnapshot(function(s){

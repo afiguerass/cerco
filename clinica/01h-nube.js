@@ -348,10 +348,23 @@ window.Nube = {
      nube (está configurada: tiene nombre), se trae a este navegador para ir directa a Inicio en
      vez de a las pantallas de bienvenida. Devuelve si la clínica queda registrada aquí.
      Lo usan handleLogin y _entrarDespuesDeGoogle (clinica/01e-cuentas-y-sesion.js). */
+  // espera a que Firebase sepa quién ha entrado (al abrir la página tarda un momento)
+  function usuarioListo(){
+    return Nube.cargar().then(function(ok){
+      if(!ok) return null;
+      return new Promise(function(res){
+        try{
+          var a = firebase.auth(); if(a.currentUser) return res(a.currentUser);
+          var fin = a.onAuthStateChanged(function(u){ try{ fin(); }catch(x){} res(u); });
+          setTimeout(function(){ res(a.currentUser); }, 8000);
+        }catch(e){ res(null); }
+      });
+    }).catch(function(){ return null; });
+  }
   window.CERCO_clinicaDeLaNube = function(){
     try{ if(CDB.registrado()) return Promise.resolve(true); }catch(e){}
-    var u = null; try{ u = firebase.auth().currentUser; }catch(e){}
-    if(!u) return Promise.resolve(false);
+    return usuarioListo().then(function(u){
+    if(!u) return false;
     var leer = firebase.firestore().collection('clinicas').doc(u.uid).get()
       .then(function(d){ return d.exists ? d.data() : null; }).catch(function(){ return null; });
     var espera = new Promise(function(res){ setTimeout(function(){ res(null); }, 8000); }); // si la nube no contesta, como antes
@@ -363,6 +376,7 @@ window.Nube = {
         if(c.plantilla !== undefined) CDB.setPlantilla(c.plantilla);
       }catch(e){}
       return CDB.registrado();
+    });
     });
   };
 

@@ -869,9 +869,9 @@ function _pintarCandidatosBase(){
       + '<div style="display:flex;align-items:flex-start;gap:11px;">'
       + _svg(ICO.info,'#9CA3AF',17)
       + '<div style="flex:1;font-size:13px;color:#4B5563;line-height:1.6;">'
-      + '<b style="color:#111827;">Los perfiles que ves debajo son de ejemplo.</b> '
-      + 'Sirven para enseñarte cómo CERCO ordena y puntúa a los candidatos. '
-      + 'Los tuyos aparecerán aquí en cuanto publiques una oferta y alguien se inscriba.'
+      + '<b style="color:#111827;">Aquí aparecerán las personas que soliciten tus ofertas.</b> '
+      + 'Por privacidad, un profesional solo aparece en esta pantalla cuando solicita una de tus ofertas. '
+      + 'Si ha activado «que las clínicas me inviten» y encaja con la profesión y la zona de tus ofertas, lo verás sin su nombre en «Talento que encaja», y puedes invitarle.'
       + (CDB.resumen().ofertas === 0
           ? '<div style="margin-top:12px;"><button class="paso-btn" onclick="showScreen(\'crear-oferta\')">Publicar mi primera oferta</button></div>'
           : '')

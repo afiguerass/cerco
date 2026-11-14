@@ -123,6 +123,8 @@ window.Nube = {
     var limpio = {};
     ['nom','nomResp','ciutat','email','telefono','rol','descripcion','web','plantilla','alta']
       .forEach(function(k){ if(datos[k] !== undefined && datos[k] !== null) limpio[k] = datos[k]; });
+    // un nombre vacío nunca pisa el nombre que la clínica ya tiene en la nube
+    if(!String(limpio.nom || '').trim()) delete limpio.nom;
     if(Array.isArray(datos.avisos)) limpio.avisos = datos.avisos;
     limpio.actualizado = new Date().toISOString();
     return r.set(limpio, {merge:true}).then(function(){ return true; }).catch(function(){ return false; });
@@ -361,22 +363,58 @@ window.Nube = {
       });
     }).catch(function(){ return null; });
   }
+  // Una lectura con tope de tiempo: si falla o tarda demasiado, devuelve undefined (no «no existe»)
+  function conTope(p, ms){
+    return Promise.race([p.catch(function(){ return undefined; }), new Promise(function(res){ setTimeout(function(){ res(undefined); }, ms); })]);
+  }
+  /* ¿Esta cuenta ya tiene una clínica en la nube? Se reconoce por CUALQUIER dato suyo, no solo
+     por el nombre en su ficha (las clínicas creadas con versiones antiguas pueden no tenerlo):
+     datos de la clínica en la ficha, página pública, ofertas, equipo o solicitudes recibidas.
+     Devuelve { ficha, nombre } o null. */
+  function clinicaEnLaNube(u){
+    var db = firebase.firestore(), uid = u.uid;
+    var ficha = function(){ return db.collection('clinicas').doc(uid).get().then(function(d){ return d.exists ? (d.data() || {}) : null; }); };
+    // la ficha: dos intentos (con el móvil, la primera conexión puede tardar)
+    return conTope(ficha(), 10000).then(function(c){ return c === undefined ? conTope(ficha(), 10000) : c; }).then(function(c){
+      var nom = c ? String(c.nom || '').trim() : '';
+      if(nom) return { ficha:c, nombre:nom };
+      var uno = function(q){ return conTope(q.limit(1).get().then(function(s){ return s.empty ? null : (s.docs[0].data() || {}); }), 8000); };
+      return Promise.all([
+        conTope(db.collection('clinicas_publicas').doc(uid).get().then(function(d){ return d.exists ? (d.data() || {}) : null; }), 8000),
+        uno(db.collection('ofertas_publicas').where('clinicaId', '==', uid)),
+        uno(db.collection('clinicas').doc(uid).collection('ofertas')),
+        uno(db.collection('clinicas').doc(uid).collection('equipo')),
+        uno(db.collection('candidaturas').where('clinicaId', '==', uid))
+      ]).then(function(r){
+        var pub = r[0], ofPub = r[1], of = r[2], eq = r[3], sol = r[4], f = c || {};
+        // la página pública se crea sola al entrar, aunque esté vacía: solo cuenta si tiene nombre
+        if(pub && !String(pub.nom || '').trim()) pub = null;
+        var datosFicha = ['ciutat', 'descripcion', 'telefono', 'web', 'discResponsable'].some(function(k){ return !!f[k]; }) || parseInt(f.plantilla, 10) > 0;
+        if(!(datosFicha || pub || ofPub || of || eq || sol)) return null;       // cuenta sin clínica: bienvenida
+        var nombre = [pub && pub.nom, ofPub && ofPub.clinica !== 'Clínica' && ofPub.clinica, sol && sol.clinicaNombre]
+          .map(function(x){ return String(x || '').trim(); }).filter(Boolean)[0] || 'Mi clínica';
+        var mezcla = Object.assign({}, f);
+        if(pub){ ['ciutat', 'descripcion'].forEach(function(k){ if(!mezcla[k] && pub[k]) mezcla[k] = pub[k]; }); }
+        mezcla.nom = nombre;
+        // se repara la ficha: solo se añade el nombre que faltaba
+        try{ db.collection('clinicas').doc(uid).set({ nom:nombre }, { merge:true }).catch(function(){}); }catch(e){}
+        return { ficha:mezcla, nombre:nombre };
+      });
+    });
+  }
   window.CERCO_clinicaDeLaNube = function(){
     try{ if(CDB.registrado()) return Promise.resolve(true); }catch(e){}
     return usuarioListo().then(function(u){
-    if(!u) return false;
-    var leer = firebase.firestore().collection('clinicas').doc(u.uid).get()
-      .then(function(d){ return d.exists ? d.data() : null; }).catch(function(){ return null; });
-    var espera = new Promise(function(res){ setTimeout(function(){ res(null); }, 8000); }); // si la nube no contesta, como antes
-    return Promise.race([leer, espera]).then(function(c){
-      if(!c || !String(c.nom || '').trim()) return false;
-      try{
-        // la misma mezcla que al bajar de la nube
-        localStorage.setItem(CDB.K.emp, JSON.stringify(Object.assign({}, CDB.clinica(), c)));
-        if(c.plantilla !== undefined) CDB.setPlantilla(c.plantilla);
-      }catch(e){}
-      return CDB.registrado();
-    });
+      if(!u) return false;
+      return clinicaEnLaNube(u).then(function(x){
+        if(!x) return false;
+        try{
+          // la misma mezcla que al bajar de la nube
+          localStorage.setItem(CDB.K.emp, JSON.stringify(Object.assign({}, CDB.clinica(), x.ficha, { nom:x.nombre })));
+          if(x.ficha.plantilla !== undefined) CDB.setPlantilla(x.ficha.plantilla);
+        }catch(e){}
+        return CDB.registrado();
+      }).catch(function(){ return false; });
     });
   };
 
@@ -389,6 +427,8 @@ window.Nube = {
         try{
           var local = CDB.clinica();
           var fus = Object.assign({}, local, c);
+          // un nombre vacío en la nube no borra el que ya se conoce en este navegador
+          if(!String(c.nom || '').trim() && local.nom) fus.nom = local.nom;
           localStorage.setItem(CDB.K.emp, JSON.stringify(fus));
           if(c.plantilla !== undefined) CDB.setPlantilla(c.plantilla);
         }catch(e){}

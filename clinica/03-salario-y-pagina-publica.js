@@ -71,6 +71,9 @@
   var _publicarClinicaBase = function(){
     try{
       if(!Nube.activa) return Promise.resolve(false);
+      // sin el nombre de la clínica (navegador nuevo que aún no ha recibido sus datos, o cuenta sin
+      // configurar) no se publica: se sobrescribiría vacía la página pública que ya hay en la nube
+      if(!String(pub().nom || '').trim()) return Promise.resolve(false);
       var d = Nube.db(); if(!d) return Promise.resolve(false);
       return d.collection('clinicas_publicas').doc(Nube.uid).set(docPublico())
         .then(function(){ return true; }).catch(function(){ return false; });

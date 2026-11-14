@@ -258,10 +258,20 @@ Hecho (cada uno con su commit y una prueba que fallaba antes):
   - un aviso explica cuándo aparece un profesional.
 - [x] **6. Opciones que se pueden quitar** volviendo a tocarlas: «Te ayudo a presentarte» de Seimian y las preguntas de una sola opción del perfil.
 
-Pendiente del visto bueno de Asish (propuesta enseñada, sin tocar):
-- **4.** Test DISC igual en los dos lados (el modelo es el de la clínica), y que ninguna frase se salga del recuadro.
-- **5.** Sugerencias de sueldo anual para todas las profesiones (tabla con fuentes, para revisar).
-- **7.** Ofertas del profesional: que se vea claro qué son «las de tu profesión» y dónde están todas.
+Hecho después, con el visto bueno de Asish:
+- [x] **4. Test DISC:**
+  - el mismo diseño en los dos lados (el de la clínica) y el texto «Puedes repetir nota»;
+  - ninguna frase se sale del recuadro, ni con la pantalla ampliada.
+- [x] **5. Sueldos de referencia** en todas las profesiones con cifras, como «Referencia orientativa del sector».
+  - En odontología, con la nota «Muchos cobran un porcentaje de lo que facturan.».
+  - Las cifras están en un solo archivo, `public/comun/sueldos.js`, para revisarlas con el socio.
+  - Asesor/a de pacientes, gerente y prostodoncista: sin sugerencia por ahora.
+  - Fuentes de cada cifra: EmpleoDental (higienista, auxiliar, coordinador), Indeed y Glassdoor (recepcionista, protésico), Metrodora FP (protésico), Laboria y Nubidoc (ortodoncista, odontopediatra), blogs de clínicas (especialidades de odontología) y convenios provinciales (Alicante, Valencia).
+- [x] **7. Ofertas del profesional:**
+  - fichas «De tu profesión» y «Todas las profesiones»;
+  - la frase de arriba con los dos filtros y el total;
+  - debajo de la lista, lo que queda fuera y cómo verlo;
+  - lo que has estudiado también cuenta como «tu profesión».
 
 Para el final de la prueba piloto:
 - **8.** Al registrarse: contraseña segura y correo de verificación.

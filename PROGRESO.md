@@ -276,6 +276,57 @@ Hecho después, con el visto bueno de Asish:
 Para el final de la prueba piloto:
 - **8.** Al registrarse: contraseña segura y correo de verificación.
 
+## Siguiente tarea (después de publicar la Fase 1): «Buscar talento»
+**No empezar hasta que Asish avise de que la Fase 1 está publicada.** Propuesta aprobada el 15 de noviembre.
+
+Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado sus ofertas (como en InfoJobs o LinkedIn). Hoy «Talento que encaja» es demasiado restrictivo (solo misma profesión, misma zona y con la opción activada).
+
+**Decisiones de Asish:**
+1. Pueden buscar todas las clínicas registradas y configuradas (durante la prueba piloto).
+2. Se mantiene el límite de 10 invitaciones por semana.
+3. «Visible» incluye nombre, **foto**, vídeo y perfil.
+4. El **CV** solo se ve cuando el profesional acepta la invitación.
+5. Los profesionales que ya existen se quedan como estaban hasta que elijan: anónimos si habían activado «que las clínicas me inviten»; si no, «Solo cuando yo solicite».
+
+**Qué se hace:**
+- **Profesional:**
+  - En el alta, pregunta obligatoria «¿Cómo quieres que te vean las clínicas?» con tres opciones **sin ninguna marcada** (elección activa, RGPD):
+    - «Visible»: nombre, foto, vídeo y perfil, sin teléfono, correo ni CV;
+    - «Anónimo»: vídeo y perfil, sin nombre, foto ni contacto;
+    - «Solo cuando yo solicite».
+  - Debajo de cada opción, un ejemplo de lo que vería la clínica. Se guardan la opción y la fecha.
+  - En «Mi perfil», apartado «Cómo te ven las clínicas», para cambiarlo cuando quiera (se aplica al momento).
+  - A los que ya existen se les pregunta una vez, al entrar.
+- **Clínica:**
+  - Pantalla nueva «Buscar talento», en el menú debajo de «Candidatos». Enseña a todos los profesionales visibles o anónimos de España:
+    - ordenados por encaje (con la oferta elegida o con el perfil que le falta al equipo) y luego por distancia;
+    - con filtros de profesión, km desde la clínica (10, 25, 50, 100, provincia o toda España) y perfil DISC.
+  - Las tarjetas «Visible» llevan nombre y foto; las «Anónimo», solo profesión, experiencia y km.
+  - «Verlos en vídeo»: los vídeos a pantalla completa, uno detrás de otro, con «Invitar» en cada uno.
+  - En «Candidatos», «Talento que encaja» pasa a ser un acceso a «Buscar talento».
+- **Invitar:** se elige la oferta y se escribe un mensaje opcional. Si el profesional acepta, se crea la solicitud y aparece en «Candidatos» («Por contestar») con nombre, contacto y CV.
+
+**Reglas de seguridad (`firestore.rules`): sí cambian.** Asish tendrá que publicarlas en la consola de Firebase cuando se publique esto.
+- `talento`:
+  - guarda el modo («visible» o «anonimo»);
+  - nombre y foto solo si es «visible»;
+  - nunca teléfono, correo ni CV.
+- `candidatos/{uid}/media`: una clínica puede leer el **vídeo** (no el CV) de quien esté en «Visible» o «Anónimo».
+- `invitaciones`: sin cambios.
+- Pruebas de reglas nuevas para cada caso:
+  - un anónimo sin nombre;
+  - nada de vídeo de «Solo cuando yo solicite»;
+  - nada de CV sin aceptar;
+  - una cuenta que no es de clínica no lee la lista.
+- Aviso: para las reglas, «ser clínica» es tener ficha de clínica, y cualquiera que se registre como clínica la tiene (ya apuntado para la Fase 3). Quien se registre como clínica verá nombres y vídeos de los «Visible». Lo protegen la opción «Anónimo», el contacto y el CV solo tras aceptar, el botón de denunciar y el límite de invitaciones.
+
+**Pasos** (cada uno con su commit y su prueba; solo las pruebas afectadas mientras se trabaja y la batería completa una vez al final):
+1. Reglas de seguridad y sus pruebas.
+2. Elección del profesional (alta, Mi perfil y la pregunta a los que ya existen).
+3. «Buscar talento» en la clínica (lista, filtros y orden).
+4. Vista en vídeo, uno detrás de otro.
+5. Invitaciones (elegir oferta y mensaje; al aceptar, pasa a «Candidatos»).
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

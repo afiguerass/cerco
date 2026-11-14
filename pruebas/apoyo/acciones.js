@@ -166,7 +166,11 @@ async function altaProfesional(page, opciones = {}, datos = PROFESIONAL) {
   if (opciones.alPaso1) await opciones.alPaso1();
   await page.getByRole('button', { name: 'Continuar' }).click();
   await expect(page.locator('#al-btn2')).toBeVisible();
-  const chip = (t) => page.getByText(t, { exact: true }).locator('visible=true').first().click();
+  // se toca la opción solo si no está ya elegida (volver a tocarla la quitaría)
+  const chip = async (t) => {
+    const c = page.getByText(t, { exact: true }).locator('visible=true').first();
+    if (!(await c.evaluate((x) => x.classList.contains('on')))) await c.click();
+  };
   for (const t of ['Completa', 'Ya mismo', '25 km', 'Trato con el paciente', 'Precisión']) await chip(t);
   await page.fill('#al-res', datos.resumen);
   await page.click('#al-exp-add');

@@ -176,7 +176,8 @@ document.addEventListener('click', function(ev){
   var c = ev.target.closest && ev.target.closest('.chips[id^="al-"] .chip');
   if(!c) return;
   var g = c.parentNode;
-  if(g.dataset.uno){ g.querySelectorAll('.chip').forEach(function(x){ if(x !== c) x.classList.remove('on'); }); c.classList.add('on'); return; }
+  // una sola opción: al tocar otra, se cambia; al volver a tocar la elegida, se quita
+  if(g.dataset.uno){ var ya = c.classList.contains('on'); g.querySelectorAll('.chip').forEach(function(x){ x.classList.toggle('on', x === c && !ya); }); return; }
   var max = parseInt(g.dataset.max,10) || 99;
   if(!c.classList.contains('on') && g.querySelectorAll('.chip.on').length >= max){ toast('Puedes elegir hasta ' + max); return; }
   c.classList.toggle('on');
@@ -247,7 +248,7 @@ function abrirPresentacionIA(){
     + '<div class="err" id="pia-err"></div><div id="pia-res"></div>'
     + '<div class="acts"><button class="btn btn-s" onclick="cerrarModal()">Cancelar</button><button class="btn btn-p" id="pia-btn" onclick="generarPresentacion()">'+svg('sparkles','#fff',15)+'Escribir</button></div></div>';
   document.body.appendChild(m);
-  m.addEventListener('click', function(ev){ var c = ev.target.closest && ev.target.closest('#pia-g .chip, #pia-b .chip'); if(!c) return; c.parentNode.querySelectorAll('.chip').forEach(function(x){ x.classList.toggle('on', x === c); }); });
+  m.addEventListener('click', function(ev){ var c = ev.target.closest && ev.target.closest('#pia-g .chip, #pia-b .chip'); if(!c) return; var ya = c.classList.contains('on'); c.parentNode.querySelectorAll('.chip').forEach(function(x){ x.classList.toggle('on', x === c && !ya); }); });   // volver a tocar la elegida la quita
 }
 function generarPresentacion(){
   var g = (document.querySelector('#pia-g .chip.on')||{}).dataset, b = (document.querySelector('#pia-b .chip.on')||{}).dataset;

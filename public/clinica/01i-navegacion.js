@@ -87,6 +87,19 @@ window.aplicarModoInvitado = function(){
    comprueba antes de usarla: durante la carga, si aún no existe, se hace lo
    mismo que hacía la versión original. */
 window.showScreen = function(id){
+  // Antes de enseñar la bienvenida, si la cuenta ya tiene su clínica en la nube, se va a Inicio.
+  // Vale para todos los caminos (correo, Google, abrir la página con la sesión iniciada…).
+  if(id === 'benvinguda' && !window.__bienvenidaComprobada && window.CERCO_clinicaDeLaNube){
+    var reg = false; try{ reg = CDB.registrado(); }catch(x){}
+    if(!reg){
+      CERCO_clinicaDeLaNube().then(function(r){
+        try{ CDB.renderTodo(); }catch(x){}
+        window.__bienvenidaComprobada = true;
+        try{ showScreen(r ? 'inicio' : 'benvinguda'); } finally { window.__bienvenidaComprobada = false; }
+      });
+      return;
+    }
+  }
   // Al salir de la ficha de un candidato, se quita la ficha provisional (clinica/16-ficha-candidato.js)
   if(window.CERCO_fichaAlCambiarPantalla) CERCO_fichaAlCambiarPantalla(id);
   var pedida = id;

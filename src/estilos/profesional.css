@@ -1062,3 +1062,7 @@ body.en-dx .tab.active .ico{background:rgba(255,255,255,.16);}
   #t-ops .opt-n small{display:none;}
   #t-ops .opt-n{grid-template-columns:repeat(4,1fr);}
 }
+
+/* Ofertas: lo que queda fuera de la lista (por los km o la profesión) y cómo verlo */
+.of-mas{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);margin:4px 2px 10px;}
+.of-mas .link{font-weight:700;}

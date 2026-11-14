@@ -170,11 +170,26 @@ function rechazarPropuesta(tipo, oid){
 /* ---------- 4. efecto rebote ---------- */
 var PROF_RE = {
   'Higienista dental':/higien/i, 'Auxiliar de clínica dental':/auxiliar|asistente|ayudante/i,
-  'Odontólogo/a':/odont|dentist|implant|endodon|periodon|est[eé]tica dental|general/i, 'Ortodoncista':/ortodon/i,
+  'Odontólogo/a':/odont|dentist|implant|endodon|periodon|prostodon|ciruj|maxilofac|est[eé]tica dental|general/i, 'Ortodoncista':/ortodon/i,
   'Protésico/a dental':/prot[eé]sic|laboratorio/i, 'Recepción y atención al paciente':/recepci|atenci[oó]n al paciente|front ?desk|administrativ/i,
   'Coordinación o gerencia de clínica':/coordinad|gerent|direct|manager|responsable/i
 };
-function mismaProfesion(o, p){ var re = PROF_RE[(p||{}).profesion]; return re ? re.test(o.titulo || '') : true; }
+// Lo que has estudiado también cuenta como «tu profesión» (p. ej., con el título de higiene
+// bucodental ves también las ofertas de higienista, aunque tu profesión sea auxiliar)
+var PROF_TITULO = [
+  [/higien/i, 'Higienista dental'], [/auxiliar|cuidados auxiliares|tcae/i, 'Auxiliar de clínica dental'],
+  [/prot[eé]sic/i, 'Protésico/a dental'], [/odontolog|estomatolog|dentista/i, 'Odontólogo/a'],
+  [/ortodon/i, 'Ortodoncista'], [/administra|recepci/i, 'Recepción y atención al paciente']
+];
+function profesionesDe(p){
+  p = p || {}; var l = PROF_RE[p.profesion] ? [p.profesion] : [];
+  PROF_TITULO.forEach(function(x){ if(x[0].test(p.titulacion || '') && l.indexOf(x[1]) === -1) l.push(x[1]); });
+  return l;
+}
+function mismaProfesion(o, p){
+  var l = profesionesDe(p); if(!PROF_RE[(p||{}).profesion]) return true;
+  return l.some(function(k){ return PROF_RE[k].test(o.titulo || ''); });
+}
 function clinicasQueDescartaron(){ var no = {}; S.sols.forEach(function(s){ if(s.estado === 'descartada') no[s.clinicaId] = 1; }); return no; }
 function elegirRebote(s){
   var p = S.perfil || {}, d = p.disc; if(!d) return null;

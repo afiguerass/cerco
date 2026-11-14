@@ -45,8 +45,10 @@ function ordenarOfertas(l){
 document.addEventListener('click', function(ev){
   var c = ev.target.closest && ev.target.closest('#of-fil .chip');
   if(!c) return;
-  S.filtro = c.dataset.f;
-  document.querySelectorAll('#of-fil .chip').forEach(function(x){ x.classList.toggle('on', x === c); });
+  // «De tu profesión» y «Todas las profesiones» eligen qué profesiones ves; las demás fichas filtran
+  if(c.dataset.f === 'todas-prof'){ S.filtro = 'todas'; S.verOtrasProf = true; }
+  else if(c.dataset.f === 'todas'){ S.filtro = 'todas'; S.verOtrasProf = false; }
+  else S.filtro = c.dataset.f;
   pintarOfertas();
 });
 
@@ -68,6 +70,7 @@ function pintarOfertas(){
     if(S.filtro !== 'guardadas' && !enRadio(o, z.origen, z.radio)){ fuera.push(o); return false; }
     return true;
   });
+  marcarFichasOfertas();
   var chG = document.querySelector('#of-fil .chip[data-f="guardadas"]'), nG = nGuardadas();
   var zb = $('of-zona'); if(zb) zb.style.display = S.filtro === 'guardadas' ? 'none' : '';
   if(chG) chG.innerHTML = svg('bookmark', S.filtro === 'guardadas' ? '#fff' : '#1A56DB', 14) + 'Guardadas' + (nG ? ' <b class="chip-n">' + nG + '</b>' : '');
@@ -79,21 +82,12 @@ function pintarOfertas(){
   l = ordenarOfertas(l);
   if(S.filtro === 'guardadas'){ var nz = $('of-nota'); if(nz) nz.innerHTML = svg('bookmark','#1A56DB',14)+'<span><b>'+l.length+(l.length === 1 ? ' oferta guardada' : ' ofertas guardadas')+'</b>, estén donde estén</span>'; }
   else pintarNotaZona(l.length, fuera);
-  var nz2 = $('of-nota'), pr = (S.perfil||{}).profesion;
-  if(nz2 && pr && PROF_RE[pr] && S.filtro !== 'guardadas'){
-    var otrasN = S.verOtrasProf ? base.filter(otraProfesion).length : otras.length;
-    if(otrasN) nz2.insertAdjacentHTML('beforeend', '<span class="of-prof">' + (S.verOtrasProf
-      ? 'Ves también ' + otrasN + ' de otras profesiones · <button class="link" onclick="S.verOtrasProf=false;pintarOfertas()">Ver solo ' + esc(pr.toLowerCase()) + '</button>'
-      : 'Solo ofertas de ' + esc(pr.toLowerCase()) + ' · hay ' + otrasN + ' de otras profesiones <button class="link" onclick="S.verOtrasProf=true;pintarOfertas()">Mostrarlas también</button>') + '</span>');
-  }
   var av = '';
   if(S.errOfertas && !hayReales()) av = '<div class="aviso">'+svg('info','#8A5A00',16)+'<span>No hemos podido cargar las ofertas. Revisa tu conexión y vuelve a abrir esta pantalla.</span></div>';
   else if(!hayReales()) av = '<div class="aviso aviso-info">'+svg('info','#1E3A8A',16)+'<span><b>Todavía no hay ofertas publicadas.</b> CERCO acaba de empezar: en cuanto una clínica publique una oferta de tu profesión, la verás aquí y en Inicio. Mientras tanto, deja tu perfil completo y activa «Que las clínicas me encuentren» en Ajustes.</span></div>';
   else if(!d) av = '<div class="aviso aviso-info">'+svg('compass','#1E3A8A',16)+'<span>Haz el test de personalidad para ver tu encaje con cada oferta y poder solicitarlas. <button class="link" onclick="abrirTest(false)">Hacerlo ahora</button></span></div>';
   $('of-aviso').innerHTML = av;
-  $('of-sub').textContent = hayReales()
-    ? ((function(){ var pr = (S.perfil||{}).profesion, n = (pr && PROF_RE[pr] && !S.verOtrasProf) ? base.filter(function(o){ return !otraProfesion(o); }).length : base.length; return n + (n === 1 ? ' oferta activa' : ' ofertas activas') + ((pr && PROF_RE[pr] && !S.verOtrasProf) ? ' de ' + pr.toLowerCase() : ''); })() + (S.filtro === 'recientes' ? ', de la más nueva a la más antigua.' : (d ? ', ordenadas por tu encaje.' : '.')))
-    : 'Ordenadas por lo bien que encajas con cada puesto.';
+  $('of-sub').textContent = hayReales() ? fraseOfertas(l.length, base.length, z) : 'Ordenadas por lo bien que encajas con cada puesto.';
   if(!l.length && fuera.length){
     var cer = fuera.slice().sort(function(a,b){ return (kmDe(a)||1e9) - (kmDe(b)||1e9); })[0], kc = kmDe(cer);
     box.innerHTML = '<div class="vacio"><b>Ninguna oferta '+esc(txtRadio(z.radio, z.origen))+'</b><p>Hay '+fuera.length+(fuera.length === 1 ? ' más lejos' : ' más lejos')+(kc !== null ? '; la más cercana, a '+kc+' km ('+esc(cer.ubicacion||'')+')' : '')+'.</p><div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">'
@@ -105,7 +99,27 @@ function pintarOfertas(){
     box.innerHTML = '<div class="vacio"><b>Sin resultados</b><p>'+(q ? 'Ninguna oferta coincide con «'+esc(q)+'». ' : 'Ninguna oferta cumple este filtro. ')+'Prueba con otra palabra o quita el filtro.</p><div style="margin-top:14px;"><button class="btn btn-p" onclick="limpiarFiltros()">Quitar los filtros</button></div></div>';
     return;
   }
-  box.innerHTML = l.map(tarjetaOferta).join('');
+  box.innerHTML = l.map(tarjetaOferta).join('')
+    // debajo de la lista: lo que queda fuera por los km o por la profesión, con cómo verlo
+    + (fuera.length && S.filtro !== 'guardadas' ? '<div class="of-mas">'+svg('pin','#1A56DB',14)+'<span>Hay '+fuera.length+(fuera.length === 1 ? ' oferta más lejos' : ' ofertas más lejos')+' · <button class="link" onclick="ponerRadio(\'todo\')">Ver en toda España</button></span></div>' : '')
+    + (otras.length && !S.verOtrasProf && S.filtro !== 'guardadas' ? '<div class="of-mas">'+svg('search','#1A56DB',14)+'<span>Hay '+otras.length+(otras.length === 1 ? ' oferta de otra profesión' : ' ofertas de otras profesiones')+' · <button class="link" onclick="S.verOtrasProf=true;S.filtro=\'todas\';pintarOfertas()">Ver todas las profesiones</button></span></div>' : '');
+}
+/* Fichas de arriba: «De tu profesión» / «Todas las profesiones» (si tienes profesión) y el resto */
+function marcarFichasOfertas(){
+  var conProf = profesionesDe(S.perfil).length > 0;
+  document.querySelectorAll('#of-fil .chip').forEach(function(x){
+    var f = x.dataset.f, on;
+    if(f === 'todas'){ x.textContent = conProf ? 'De tu profesión' : 'Todas'; on = S.filtro === 'todas' && (!conProf || !S.verOtrasProf); }
+    else if(f === 'todas-prof'){ x.hidden = !conProf; on = conProf && S.filtro === 'todas' && !!S.verOtrasProf; }
+    else on = S.filtro === f;
+    x.classList.toggle('on', !!on);
+  });
+}
+/* «2 ofertas de higienista dental a menos de 25 km de Salt · 9 en total en CERCO» */
+function fraseOfertas(n, total, z){
+  var pr = profesionesDe(S.perfil), deQue = (pr.length && !S.verOtrasProf) ? ' de ' + pr.join(' o ').toLowerCase() : ' de todas las profesiones';
+  var donde = S.filtro === 'guardadas' ? '' : (z && z.origen ? ' ' + txtRadio(z.radio, z.origen) : '');
+  return n + (n === 1 ? ' oferta' : ' ofertas') + deQue + donde + ' · ' + total + ' en total en CERCO';
 }
 /* Buscar: usa lo que haya escrito en «Desde» y en los km, aunque no se haya elegido de la lista */
 function buscarZona(){
@@ -150,7 +164,7 @@ document.addEventListener('click', function(ev){
   var c = ev.target.closest && ev.target.closest('#of-rad .chip');
   if(c) ponerRadio(c.dataset.r);
 });
-function limpiarFiltros(){ $('of-q').value = ''; S.filtro = 'todas'; document.querySelectorAll('#of-fil .chip').forEach(function(x){ x.classList.toggle('on', x.dataset.f === 'todas'); }); pintarOfertas(); }
+function limpiarFiltros(){ $('of-q').value = ''; S.filtro = 'todas'; S.verOtrasProf = false; document.querySelectorAll('#of-fil .chip').forEach(function(x){ x.classList.toggle('on', x.dataset.f === 'todas'); }); pintarOfertas(); }
 
 function cellUbic(o){
   var k = o.ejemplo ? null : kmDe(o, (S.perfil||{}).geo), p = S.perfil || {};

@@ -288,6 +288,12 @@ Para el final de la prueba piloto:
 
 Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado sus ofertas (como en InfoJobs o LinkedIn). Hoy «Talento que encaja» es demasiado restrictivo (solo misma profesión, misma zona y con la opción activada).
 
+**Tres ajustes de Asish (15 de noviembre, al dar el «adelante»):**
+6. En «Anónimo», avisar claro antes de elegir: «Tu vídeo se ve: si sales en él, la clínica verá tu cara».
+7. En «Buscar talento», cargar de 20 en 20 (con «Ver más» o al bajar), no todos de golpe: va más rápido y gasta menos lecturas de Firebase.
+8. En «Visible», en la lista y en la ficha solo nombre e inicial del apellido («Laura M.»). El nombre completo, el contacto y el CV, solo cuando acepte la invitación.
+9. La foto de la lista es una copia pequeña (`fotoMini`); la grande se ve al abrir la ficha o el vídeo.
+
 **Decisiones de Asish:**
 1. Pueden buscar todas las clínicas registradas y configuradas (durante la prueba piloto).
 2. Se mantiene el límite de 10 invitaciones por semana.
@@ -328,7 +334,17 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
 - Aviso: para las reglas, «ser clínica» es tener ficha de clínica, y cualquiera que se registre como clínica la tiene (ya apuntado para la Fase 3). Quien se registre como clínica verá nombres y vídeos de los «Visible». Lo protegen la opción «Anónimo», el contacto y el CV solo tras aceptar, el botón de denunciar y el límite de invitaciones.
 
 **Pasos** (cada uno con su commit y su prueba; solo las pruebas afectadas mientras se trabaja y la batería completa una vez al final):
-1. Reglas de seguridad y sus pruebas.
+1. ~~Reglas de seguridad y sus pruebas.~~ **HECHO** (15 de noviembre). `firestore.rules`:
+   - `talento` tiene lista cerrada de campos: ahí nunca caben el teléfono, el correo ni el CV.
+     `modo` solo puede ser `visible` o `anonimo`. En `anonimo` no se puede guardar nombre,
+     inicial ni foto. En `visible`, `nombre` es una sola palabra (nombre de pila) e `inicial`
+     una sola letra: el apellido entero no cabe en las reglas.
+   - El **vídeo** (`candidatos/{uid}/media/video_N`) lo puede leer una clínica si la persona
+     está en `visible` o `anonimo`. El **CV** (`cv_N`) no, nunca: solo tras aceptar la invitación.
+   - Los perfiles de antes (sin `modo`) se quedan como estaban: su vídeo no se ve hasta que elijan.
+   - 14 pruebas nuevas en `pruebas/reglas/reglas.test.js` (47 en total, en verde).
+   - **Asish tendrá que publicar estas reglas en la consola de Firebase** antes de que esto
+     funcione en la web publicada. Se le darán los pasos al final de la tarea.
 2. Elección del profesional (alta, Mi perfil y la pregunta a los que ya existen).
 3. «Buscar talento» en la clínica (lista, filtros y orden).
 4. Vista en vídeo, uno detrás de otro.

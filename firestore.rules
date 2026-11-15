@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Reglas de CERCO · 11 de noviembre de 2026
+// Reglas de CERCO · 15 de noviembre de 2026
 // Panel de clínicas (index.html) + portal del profesional (candidato.html).
 
 service cloud.firestore {
@@ -29,6 +29,35 @@ service cloud.firestore {
           && d.pct is number
           && d.pct >= 0
           && d.pct <= 100;
+    }
+
+    // Perfil para «Buscar talento». Lo escribe solo el profesional, y nunca
+    // puede llevar teléfono, correo ni el CV (la lista de campos es cerrada).
+    //   «anonimo»: sin nombre, sin inicial y sin foto.
+    //   «visible»: nombre de pila (una sola palabra) e inicial del apellido,
+    //              o sea «Laura M.»; el apellido entero no cabe aquí.
+    function talentoValido() {
+      let d = request.resource.data;
+      let k = d.keys();
+      return k.hasOnly(['modo','modoFecha','profesion','experiencia','jornada','disponibilidad',
+                        'fuertes','disc','geo','radio','video','cv','colegiado','ocultar',
+                        'actualizado','nombre','inicial','fotoMini'])
+          && d.modo in ['visible','anonimo']
+          && (!k.hasAny(['video']) || d.video is bool)
+          && (!k.hasAny(['cv']) || d.cv is bool)
+          && (d.modo == 'visible'
+              ? ((!k.hasAny(['nombre'])   || (d.nombre is string && d.nombre.size() <= 40 && d.nombre.matches('^[^ ]+$')))
+                 && (!k.hasAny(['inicial'])  || (d.inicial is string && d.inicial.size() <= 1))
+                 && (!k.hasAny(['fotoMini']) || (d.fotoMini is string && d.fotoMini.size() <= 30000)))
+              : !k.hasAny(['nombre','inicial','fotoMini']));
+    }
+
+    // ¿Este profesional ha elegido que las clínicas le encuentren?
+    // Los perfiles de antes (sin «modo») no cuentan: siguen como estaban
+    // hasta que la persona elija, así que su vídeo no se ve.
+    function enBuscarTalento(uid) {
+      return exists(/databases/$(database)/documents/talento/$(uid))
+          && get(/databases/$(database)/documents/talento/$(uid)).data.get('modo', '') in ['visible','anonimo'];
     }
 
     // ---------- CLÍNICAS (privado: solo la propia clínica) ----------
@@ -79,17 +108,23 @@ service cloud.firestore {
                   || (cuentaReal() && request.auth.uid in resource.data.get('clinicas', []));
       allow write: if esPropietario(uid);
 
+      // Vídeo y CV, en trozos («video_0», «cv_0»…).
+      // Una clínica ve los dos si el profesional le ha solicitado. Si solo está
+      // en «Buscar talento», ve el vídeo y nunca el CV.
       match /media/{trozo} {
         allow read: if esPropietario(uid)
-                    || (cuentaReal() && request.auth.uid in get(/databases/$(database)/documents/candidatos/$(uid)).data.get('clinicas', []));
+                    || (cuentaReal() && request.auth.uid in get(/databases/$(database)/documents/candidatos/$(uid)).data.get('clinicas', []))
+                    || (soyClinica() && trozo.matches('^video_[0-9]+$') && enBuscarTalento(uid));
         allow write: if esPropietario(uid);
       }
     }
 
-    // Perfil anónimo para «Buscar talento» (sin nombre, foto, teléfono ni correo)
+    // Perfil para «Buscar talento». Lo leen las clínicas; lo escribe solo su dueño.
+    // Si elige «Solo cuando yo solicite», el documento se borra y no aparece.
     match /talento/{uid} {
       allow read: if esPropietario(uid) || soyClinica();
-      allow write: if esPropietario(uid);
+      allow create, update: if esPropietario(uid) && talentoValido();
+      allow delete: if esPropietario(uid);
     }
 
     // ---------- SOLICITUDES ----------

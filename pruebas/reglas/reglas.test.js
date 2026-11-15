@@ -42,6 +42,16 @@ const solicitudBase = (extra = {}) => ({
   ...extra,
 });
 
+// Perfil de «Buscar talento». «video» y «cv» son solo un sí/no («tiene vídeo»,
+// «tiene CV»), nunca el vídeo ni el CV en sí.
+const talentoBase = (extra = {}) => ({
+  modo: 'anonimo', profesion: 'Higienista dental', experiencia: 'de 2 a 5 años',
+  jornada: 'Completa', disponibilidad: 'Ya', disc: { dom: 'S', sec: 'C' },
+  geo: { lat: 41.98, lng: 2.82, prov: 'Girona', n: 'Girona' }, radio: 25,
+  video: true, cv: true, actualizado: '2026-11-15T10:00:00.000Z',
+  ...extra,
+});
+
 before(async () => {
   entorno = await initializeTestEnvironment({
     projectId: 'demo-cerco',
@@ -60,6 +70,8 @@ beforeEach(async () => {
   await sembrar(`candidatos/${PRO}`, { nombre: 'Laura Pérez', clinicas: [CLINICA] });
   await sembrar(`candidatos/${PRO}/media/video_0`, { d: 'AAAA' });
   await sembrar(`candidatos/${OTRO_PRO}`, { nombre: 'Marc Soler', clinicas: [] });
+  await sembrar(`candidatos/${OTRO_PRO}/media/video_0`, { d: 'CCCC' });
+  await sembrar(`candidatos/${OTRO_PRO}/media/cv_0`, { d: 'DDDD' });
   await sembrar(`candidaturas/${SOL}`, solicitudBase());
 });
 
@@ -139,12 +151,110 @@ describe('Perfil del profesional (vídeo, CV…)', () => {
   });
 });
 
-describe('Talento (perfil anónimo para «Buscar talento»)', () => {
-  test('lo leen las clínicas, no otros profesionales', async () => {
-    await sembrar(`talento/${PRO}`, { profesion: 'Higienista dental' });
+describe('Talento (cómo te ven las clínicas en «Buscar talento»)', () => {
+  test('lo leen las clínicas, no otros profesionales, y nadie más lo escribe', async () => {
+    await sembrar(`talento/${PRO}`, talentoBase());
     await assertSucceeds(getDoc(doc(cuenta(CLINICA), `talento/${PRO}`)));
+    await assertSucceeds(getDoc(doc(cuenta(PRO), `talento/${PRO}`)));
     await assertFails(getDoc(doc(cuenta(OTRO_PRO), `talento/${PRO}`)));
-    await assertFails(setDoc(doc(cuenta(CLINICA), `talento/${PRO}`), { profesion: 'Cambiada' }));
+    await assertFails(setDoc(doc(cuenta(CLINICA), `talento/${PRO}`), talentoBase()));
+  });
+
+  test('una cuenta que no es de clínica no puede leer la lista', async () => {
+    await sembrar(`talento/${PRO}`, talentoBase());
+    await assertFails(getDocs(collection(cuenta(OTRO_PRO), 'talento')));
+    await assertFails(getDocs(collection(anonimo(), 'talento')));
+    await assertFails(getDocs(collection(sinSesion(), 'talento')));
+  });
+
+  test('en «Anónimo» NO se puede guardar nombre, inicial ni foto', async () => {
+    const yo = doc(cuenta(PRO), `talento/${PRO}`);
+    await assertSucceeds(setDoc(yo, talentoBase()));
+    await assertFails(setDoc(yo, talentoBase({ nombre: 'Laura' })));
+    await assertFails(setDoc(yo, talentoBase({ inicial: 'M' })));
+    await assertFails(setDoc(yo, talentoBase({ fotoMini: 'data:image/jpeg;base64,AAAA' })));
+  });
+
+  test('en «Visible» van el nombre de pila y la inicial, nunca el apellido entero', async () => {
+    const yo = doc(cuenta(PRO), `talento/${PRO}`);
+    await assertSucceeds(setDoc(yo, talentoBase({ modo: 'visible', nombre: 'Laura', inicial: 'M', fotoMini: 'data:image/jpeg;base64,AAAA' })));
+    await assertFails(setDoc(yo, talentoBase({ modo: 'visible', nombre: 'Laura Pérez' })));
+    await assertFails(setDoc(yo, talentoBase({ modo: 'visible', nombre: 'Laura', inicial: 'Pérez' })));
+  });
+
+  test('el modo tiene que ser «visible» o «anonimo»', async () => {
+    const yo = doc(cuenta(PRO), `talento/${PRO}`);
+    await assertFails(setDoc(yo, talentoBase({ modo: 'solicito' })));
+    await assertFails(setDoc(yo, talentoBase({ modo: '' })));
+    const { modo, ...sinModo } = talentoBase();
+    await assertFails(setDoc(yo, sinModo));
+  });
+
+  test('aquí nunca caben el teléfono, el correo ni el CV', async () => {
+    const yo = doc(cuenta(PRO), `talento/${PRO}`);
+    await assertFails(setDoc(yo, talentoBase({ telefono: '600000000' })));
+    await assertFails(setDoc(yo, talentoBase({ email: 'laura@ejemplo.es' })));
+    await assertFails(setDoc(yo, talentoBase({ cv: 'data:application/pdf;base64,AAAA' })));
+    await assertFails(setDoc(yo, talentoBase({ video: 'data:video/webm;base64,AAAA' })));
+  });
+
+  test('al elegir «Solo cuando yo solicite», el profesional borra su perfil', async () => {
+    await sembrar(`talento/${PRO}`, talentoBase());
+    await assertFails(deleteDoc(doc(cuenta(CLINICA), `talento/${PRO}`)));
+    await assertSucceeds(deleteDoc(doc(cuenta(PRO), `talento/${PRO}`)));
+  });
+});
+
+describe('«Buscar talento»: el vídeo sí, el CV no', () => {
+  // OTRO_PRO no ha solicitado a ninguna clínica: lo único que le hace visible
+  // es haber elegido «Visible» o «Anónimo».
+  const suVideo = (quien) => getDoc(doc(cuenta(quien), `candidatos/${OTRO_PRO}/media/video_0`));
+  const suCV = (quien) => getDoc(doc(cuenta(quien), `candidatos/${OTRO_PRO}/media/cv_0`));
+
+  test('una clínica ve el vídeo de quien está en «Anónimo» o en «Visible»', async () => {
+    await sembrar(`talento/${OTRO_PRO}`, talentoBase());
+    await assertSucceeds(suVideo(CLINICA));
+    await sembrar(`talento/${OTRO_PRO}`, talentoBase({ modo: 'visible', nombre: 'Marc', inicial: 'S' }));
+    await assertSucceeds(suVideo(OTRA_CLINICA));
+  });
+
+  test('el CV NO se ve, ni en «Visible»: solo cuando acepte la invitación', async () => {
+    await sembrar(`talento/${OTRO_PRO}`, talentoBase({ modo: 'visible', nombre: 'Marc', inicial: 'S' }));
+    await assertFails(suCV(CLINICA));
+    await assertFails(suCV(OTRA_CLINICA));
+  });
+
+  test('el resto del perfil (nombre entero, teléfono, correo) tampoco se ve', async () => {
+    await sembrar(`talento/${OTRO_PRO}`, talentoBase({ modo: 'visible', nombre: 'Marc', inicial: 'S' }));
+    await assertFails(getDoc(doc(cuenta(CLINICA), `candidatos/${OTRO_PRO}`)));
+  });
+
+  test('de quien eligió «Solo cuando yo solicite» no se ve ni el vídeo', async () => {
+    await assertFails(suVideo(CLINICA));   // no tiene perfil en «talento»
+    await assertFails(suCV(CLINICA));
+  });
+
+  test('un perfil de antes, sin modo elegido, sigue como estaba: su vídeo no se ve', async () => {
+    await sembrar(`talento/${OTRO_PRO}`, { profesion: 'Higienista dental', experiencia: 'de 2 a 5 años' });
+    await assertFails(suVideo(CLINICA));
+  });
+
+  test('quien no es clínica no ve el vídeo, aunque esté en «Visible»', async () => {
+    await sembrar(`talento/${OTRO_PRO}`, talentoBase({ modo: 'visible', nombre: 'Marc', inicial: 'S' }));
+    await assertFails(suVideo(PRO));
+    await assertFails(getDoc(doc(anonimo(), `candidatos/${OTRO_PRO}/media/video_0`)));
+    await assertFails(getDoc(doc(sinSesion(), `candidatos/${OTRO_PRO}/media/video_0`)));
+  });
+
+  test('el dueño sí ve su vídeo y su CV', async () => {
+    await assertSucceeds(suVideo(OTRO_PRO));
+    await assertSucceeds(suCV(OTRO_PRO));
+  });
+
+  test('la clínica a la que SÍ ha solicitado sigue viendo el vídeo y el CV', async () => {
+    await assertSucceeds(getDoc(doc(cuenta(CLINICA), `candidatos/${PRO}/media/video_0`)));
+    await assertSucceeds(setDoc(doc(cuenta(PRO), `candidatos/${PRO}/media/cv_0`), { d: 'BBBB' }));
+    await assertSucceeds(getDoc(doc(cuenta(CLINICA), `candidatos/${PRO}/media/cv_0`)));
   });
 });
 

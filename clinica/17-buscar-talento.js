@@ -127,9 +127,13 @@
     if(inv) est = inv.estado === 'aceptada' ? '<span class="bt-pill bt-ok">'+sv('check','#0B5B43',12)+'Ha solicitado</span>'
       : (inv.estado === 'rechazada' ? '<span class="bt-pill">Esta vez no le interesa</span>'
       : '<span class="bt-pill bt-inv">'+sv('send','#1A56DB',12)+'Invitación enviada</span>');
-    var av = visible && t.fotoMini
-      ? '<img class="bt-av" src="'+e(t.fotoMini)+'" alt="">'
-      : '<span class="bt-av bt-av-l" style="background:'+(d.dom ? COL[d.dom] : '#9CA3AF')+';">'+e(visible ? (t.nombre || '?').charAt(0) : (d.dom || '?'))+'</span>';
+    // De quien está en «Anónimo», un «?» gris: ni foto, ni inicial, ni la letra
+    // de su forma de trabajar, que también daría una pista de quién es.
+    var av = !visible
+      ? '<span class="bt-av bt-av-l" style="background:#9CA3AF;">?</span>'
+      : (t.fotoMini
+          ? '<img class="bt-av" src="'+e(t.fotoMini)+'" alt="">'
+          : '<span class="bt-av bt-av-l" style="background:'+(d.dom ? COL[d.dom] : '#9CA3AF')+';">'+e((t.nombre || '?').charAt(0))+'</span>');
     var titulo = visible
       ? e((t.nombre || '') + (t.inicial ? ' ' + t.inicial + '.' : ''))
       : e(t.profesion || 'Profesional');
@@ -161,7 +165,7 @@
   function pintar(){
     var box = document.getElementById('buscar-box'); if(!box) return;
     if(enDemo() || !uid()){
-      box.innerHTML = '<div class="bt-vacio">Esta pantalla usa tus datos reales. Sal de «Datos de ejemplo» para buscar profesionales.</div>';
+      box.innerHTML = '<div class="bt-vacio">Para buscar profesionales necesitas tu cuenta de clínica. Regístrate o inicia sesión.</div>';
       return;
     }
     var l = lista();
@@ -322,7 +326,10 @@
     montar();
     // las invitaciones ya enviadas (para el contador y para no repetir)
     if(window.CERCO_cargarInvitaciones) CERCO_cargarInvitaciones();
-    if(!B.l.length && !B.cargando && !B.fin) cargarPagina(); else pintar();
+    // Se vuelve a preguntar cada vez que se entra, no se guarda de antes: quien
+    // haya dejado de querer que le encuentren tiene que desaparecer de aquí,
+    // no seguir saliendo hasta recargar la página. Son 20 perfiles, es barato.
+    if(!B.cargando) reiniciar(); else pintar();
   };
   window.CERCO_buscarMontar = montar;
   window.CERCO_buscarPintar = pintar;

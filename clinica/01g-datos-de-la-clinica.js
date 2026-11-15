@@ -879,16 +879,12 @@ function _pintarCandidatosBase(){
   }
 }
 
-/* ====================== INTERRUPTOR DE EJEMPLO ====================== */
+/* ====================== PANTALLAS DE EJEMPLO ======================
+   La clínica de ejemplo es solo el escaparate: la ve quien entra sin
+   haberse registrado. En cuanto alguien se registra o inicia sesión se
+   apaga sola y ya no vuelve. No hay interruptor para encenderla: en la
+   app de verdad no se enseñan datos inventados. */
 function renderSwitchDemo(){
-  var el = document.getElementById('demo-switch');
-  if(!el) return;
   var on = CDB.demo();
-  el.innerHTML = '<div onclick="CDB.setDemo('+(on?'false':'true')+')" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:9px 10px;border-radius:9px;">'
-    + '<div class="sw-track'+(on?' on':'')+'"><div class="sw-knob"></div></div>'
-    + '<div style="min-width:0;"><div style="font-size:12px;font-weight:700;color:'+(on?'#92400E':'#6B7280')+';">Datos de ejemplo</div>'
-    + '<div style="font-size:10.5px;color:#6B7280;line-height:1.35;">'+(on?'Verás una clínica inventada':'Solo ves lo tuyo')+'</div></div></div>';
-
-  /* aviso visible en las pantallas de ejemplo */
   document.querySelectorAll('.aviso-ejemplo').forEach(function(a){ a.style.display = on ? '' : 'none'; });
 }

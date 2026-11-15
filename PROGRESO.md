@@ -3,7 +3,9 @@
 Este archivo resume en qué punto está el trabajo. Se actualiza después de cada paso.
 Se trabaja en la rama `profesional`; la web publicada (rama `main`) no se toca sin el visto bueno de Asish.
 
-## Fase 1 — Ordenar el código sin cambiar nada (terminada en la rama `profesional`, sin publicar)
+## Fase 1 — Ordenar el código sin cambiar nada (TERMINADA Y PUBLICADA el 15 de noviembre de 2026)
+
+Publicada en `main` con el commit 39577f1. Desde ahora, cada cambio que llega a `main` pasa todas las pruebas solo y, si están en verde, se publica solo en afiguerass.github.io/cerco. Asish cambió en GitHub: Settings → Pages → Source → «GitHub Actions».
 
 Para el usuario la web tiene que ser idéntica antes y después. Cada paso es un commit en la rama `profesional`, con todas las pruebas y capturas en verde. No se publica nada en `main` sin el visto bueno de Asish.
 

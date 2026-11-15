@@ -55,7 +55,7 @@ test('Lado del profesional: sin datos inventados, y una cuenta de clínica ve el
   await A.altaProfesional(q);
   await q.check('#t-consent'); await q.getByRole('button', { name: 'Empezar el test' }).click();
   await A.contestarTestProfesional(q, { pesos: { D: 1, I: 3, S: 2, C: 4 } });
-  await q.click('#tr-btn'); await q.locator('#gu-next').waitFor(); await q.evaluate(() => guiaCerrar());
+  await q.click('#tr-btn'); await A.elegirComoTeVen(q); await q.locator('#gu-next').waitFor(); await q.evaluate(() => guiaCerrar());
   for (const s of ['inicio', 'ofertas', 'descubrir', 'solicitudes', 'perfil']) {
     await q.evaluate((s) => ir(s), s); await q.waitForTimeout(800);
     await sinInventados(q, 'la pantalla ' + s + ' del profesional');

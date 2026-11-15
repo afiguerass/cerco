@@ -182,8 +182,17 @@ async function altaProfesional(page, opciones = {}, datos = PROFESIONAL) {
   await expect(page.locator('#t-consent')).toBeVisible();
 }
 
+// Tras el test, en el alta: «¿Cómo quieres que te vean las clínicas?».
+// Hay que elegir una de las tres: no hay ninguna marcada de antemano.
+async function elegirComoTeVen(page, modo = 'anonimo') {
+  await expect(page.locator('#md-ops')).toBeVisible();
+  await expect(page.locator('#md-btn')).toBeDisabled();
+  await page.locator(`#md-ops .ctv-op[data-k="${modo}"]`).click();
+  await page.click('#md-btn');
+}
+
 module.exports = {
-  archivo, LETRAS, contestarTestClinica, contestarTestProfesional,
+  archivo, LETRAS, contestarTestClinica, contestarTestProfesional, elegirComoTeVen,
   CLINICA, registrarClinica, configurarClinica, publicarOferta,
   PROFESIONAL, registrarProfesional, altaProfesional,
 };

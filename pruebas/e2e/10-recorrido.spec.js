@@ -196,6 +196,15 @@ test('4. La profesional se registra y hace el test («sin perfil» y después su
   await seVe(page, 'Concienzudo con rasgo influyente');
   await capturar(page, 'pro-08-test-resultado');
   await page.click('#tr-btn');
+
+  // Antes de entrar elige qué pueden ver de ella las clínicas. No hay ninguna
+  // opción marcada: tiene que elegir ella, y el botón no funciona hasta que elige.
+  await expect(page.locator('#md-ops')).toBeVisible();
+  await expect(page.locator('#md-btn')).toBeDisabled();
+  await expect(page.getByText('Tu vídeo se ve: si sales en él, la clínica verá tu cara.')).toBeVisible();
+  await capturar(page, 'pro-08b-como-te-ven');
+  await A.elegirComoTeVen(page, 'visible');
+
   await seVe(page, 'Buenos días, Laura');
   // La guía de Seimian sale la primera vez: la cerramos
   await page.locator('#gu-next').waitFor();

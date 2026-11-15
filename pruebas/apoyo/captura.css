@@ -2,3 +2,11 @@
    Oculta los avisos flotantes que aparecen y desaparecen solos, para que no
    salgan unas veces sí y otras no. */
 #global-toast, #toast, #guard-toast { visibility: hidden !important; }
+
+
+/* Las fechas relativas («Ahora mismo», «Hace 3 min») cambian según lo que haya
+   tardado la prueba. Al comparar se tapan, pero el recuadro que las tapa mide
+   lo que mida el texto, así que la misma pantalla salía distinta de un día a
+   otro. Con un ancho fijo, el recuadro es siempre igual. */
+.of-c .nw:nth-child(3) { width: 80px !important; overflow: hidden !important; white-space: nowrap !important; }
+.det-h > div:nth-child(2) { width: 150px !important; overflow: hidden !important; white-space: nowrap !important; }

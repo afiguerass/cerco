@@ -439,6 +439,8 @@ function testAcabar(){
     S.perfil = p; pintarUsuario();
     if(antes && antes.dom) discASolicitudes(p);
     toast(T.repetir ? 'Resultado actualizado' : 'Perfil completo. Ya puedes solicitar ofertas.');
+    // Primera vez: antes de entrar, elige qué pueden ver de él las clínicas
+    if(!T.repetir && window.CERCO_modoElegido && !CERCO_modoElegido(p) && window.abrirModo) return abrirModo();
     ir(T.repetir ? 'perfil' : 'inicio');
   }).catch(function(){ error('tr-err', 'No hemos podido guardar el resultado. Revisa tu conexión y vuelve a pulsar.'); })
   .then(function(){ bloquear('tr-btn'); });

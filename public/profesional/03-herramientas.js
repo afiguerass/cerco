@@ -221,7 +221,7 @@ function revisionPerfil(){
     {ok:!!(p.resumen && p.resumen.length > 60), w:10, t:'Presentación', por:'Unas líneas tuyas, con tus palabras. Sale en tu ficha.', acc:'editarPerfil()', b:'Escribir'},
     {ok:!!(p.trabajos||[]).length || /^Sin experiencia/.test(p.experiencia||''), w:10, t:'Dónde has trabajado', por:'Da contexto a tus años de experiencia.', acc:'editarPerfil()', b:'Añadir'},
     {ok:(p.fuertes||[]).length >= 2, w:4, t:'Puntos fuertes', por:'Salen en tu tarjeta y en el buscador de la clínica.', acc:'editarPerfil()', b:'Elegir'},
-    {ok:!!p.visible, w:10, t:'Que las clínicas te inviten', por:'Te encuentran aunque tú no hayas solicitado.', acc:'guardarAjuste({visible:true}, \'Listo: las clínicas podrán invitarte\')', b:'Activar'},
+    {ok:!!(window.CERCO_modoElegido && CERCO_modoElegido(p)), w:10, t:'Cómo te ven las clínicas', por:'Elige qué pueden ver de ti las que buscan profesionales.', acc:'abrirModo()', b:'Elegir'},
     {ok:['auto','preguntar'].indexOf(p.rebote) > -1, w:5, t:'Efecto rebote', por:'Si una clínica te dice que no, CERCO te presenta a otra.', acc:'guardarAjuste({rebote:\'auto\'}, \'Efecto rebote activado\')', b:'Activar'}
   ];
   if(colegiable) l.push({ok:!!p.colegiado, w:5, t:'Número de colegiado/a', por:'La clínica lo ve en tu solicitud y puede comprobarlo.', acc:'ir(\'perfil\'); setTimeout(function(){ var e = document.getElementById(\'aj-col\'); if(e){ e.scrollIntoView({block:\'center\'}); e.focus(); } }, 300)', b:'Añadir'});

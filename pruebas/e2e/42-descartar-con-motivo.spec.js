@@ -26,6 +26,7 @@ test('Descartar con motivo: la clínica lo elige y el profesional lo ve', async 
   await p.getByRole('button', { name: 'Empezar el test' }).click();
   await A.contestarTestProfesional(p, { pesos: { D: 1, I: 3, S: 2, C: 4 } });
   await p.click('#tr-btn');
+  await A.elegirComoTeVen(p);
   await p.locator('#gu-next').waitFor(); // la guía de Seimian sale la primera vez
   await p.evaluate(() => { guiaCerrar(); ir('ofertas'); });
   await p.getByText(nombreClinica).locator('visible=true').first().click();

@@ -73,6 +73,7 @@ window.CERCO_perfilAjustes = function(p, r){
     var d = {};
     if(p.rebote !== undefined) d.rebote = ['auto','preguntar','no'].indexOf(p.rebote) > -1 ? p.rebote : 'no';
     if(p.visible !== undefined) d.visible = !!p.visible;
+    if(['visible','anonimo','solicito'].indexOf(p.modo) > -1){ d.modo = p.modo; d.modoFecha = String(p.modoFecha || '').slice(0,40); }
     if(p.alertas !== undefined) d.alertas = !!p.alertas;
     if(Array.isArray(p.ocultar)) d.ocultar = p.ocultar.slice(0,50).map(String);
     if(Array.isArray(p.guardadas)) d.guardadas = p.guardadas.slice(-100).map(String);
@@ -90,21 +91,58 @@ function guardarAjuste(cambios, msg){
     .catch(function(){ toast('No se ha podido guardar. Revisa tu conexión.'); });
 }
 
-/* Perfil anónimo para que las clínicas que buscan tu perfil te inviten.
-   Sin nombre, foto, teléfono ni correo. */
+/* Perfil para que las clínicas que buscan tu perfil te encuentren.
+   Lo que se publica depende de lo que haya elegido la persona:
+     visible   → también el nombre de pila, la inicial del apellido y una
+                 copia pequeña de la foto (la grande no viaja en la lista);
+     anonimo   → solo profesión, experiencia, zona y perfil;
+     solicito  → no se publica nada (se borra).
+   El apellido entero, el teléfono, el correo y el CV no se publican nunca.
+   Quien aún no ha elegido se queda como estaba: no se toca nada. */
 function publicarTalento(p){
   p = p || S.perfil || {};
   if(!Nube.uid) return;
+  var modo = window.CERCO_modoElegido ? CERCO_modoElegido(p) : null;
+  if(!modo) return;                                   // todavía no ha elegido
   var ref = Nube.db().collection('talento').doc(Nube.uid);
-  if(!p.visible || !p.disc || !p.profesion){ ref.delete().catch(function(){}); return; }
+  if(modo === 'solicito' || !p.disc || !p.profesion){ ref.delete().catch(function(){}); return; }
   var g = geoLimpio(p.geo);
-  ref.set({
+  var d = {
+    modo:modo, modoFecha:String(p.modoFecha || '').slice(0,40),
     profesion:p.profesion||'', experiencia:p.experiencia||'', jornada:p.jornada||'', disponibilidad:p.disponibilidad||'',
     fuertes:(p.fuertes||[]).slice(0,5), disc:{dom:p.disc.dom, sec:p.disc.sec, norm:p.disc.norm},
     geo: g ? {lat:Math.round(g.lat*100)/100, lng:Math.round(g.lng*100)/100, prov:g.prov, n:g.n} : null,
     radio: p.radio || 25, video:!!p.video, cv:!!p.cv, colegiado:!!p.colegiado,
     ocultar:(p.ocultar||[]).slice(0,50), actualizado:new Date().toISOString()
-  }).catch(function(){});
+  };
+  if(modo !== 'visible'){ ref.set(d).catch(function(){}); return; }
+  var nom = String(p.nombre || '').trim().split(/\s+/);
+  d.nombre = (nom[0] || '').slice(0,40);
+  d.inicial = nom.length > 1 ? nom[1].charAt(0).toUpperCase() : '';
+  fotoPequena(p.foto).then(function(mini){ if(mini) d.fotoMini = mini; })
+    .catch(function(){})
+    .then(function(){ ref.set(d).catch(function(){}); });
+}
+/* Copia pequeña de la foto (96 px) para la lista de «Buscar talento»: así la
+   clínica no descarga 200 fotos grandes al abrir la pantalla. */
+var _mini = {};
+function fotoPequena(foto){
+  if(!foto) return Promise.resolve('');
+  if(_mini[foto]) return Promise.resolve(_mini[foto]);
+  return new Promise(function(ok){
+    var im = new Image();
+    im.onload = function(){
+      try{
+        var c = document.createElement('canvas'); c.width = c.height = 96;
+        c.getContext('2d').drawImage(im, 0, 0, 96, 96);
+        var out = c.toDataURL('image/jpeg', 0.7);
+        if(out.length > 29000) out = '';
+        _mini[foto] = out; ok(out);
+      }catch(e){ ok(''); }
+    };
+    im.onerror = function(){ ok(''); };
+    im.src = foto;
+  });
 }
 
 /* ---------- 3. invitaciones de clínicas y propuestas de CERCO ---------- */
@@ -467,7 +505,14 @@ function _bloqueInicioExtraBase(){
 /* Sugerencias que se eligen una vez (rebote, que te encuentren, avisos): van al final del Inicio */
 function bloqueSugerencias(){
   var p = S.perfil || {}, h = '';
-  if(p.disc && !p.rebote){
+  if(p.disc && window.CERCO_modoElegido && !CERCO_modoElegido(p)){
+    // Lo primero, la elección de privacidad: decide qué ven de ti las clínicas.
+    // A quien ya tenía cuenta se le pregunta aquí, y se queda como estaba hasta que elija.
+    h += '<div class="card"><div class="eyebrow">'+svg('eye','currentColor',13)+'QUE TE ENCUENTREN</div>'
+      + '<div style="font-size:15px;font-weight:800;margin-bottom:4px;">¿Cómo quieres que te vean las clínicas?</div>'
+      + '<p class="txt" style="font-size:13.5px;margin-bottom:12px;">Hay clínicas que buscan profesionales ellas mismas. Elige qué pueden ver de ti. Mientras no elijas, no te enseñamos a ninguna clínica nueva.</p>'
+      + CERCO_modoOpciones(null, "cambiarModo('{k}')") + '</div>';
+  } else if(p.disc && !p.rebote){
     h += '<div class="card reb-card"><div class="eyebrow" style="color:#66328A;">'+svg('rebote','#66328A',13)+'NUEVO · EFECTO REBOTE</div>'
       + '<div style="font-size:15px;font-weight:800;margin-bottom:4px;">Si una clínica te dice que no, que no se pierda tu perfil</div>'
       + '<p class="txt" style="font-size:13.5px;margin-bottom:12px;">Cuando una clínica te descarte o no conteste en '+diasCaduca()+' días, CERCO busca otra de tu zona a la que le falte justo tu forma de trabajar.</p>'
@@ -476,11 +521,6 @@ function bloqueSugerencias(){
       + '<button class="btn btn-s" onclick="guardarAjuste({rebote:\'auto\'}, \'Efecto rebote activado\')">Sí, preséntame automáticamente</button>'
       + '<button class="btn btn-g" onclick="guardarAjuste({rebote:\'no\'})">No, gracias</button></div>'
       + '<div class="hint" style="margin-top:8px;">Puedes cambiarlo cuando quieras en tu perfil. Solo te presentamos a clínicas dentro de tu distancia.</div></div>';
-  } else if(p.disc && p.visible === undefined){
-    h += '<div class="card"><div class="eyebrow">'+svg('eye','currentColor',13)+'QUE TE ENCUENTREN</div>'
-      + '<div style="font-size:15px;font-weight:800;margin-bottom:4px;">¿Dejas que las clínicas que buscan tu perfil te inviten?</div>'
-      + '<p class="txt" style="font-size:13.5px;margin-bottom:12px;">Verían tu profesión, tu experiencia, tu zona y tu perfil de personalidad. <b>Sin tu nombre, foto, teléfono ni correo.</b> Si te interesa, tú decides si solicitas.</p>'
-      + '<div class="reb-ops"><button class="btn btn-p" onclick="guardarAjuste({visible:true}, \'Listo. Las clínicas que buscan tu perfil podrán invitarte.\')">Sí, que me inviten</button><button class="btn btn-g" onclick="guardarAjuste({visible:false})">Ahora no</button></div></div>';
   } else if(avisosSoportados() && Notification.permission === 'default' && !sessionStorage.getItem('cerco_av_no')){
     h += '<div class="card av-card">'+svg('bell','#1A56DB',20)+'<div style="flex:1;min-width:0;"><div style="font-size:14.5px;font-weight:800;">Entérate al momento cuando una clínica te conteste</div><div style="font-size:13px;color:#4B5563;">Activa los avisos en este dispositivo.</div></div>'
       + '<button class="btn btn-p" onclick="activarAvisos()">Activar</button><button class="gu-x" aria-label="Ahora no" onclick="sessionStorage.setItem(\'cerco_av_no\',\'1\'); pintarInicio()">'+svg('x','#9CA3AF',16)+'</button></div>';
@@ -503,6 +543,7 @@ function clinicasConocidas(){
 function pintarAjustes(){
   var r = _pintarAjustesBase.apply(this, arguments);
   if(window.CERCO_ajustesQuienTeVe) CERCO_ajustesQuienTeVe.apply(this, arguments);
+  if(window.CERCO_ajustesComoTeVen) CERCO_ajustesComoTeVen.apply(this, arguments);
   return r;
 }
 function _pintarAjustesBase(){
@@ -533,11 +574,11 @@ function _pintarAjustesBase(){
         return '<button type="button" role="radio" aria-checked="'+on+'" class="op'+(on ? ' on' : '')+'" onclick="guardarAjuste({rebote:\''+o[0]+'\'}, \'Guardado\')"><b>'+o[1]+'</b><small>'+o[2]+'</small></button>'; }).join('') + '</div></div>';
   // visibilidad
   var cls = clinicasConocidas(), oc = p.ocultar || [];
-  h += '<div class="card"><h3>'+svg('eye','currentColor',16)+'Clínicas que buscan tu perfil</h3>'
-    + interruptor('aj-visible', !!p.visible, 'guardarAjuste({visible:this.checked}, this.checked ? \'Las clínicas que buscan tu perfil podrán invitarte\' : \'Ya no apareces en las búsquedas\')', 'Dejar que me inviten', 'Ven tu profesión, experiencia, zona y perfil de personalidad. Nunca tu nombre, foto, teléfono ni correo.')
-    + (p.visible ? '<div style="margin-top:12px;"><div style="font-size:13px;font-weight:700;margin-bottom:6px;">Ocultarme a estas clínicas</div><div class="hint" style="margin:0 0 8px;">Por ejemplo, la clínica donde trabajas ahora.</div>'
+  var apareces = window.CERCO_apareceEnBuscar ? CERCO_apareceEnBuscar(p) : !!p.visible;
+  if(apareces) h += '<div class="card" id="aj-ocultar"><h3>'+svg('eye','currentColor',16)+'Ocultarme a alguna clínica</h3>'
+    + ('<div style="margin-top:0;"><div class="hint" style="margin:0 0 8px;">Si no quieres que te vea alguna clínica en concreto, márcala. Por ejemplo, la clínica donde trabajas ahora.</div>'
         + (Object.keys(cls).length ? '<div class="chips">' + Object.keys(cls).map(function(id){ var on = oc.indexOf(id) > -1; return '<span class="chip'+(on ? ' on' : '')+'" role="button" aria-pressed="'+on+'" onclick="alternarOculta(\''+esc(id)+'\')">'+(on ? svg('eye','#fff',12)+' ' : '')+esc(cls[id])+'</span>'; }).join('') + '</div>' : '<div class="hint">Aún no hay clínicas en CERCO de tu zona.</div>')
-        + '</div>' : '')
+        + '</div>')
     + '</div>';
   // credenciales
   h += '<div class="card"><h3>'+svg('shield','currentColor',16)+'Colegiación <span class="opc" style="font-size:12.5px;font-weight:500;color:var(--faint);">(opcional)</span></h3>'

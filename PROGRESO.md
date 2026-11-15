@@ -345,7 +345,24 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
    - 14 pruebas nuevas en `pruebas/reglas/reglas.test.js` (47 en total, en verde).
    - **Asish tendrá que publicar estas reglas en la consola de Firebase** antes de que esto
      funcione en la web publicada. Se le darán los pasos al final de la tarea.
-2. Elección del profesional (alta, Mi perfil y la pregunta a los que ya existen).
+2. ~~Elección del profesional (alta, Mi perfil y la pregunta a los que ya existen).~~ **HECHO** (15 de noviembre).
+   - Pantalla nueva `v-modo` («¿Cómo quieres que te vean las clínicas?»), con las tres
+     opciones sin ninguna marcada, el ejemplo de lo que vería la clínica debajo de cada
+     una y el aviso en «Anónimo»: «Tu vídeo se ve: si sales en él, la clínica verá tu cara».
+     Sale sola al acabar el test y el botón no deja seguir hasta elegir.
+   - En «Mi perfil», tarjeta «Cómo te ven las clínicas», justo encima de «Ocultarme a
+     alguna clínica». Se cambia tocando una opción y se aplica al momento.
+   - A quien ya tenía cuenta se le ofrece elegir en el Inicio, **antes** que el efecto
+     rebote. Mientras no elija, su perfil se queda exactamente como estaba (su vídeo
+     no se ve: en las reglas, un perfil sin `modo` no cuenta).
+   - En «Visible» se publican el nombre de pila y la inicial del apellido («Laura P.»)
+     y una copia pequeña de la foto (96 px); nunca el apellido entero, el teléfono,
+     el correo ni el CV.
+   - Código nuevo: `public/profesional/10-como-te-ven.js`. Pruebas nuevas:
+     `pruebas/e2e/69-como-te-ven.spec.js` (2) y una captura nueva en el recorrido.
+   - De paso: las fechas relativas («Ahora mismo», «Hace 3 min») hacían que una misma
+     pantalla saliera distinta de un día a otro, porque el recuadro que las tapa medía
+     lo que midiera el texto. Ahora tienen ancho fijo en las capturas (`pruebas/apoyo/captura.css`).
 3. «Buscar talento» en la clínica (lista, filtros y orden).
 4. Vista en vídeo, uno detrás de otro.
 5. Invitaciones (elegir oferta y mensaje; al aceptar, pasa a «Candidatos»).

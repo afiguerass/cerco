@@ -20,7 +20,7 @@ test('Estadísticas: «Me interesa» cuenta como contestada y las contrataciones
   await A.altaProfesional(p);
   await p.check('#t-consent'); await p.getByRole('button', { name: 'Empezar el test' }).click();
   await A.contestarTestProfesional(p, { pesos: { D: 1, I: 3, S: 2, C: 4 } });
-  await p.click('#tr-btn'); await p.locator('#gu-next').waitFor(); await p.evaluate(() => guiaCerrar());
+  await p.click('#tr-btn'); await A.elegirComoTeVen(p); await p.locator('#gu-next').waitFor(); await p.evaluate(() => guiaCerrar());
   for (const t of ['Higienista A', 'Higienista B']) {
     await p.evaluate(() => ir('ofertas'));
     await p.locator('.of-t', { hasText: new RegExp('^' + t + '$') }).locator('visible=true').first().click();

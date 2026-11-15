@@ -42,17 +42,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      # Las capturas se comparan pixel a pixel, asi que la tipografia tiene que ser la
-      # misma que al generarlas. Sin esto, caracteres como las comillas angulares, el
-      # punto medio o la flecha caen en una tipografia del sistema distinta y las
-      # capturas de la clinica no coinciden.
-      - name: Instalar la tipografia Inter
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-inter
-          fc-cache -f
-          fc-match sans-serif
-
       - name: Instalar dependencias
         run: |
           npm ci
@@ -60,6 +49,13 @@ jobs:
           npx --prefix pruebas playwright install --with-deps chromium
       - name: Pasar todas las pruebas (reglas + web en ordenador y móvil)
         run: npm test --prefix pruebas
+      # Si una captura no coincide, se dice AQUI en que parte de la pantalla esta la
+      # diferencia. El informe en imagenes no siempre se puede abrir, y sin esto no hay
+      # forma de saber si es un fallo de verdad o una diferencia entre ordenadores.
+      - name: Decir donde difieren las capturas
+        if: failure()
+        run: node pruebas/apoyo/donde-difiere.cjs || true
+
       - name: Guardar el informe si algo falla
         if: failure()
         uses: actions/upload-artifact@v4

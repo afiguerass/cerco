@@ -390,7 +390,17 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
      reglas lo comprueban: solo puede tener `n`, `mime` y `v`.
    - Arreglado de paso: si la clínica no tenía ninguna oferta publicada, el botón
      «Invitar» no hacía nada y no se entendía por qué. Ahora lo dice.
-5. Invitaciones (elegir oferta y mensaje; al aceptar, pasa a «Candidatos»).
+5. ~~Invitaciones (elegir oferta y mensaje; al aceptar, pasa a «Candidatos»).~~ **HECHO** (15 de noviembre).
+   - De punta a punta: la clínica invita desde la lista o desde el visor de vídeos,
+     elige la oferta y escribe un mensaje; a la persona le llega en su Inicio, ve
+     quién le invita y su mensaje al abrir la oferta, y si solicita aparece en
+     «Candidatos» → «Por contestar» marcada como «Aceptó tu invitación», ya con su
+     nombre completo, su contacto y su CV. Antes de aceptar, nada de eso se ve.
+   - Prueba nueva: `pruebas/e2e/71-invitaciones.spec.js` (el recorrido entero y el tope).
+   - Tres fallos reales encontrados y arreglados por el camino:
+     - la pantalla de búsqueda no se refrescaba al enviar la invitación;
+     - cada invitación se contaba **dos veces** contra el tope de 10 por semana;
+     - la ventana de invitar enseñaba el pueblo de una persona anónima (ahora, los km).
 
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):

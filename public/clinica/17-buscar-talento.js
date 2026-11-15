@@ -320,6 +320,8 @@
   // Al entrar en la pantalla. La usa showScreen (clinica/01i-navegacion.js)
   window.CERCO_buscarAlMostrar = function(){
     montar();
+    // las invitaciones ya enviadas (para el contador y para no repetir)
+    if(window.CERCO_cargarInvitaciones) CERCO_cargarInvitaciones();
     if(!B.l.length && !B.cargando && !B.fin) cargarPagina(); else pintar();
   };
   window.CERCO_buscarMontar = montar;

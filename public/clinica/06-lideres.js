@@ -153,9 +153,13 @@
         var l = []; q.forEach(function(d){ var x = d.data(); x.id = d.id; l.push(x); });
         if(T.invs.length && typeof showToast === 'function') l.forEach(function(i){ if(antes[i.id] === 'pendiente' && i.estado === 'rechazada') showToast('Un profesional al que invitaste ha dicho que esta vez no'); });
         T.invs = l; pintarTalento();
+        if(window.CERCO_buscarPintar) CERCO_buscarPintar();
       }, function(){});
     }catch(x){}
   }
+  // «Buscar talento» también las necesita, aunque la clínica no haya pasado por
+  // Candidatos (clinica/17-buscar-talento.js)
+  window.CERCO_cargarInvitaciones = function(){ try{ cargarTalento(); }catch(x){} };
   function invitacionesSemana(){ return T.invs.filter(function(i){ return diasDesde(i.fecha) < 7; }).length; }
   function invDe(t, o){ for(var i=0;i<T.invs.length;i++){ var x = T.invs[i]; if(x.candidatoUid === t.uid && (!o || String(x.ofertaId) === String(o.id))) return x; } return null; }
   function contenedor(){
@@ -186,6 +190,12 @@
       +   '<span style="background:#1A56DB;color:white;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:800;white-space:nowrap;">Buscar</span>'
       + '</div></div>';
   }
+  function dondeVive(t){
+    if(!t.geo) return '';
+    if(t.modo === 'visible') return ' · ' + (t.geo.n || '');
+    var org = origen();
+    return (org && window.CGeo) ? ' · a ' + CGeo.km(org, t.geo) + ' km' : '';
+  }
   window.abrirInvitar = function(tuid){
     var t = window.CERCO_talentoDe ? CERCO_talentoDe(tuid) : null; if(!t) return;
     // Se invita siempre a una oferta concreta: sin ninguna activa no se puede.
@@ -202,7 +212,9 @@
     m.onclick = function(ev){ if(ev.target === m) m.remove(); };
     m.innerHTML = '<div style="background:white;border-radius:18px;max-width:460px;width:100%;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.25);">'
       + '<div style="font-size:18px;font-weight:800;color:#111827;margin-bottom:4px;">Invitar a solicitar</div>'
-      + '<div style="font-size:13px;color:#6B7280;line-height:1.55;margin-bottom:14px;">'+e(t.profesion||'')+' · '+e((t.geo||{}).n||'')+'. Le llegará un aviso en CERCO. Si le interesa, solicitará y verás su perfil completo.</div>'
+      // De quien está en «Anónimo» no se dice el pueblo, solo a cuántos km está:
+      // igual que en su ficha de la lista.
+      + '<div style="font-size:13px;color:#6B7280;line-height:1.55;margin-bottom:14px;">'+e(t.profesion||'')+e(dondeVive(t))+'. Le llegará un aviso en CERCO. Si le interesa, solicitará y verás su perfil completo.</div>'
       + '<label for="inv-of" style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Oferta</label>'
       + '<select id="inv-of" style="width:100%;border:1px solid #E5E7EB;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;margin-bottom:12px;">'+ofs.map(function(o){ return '<option value="'+e(o.id)+'"'+(String(o.id) === String(o0.id) ? ' selected' : '')+'>'+e(o.titulo)+'</option>'; }).join('')+'</select>'
       + '<label for="inv-msg" style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px;">Mensaje <span style="font-weight:500;color:#6B7280;">(opcional)</span></label>'
@@ -223,10 +235,14 @@
       mensaje:((document.getElementById('inv-msg')||{}).value||'').trim().slice(0,300), estado:'pendiente', fecha:new Date().toISOString(), encaje:encajeT(t, o) };
     var b = document.getElementById('inv-ok'); if(b){ b.disabled = true; b.textContent = 'Enviando…'; }
     db().collection('invitaciones').doc(String(o.id) + '_' + tuid).set(doc).then(function(){
-      doc.id = String(o.id) + '_' + tuid; T.invs.push(doc);
+      // Se apunta aquí para verla al momento, pero solo si la base de datos no
+      // la ha traído ya: si no, contaría dos veces contra el tope de la semana.
+      doc.id = String(o.id) + '_' + tuid;
+      if(!T.invs.some(function(x){ return x.id === doc.id; })) T.invs.push(doc);
       var m = document.getElementById('modal-inv'); if(m) m.remove();
       if(typeof showToast === 'function') showToast('Invitación enviada. Te avisaremos si solicita.');
       pintarTalento();
+      if(window.CERCO_buscarPintar) CERCO_buscarPintar();
     }).catch(function(){ if(b){ b.disabled = false; b.textContent = 'Volver a enviar'; } document.getElementById('inv-err').textContent = 'No se ha podido enviar. Revisa tu conexión.'; });
   };
   // Candidatos: «Talento que encaja». Lo usa renderPortalReal (clinica/01g-datos-de-la-clinica.js)

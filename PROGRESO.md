@@ -283,7 +283,12 @@ Hecho después, con el visto bueno de Asish:
 Para el final de la prueba piloto:
 - **8.** Al registrarse: contraseña segura y correo de verificación.
 
-## «Buscar talento» — TERMINADA Y PUBLICADA el 15 de noviembre de 2026
+## «Buscar talento» — TERMINADA, PUBLICADA Y COMPROBADA (15-16 de noviembre de 2026)
+**Comprobado por Asish en la web publicada, de principio a fin:** buscar, filtros, abrir la
+ficha, ver el vídeo con su portada, invitar, que el profesional solicite y que entonces la
+clínica vea su nombre completo, su contacto y su CV. Las reglas están publicadas en Firebase.
+
+### Detalle de la tarea
 Publicada en `main` a las 15:05 (la web) y reglas de Firebase publicadas por Asish justo después.
 Los cinco pasos están hechos; el detalle de cada uno, más abajo.
 Propuesta aprobada el 15 de noviembre.

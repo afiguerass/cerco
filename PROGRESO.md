@@ -283,8 +283,10 @@ Hecho después, con el visto bueno de Asish:
 Para el final de la prueba piloto:
 - **8.** Al registrarse: contraseña segura y correo de verificación.
 
-## Siguiente tarea (después de publicar la Fase 1): «Buscar talento»
-**No empezar hasta que Asish avise de que la Fase 1 está publicada.** Propuesta aprobada el 15 de noviembre.
+## «Buscar talento» — TERMINADA Y PUBLICADA el 15 de noviembre de 2026
+Publicada en `main` a las 15:05 (la web) y reglas de Firebase publicadas por Asish justo después.
+Los cinco pasos están hechos; el detalle de cada uno, más abajo.
+Propuesta aprobada el 15 de noviembre.
 
 Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado sus ofertas (como en InfoJobs o LinkedIn). Hoy «Talento que encaja» es demasiado restrictivo (solo misma profesión, misma zona y con la opción activada).
 

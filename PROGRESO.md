@@ -432,8 +432,16 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
 - [x] El contador de «Verlos en vídeo» contaba solo a quien tuviera publicado en cuántos
       trozos está su vídeo. Los perfiles guardados antes de que eso existiera quedaban fuera.
       Ahora cuenta a quien dice tener vídeo, y los trozos se cuentan leyendo el primero.
+- [x] El vídeo de la ficha ocupaba casi toda la pantalla y se cargaba solo. Ahora es una
+      portada oscura con el botón de reproducir, en vertical y estrecha (250 px), con toda
+      la información al lado: igual que la ficha de Candidatos. El vídeo se carga al pulsar.
+- [x] Si no se puede publicar el perfil para las búsquedas, **se avisa a la persona**.
+      Antes fallaba en silencio: creía que había quedado guardado y no era verdad.
 - **Reglas de Firebase: vuelven a cambiar** (campos `titulacion`, `resumen` y `trabajos`).
-  Asish tendrá que volver a publicarlas al publicar esto.
+  Asish tendrá que volver a publicarlas al publicar esto. **Comprobado** pasando las
+  pruebas de reglas contra las que están publicadas ahora: rechazan esos tres campos,
+  así que hasta que se publiquen las nuevas, un profesional no puede publicar su
+  formación, su presentación ni sus trabajos (y por eso no salen en la ficha).
 
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):

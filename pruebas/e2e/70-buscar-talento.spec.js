@@ -233,6 +233,29 @@ test('Verlos en vídeo: uno detrás de otro, y se puede invitar sin salir', asyn
   await c.keyboard.press('Escape');
   await expect(visor).toHaveCount(0);
 
+  // 6. En su ficha, el vídeo no se carga solo: sale la portada con el botón,
+  //    en vertical y estrecho, y se reproduce al pulsarlo (igual que en Candidatos)
+  await c.locator('#buscar-box .bt-card', { hasText: 'Ana R.' }).click();
+  const f = c.locator('#screen-talento');
+  await expect(f).toBeVisible();
+  await expect(f.locator('video')).toHaveCount(0);
+  const portada = f.locator('.ft-play');
+  await expect(portada).toContainText('Ver su vídeo de presentación');
+  // la caja es más alta que ancha (vídeo vertical) y no ocupa toda la columna
+  const caja = await f.locator('#ft-video').boundingBox();
+  expect(caja.height).toBeGreaterThan(caja.width);
+  expect(caja.width).toBeLessThanOrEqual(260);
+  await capturar(c, 'clinica-76-ficha-con-video');
+
+  await portada.click();
+  const vid = f.locator('video');
+  await expect(vid).toHaveCount(1, { timeout: 30_000 });
+  expect(await vid.evaluate((el) => new Promise((ok) => {
+    if (el.readyState >= 1) return ok(el.duration);
+    el.onloadedmetadata = () => ok(el.duration);
+    setTimeout(() => ok(0), 15000);
+  }))).toBeGreaterThan(0);
+
   expect(c.erroresPagina).toEqual([]);
   await v.context.close();
 });

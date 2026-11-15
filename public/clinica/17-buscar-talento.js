@@ -19,7 +19,8 @@
     check:'<path d="M20 6 9 17l-5-5"/>',
     pin:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
     video:'<path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
-    left:'<path d="m15 18-6-6 6-6"/>'
+    left:'<path d="m15 18-6-6 6-6"/>',
+    play:'<polygon points="6 3 20 12 6 21 6 3"/>'
   };
   function sv(k, c, s){ return _svg(IC[k] || '', c, s); }
   var COL = {D:'#FF5A5F', I:'#F0A800', S:'#00B488', C:'#5B5FE0'};
@@ -390,7 +391,11 @@
       + '</div>'
       + '<div class="grid"><div id="ft-izq">'
       +   '<div class="card video-card"><h3>Vídeo de presentación</h3>'
-      +     '<div class="video-frame'+(tieneVideo(t) ? '' : ' sin')+'" id="ft-video">'+(tieneVideo(t) ? '<div class="bt-v-cargando">Cargando el vídeo…</div>' : 'Todavía no ha grabado su vídeo')+'</div>'
+      +     '<div class="ft-vid-caja"><div class="video-frame'+(tieneVideo(t) ? '' : ' sin')+'" id="ft-video">'
+      +       (tieneVideo(t)
+            ? '<button type="button" class="ft-play" onclick="btVerVideo()"><span class="ft-play-c">'+sv('play','white',22)+'</span>Ver su vídeo de presentación</button>'
+            : 'Todavía no ha grabado su vídeo')
+      +     '</div></div>'
       +   '</div>'
       +   (visible && t.resumen ? '<div class="card"><h3>Sobre mí</h3><p style="white-space:pre-line;">'+e(t.resumen)+'</p></div>' : '')
       +   ((t.fuertes || []).length ? '<div class="card"><h3>Cualidades y puntos fuertes</h3><div class="skills-row">'+t.fuertes.map(function(f){ return '<span class="skill-pill">'+e(f)+'</span>'; }).join('')+'</div></div>' : '')
@@ -417,18 +422,19 @@
       +   '</div>'
       + '</div></div></div>';
 
-    if(tieneVideo(t)){
-      var caja = document.getElementById('ft-video'), turno = F.uid;
-      traerVideo(t).then(function(u){
-        if(turno !== F.uid) return;
-        caja.classList.remove('sin');
-        caja.innerHTML = '<video src="'+e(u)+'" controls playsinline style="width:100%;height:100%;object-fit:contain;display:block;"></video>';
-      }).catch(function(){
-        if(turno !== F.uid) return;
-        caja.classList.add('sin'); caja.textContent = 'No hemos podido cargar su vídeo.';
-      });
-    }
   }
+  window.btVerVideo = function(){
+    var x = lista().filter(function(y){ return y.t.uid === F.uid; })[0]; if(!x) return;
+    var caja = document.getElementById('ft-video'), turno = F.uid; if(!caja) return;
+    caja.innerHTML = '<div class="bt-v-cargando">Cargando el vídeo…</div>';
+    traerVideo(x.t).then(function(u){
+      if(turno !== F.uid) return;
+      caja.innerHTML = '<video src="'+e(u)+'" controls autoplay playsinline></video>';
+    }).catch(function(){
+      if(turno !== F.uid) return;
+      caja.innerHTML = '<div class="bt-v-cargando">No hemos podido cargar su vídeo.</div>';
+    });
+  };
 
   /* ---------- montar la pantalla y el menú ---------- */
   function montar(){
@@ -500,8 +506,13 @@
     + '#screen-talento .grid{display:grid;gap:16px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);}'
     + '#screen-talento .wrap{max-width:1000px;margin:0 auto;padding:18px 20px 60px;}'
     + '#screen-talento .topbar{padding:14px 20px;}'
-    + '#screen-talento .video-frame{min-height:320px;background:#0F1420;display:flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden;}'
-    + '#screen-talento .video-frame.sin{color:rgba(255,255,255,.75);font-size:13px;}'
+    + '#screen-talento .ft-vid-caja{display:flex;justify-content:center;}'
+    + '#screen-talento .video-frame{width:min(100%,250px);aspect-ratio:9/16;background:linear-gradient(135deg,#0F1C3F,#1A3A6B);display:flex;align-items:center;justify-content:center;border-radius:14px;overflow:hidden;}'
+    + '#screen-talento .video-frame.sin{color:rgba(255,255,255,.75);font-size:13px;text-align:center;padding:0 18px;line-height:1.5;}'
+    + '#screen-talento .video-frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000;}'
+    + '.ft-play{background:none;border:none;color:white;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;font-size:13.5px;font-weight:700;font-family:inherit;padding:0 16px;text-align:center;line-height:1.4;}'
+    + '.ft-play-c{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;}'
+    + '.ft-play:focus-visible{outline:2px solid white;outline-offset:3px;}'
     + '@media(max-width:760px){#screen-talento .grid{grid-template-columns:minmax(0,1fr);}}'
     + '.bt-av{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;display:block;}'
     + '.bt-av-l{display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:17px;}'

@@ -105,7 +105,7 @@ function publicarTalento(p){
   var modo = window.CERCO_modoElegido ? CERCO_modoElegido(p) : null;
   if(!modo) return;                                   // todavía no ha elegido
   var ref = Nube.db().collection('talento').doc(Nube.uid);
-  if(modo === 'solicito' || !p.disc || !p.profesion){ ref.delete().catch(function(){}); return; }
+  if(modo === 'solicito' || !p.disc || !p.profesion){ ref.delete().catch(falloAlPublicar); return; }
   var g = geoLimpio(p.geo);
   var d = {
     modo:modo, modoFecha:String(p.modoFecha || '').slice(0,40),
@@ -119,7 +119,7 @@ function publicarTalento(p){
     titulacion: String(p.titulacion || '').slice(0,120),
     ocultar:(p.ocultar||[]).slice(0,50), actualizado:new Date().toISOString()
   };
-  if(modo !== 'visible'){ ref.set(d).catch(function(){}); return; }
+  if(modo !== 'visible'){ ref.set(d).catch(falloAlPublicar); return; }
   var nom = String(p.nombre || '').trim().split(/\s+/);
   d.nombre = (nom[0] || '').slice(0,40);
   d.inicial = nom.length > 1 ? nom[1].charAt(0).toUpperCase() : '';
@@ -132,7 +132,13 @@ function publicarTalento(p){
   });
   fotoPequena(p.foto).then(function(mini){ if(mini) d.fotoMini = mini; })
     .catch(function(){})
-    .then(function(){ ref.set(d).catch(function(){}); });
+    .then(function(){ ref.set(d).catch(falloAlPublicar); });
+}
+/* Si esto falla, la persona cree que ha quedado guardado y en realidad no
+   aparece (o sigue apareciendo) en las búsquedas de las clínicas. Callarse sería
+   lo peor que podemos hacer aquí, así que se dice. */
+function falloAlPublicar(){
+  try{ toast('Tu elección se ha guardado, pero no hemos podido actualizar cómo te ven las clínicas. Vuelve a entrar en Mi perfil dentro de un rato.'); }catch(e){}
 }
 /* Copia pequeña de la foto (96 px) para la lista de «Buscar talento»: así la
    clínica no descarga 200 fotos grandes al abrir la pantalla. */

@@ -3,6 +3,7 @@
 // los «Anónimo» no se ve ni el nombre ni la foto.
 const { test, expect, nuevaVentana, vaciarEmulador, capturar, FIRESTORE, PROYECTO } = require('../apoyo/entorno');
 const A = require('../apoyo/acciones');
+const fs = require('fs');
 
 const base = `http://${FIRESTORE.host}:${FIRESTORE.port}/v1/projects/${PROYECTO}/databases/(default)/documents`;
 
@@ -31,6 +32,27 @@ async function sembrarTalento(id, datos) {
   });
   if (!r.ok) throw new Error('no se ha podido sembrar ' + id + ': ' + (await r.text()));
 }
+// Deja el perfil privado (hace falta para que existan los trozos del vídeo) y
+// sube el vídeo en trozos, igual que lo sube la persona desde su móvil.
+async function sembrarVideo(id, ruta, trozos = 3) {
+  const b64 = fs.readFileSync(ruta).toString('base64');
+  const porTrozo = Math.ceil(b64.length / trozos);
+  await fetch(`${base}/candidatos/${id}`, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields: { tipo: valor('candidato'), nombre: valor('No se ve') } }),
+  });
+  for (let k = 0; k < trozos; k++) {
+    const r = await fetch(`${base}/candidatos/${id}/media/video_${k}`, {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: { d: valor(b64.slice(k * porTrozo, (k + 1) * porTrozo)), i: valor(k), n: valor(trozos) } }),
+    });
+    if (!r.ok) throw new Error('no se ha podido subir el trozo ' + k + ': ' + (await r.text()));
+  }
+  return { n: trozos, mime: 'video/webm', v: 1 };
+}
+
 const DISC = (dom, sec) => ({ dom, sec, norm: { D: dom === 'D' ? 90 : 20, I: dom === 'I' ? 90 : 20, S: dom === 'S' ? 90 : 20, C: dom === 'C' ? 90 : 20 } });
 const GIRONA = { lat: 41.98, lng: 2.82, prov: 'Girona', n: 'Girona' };
 const MADRID = { lat: 40.42, lng: -3.7, prov: 'Madrid', n: 'Madrid' };
@@ -128,6 +150,82 @@ test('Buscar talento: de 20 en 20, con filtros, y los anónimos sin nombre ni fo
   await expect(c.locator('#modal-inv')).toBeVisible();
   await expect(c.locator('#modal-inv')).toContainText('Invitar a solicitar');
   await c.locator('#modal-inv').getByRole('button', { name: 'Cancelar' }).click();
+
+  expect(c.erroresPagina).toEqual([]);
+  await v.context.close();
+});
+
+test('Verlos en vídeo: uno detrás de otro, y se puede invitar sin salir', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  await vaciarEmulador();
+
+  // Dos profesionales con vídeo (una «Visible» y otro «Anónimo») y una sin vídeo
+  const meta = await sembrarVideo('vid-1', A.archivo('video-vertical.webm'), 3);
+  const meta2 = await sembrarVideo('vid-2', A.archivo('video-vertical.webm'), 3);
+  await sembrarTalento('vid-1', {
+    modo: 'visible', profesion: 'Higienista dental', experiencia: 'De 3 a 5 años',
+    jornada: 'Completa', disponibilidad: 'Ya', disc: DISC('S', 'I'), geo: GIRONA, radio: 25,
+    video: true, videoMeta: meta, cv: true, colegiado: false, ocultar: [],
+    actualizado: '2026-11-15T09:00:00.000Z', nombre: 'Ana', inicial: 'R',
+  });
+  await sembrarTalento('vid-2', {
+    modo: 'anonimo', profesion: 'Higienista dental', experiencia: 'Más de 5 años',
+    jornada: 'Parcial', disponibilidad: 'En un mes', disc: DISC('C', 'S'), geo: GIRONA, radio: 25,
+    video: true, videoMeta: meta2, cv: false, colegiado: false, ocultar: [],
+    actualizado: '2026-11-15T09:00:00.000Z',
+  });
+  await sembrarTalento('sin-video', {
+    modo: 'visible', profesion: 'Higienista dental', experiencia: 'De 3 a 5 años',
+    jornada: 'Completa', disponibilidad: 'Ya', disc: DISC('I', 'D'), geo: GIRONA, radio: 25,
+    video: false, videoMeta: null, cv: false, colegiado: false, ocultar: [],
+    actualizado: '2026-11-15T09:00:00.000Z', nombre: 'Sin', inicial: 'V',
+  });
+
+  const v = await nuevaVentana(browser, testInfo);
+  const c = v.page;
+  await A.registrarClinica(c, 'videos-clinica@prueba.es');
+  await A.configurarClinica(c, {}, { ...A.CLINICA, clinica: 'Clínica de los Vídeos' });
+  await c.evaluate(() => showScreen('buscar'));
+  await expect(c.locator('#buscar-box .bt-card')).toHaveCount(3, { timeout: 20_000 });
+
+  // 1. El botón cuenta solo a quien tiene vídeo (2 de los 3)
+  const boton = c.locator('#bt-videos');
+  await expect(boton).toContainText('Verlos en vídeo');
+  await expect(boton.locator('.bt-vid-n')).toHaveText('2');
+  await boton.click();
+
+  // 2. El primer vídeo se monta de verdad a partir de sus tres trozos
+  const visor = c.locator('#bt-visor');
+  await expect(visor).toBeVisible();
+  await expect(visor).toContainText('1 de 2');
+  await expect(visor).toContainText('Ana R.');
+  const video = visor.locator('video');
+  await expect(video).toHaveCount(1, { timeout: 30_000 });
+  await expect(video).toHaveAttribute('src', /^blob:/);
+  expect(await video.evaluate((el) => new Promise((ok) => {
+    if (el.readyState >= 1) return ok(el.duration);
+    el.onloadedmetadata = () => ok(el.duration);
+    setTimeout(() => ok(0), 15000);
+  }))).toBeGreaterThan(0);
+
+  // 3. «Siguiente» pasa al segundo, que es anónimo: sin nombre
+  await visor.getByRole('button', { name: 'Siguiente' }).click();
+  await expect(visor).toContainText('2 de 2');
+  await expect(visor).toContainText('Anónimo');
+  await expect(visor).not.toContainText('Ana R.');
+  await expect(visor.locator('video')).toHaveCount(1, { timeout: 30_000 });
+  await capturar(c, 'clinica-71-verlos-en-video', { tapar: [visor.locator('video')] });
+
+  // 4. Esta clínica no tiene ninguna oferta publicada: se invita siempre a una
+  //    oferta, así que se le dice en vez de no hacer nada (la ventana de
+  //    invitar con oferta se comprueba en la prueba de arriba).
+  await visor.getByRole('button', { name: 'Invitar' }).click();
+  await expect(c.getByText('Para invitar a alguien necesitas una oferta publicada.')).toBeVisible();
+  await expect(c.locator('#modal-inv')).toHaveCount(0);
+
+  // 5. Se cierra con la tecla Escape
+  await c.keyboard.press('Escape');
+  await expect(visor).toHaveCount(0);
 
   expect(c.erroresPagina).toEqual([]);
   await v.context.close();

@@ -178,7 +178,13 @@
     else if(!l.length) h += '<div class="bt-vacio">' + (B.fin
         ? 'Nadie encaja con estos filtros. Prueba a ampliar la distancia o a quitar alguno.'
         : 'Nadie de los cargados encaja con estos filtros. Pulsa «Ver más» para seguir buscando.') + '</div>';
-    else h += '<div class="bt-lista">' + l.map(tarjeta).join('') + '</div>';
+    else {
+      var conVideo = l.filter(function(x){ return x.t.videoMeta && x.t.videoMeta.n; });
+      if(conVideo.length) h += '<div class="bt-vid-w"><button type="button" class="bt-vid-b" id="bt-videos" onclick="btVideos()">'
+        + sv('video','#fff',16) + 'Verlos en vídeo <span class="bt-vid-n">'+conVideo.length+'</span></button>'
+        + '<span class="bt-vid-h">Uno detrás de otro, a pantalla completa. Puedes invitar sin salir.</span></div>';
+      h += '<div class="bt-lista">' + l.map(tarjeta).join('') + '</div>';
+    }
     if(!B.fin) h += '<div class="bt-mas-w"><button type="button" class="bt-mas" id="bt-mas" onclick="btVerMas()"'+(B.cargando ? ' disabled' : '')+'>'+(B.cargando ? 'Cargando…' : 'Ver más')+'</button></div>';
     else if(l.length) h += '<div class="bt-fin">No hay más profesionales que encajen.</div>';
     box.innerHTML = h;
@@ -200,6 +206,81 @@
       if(ents.some(function(x){ return x.isIntersecting; })) cargarPagina();
     }, { rootMargin: '300px' });
     _ojo.observe(b);
+  }
+
+  /* ---------- verlos en vídeo, uno detrás de otro ---------- */
+  var V = { l:[], i:0, url:null, cache:{} };
+  // Monta el vídeo a partir de sus trozos. La clínica puede leer el vídeo de
+  // quien está en «Buscar talento», nunca su CV (lo dicen las reglas).
+  function traerVideo(t){
+    var m = t.videoMeta || {}, clave = t.uid + '_' + (m.v || 0);
+    if(V.cache[clave]) return Promise.resolve(V.cache[clave]);
+    var col = db().collection('candidatos').doc(t.uid).collection('media'), ps = [];
+    for(var k = 0; k < m.n; k++) ps.push(col.doc('video_' + k).get());
+    return Promise.all(ps).then(function(docs){
+      var b64 = docs.map(function(d){ if(!d.exists) throw 'falta'; return d.data().d; }).join('');
+      var bin = atob(b64), arr = new Uint8Array(bin.length);
+      for(var j = 0; j < bin.length; j++) arr[j] = bin.charCodeAt(j);
+      var u = URL.createObjectURL(new Blob([arr], {type: m.mime || 'video/webm'}));
+      V.cache[clave] = u; return u;
+    });
+  }
+  window.btVideos = function(){
+    V.l = lista().filter(function(x){ return x.t.videoMeta && x.t.videoMeta.n; });
+    if(!V.l.length) return;
+    V.i = 0;
+    var m = document.createElement('div'); m.id = 'bt-visor'; m.className = 'bt-visor';
+    m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', 'Profesionales en vídeo');
+    m.innerHTML = '<div class="bt-v-caja"><div class="bt-v-video" id="bt-v-video"></div><div class="bt-v-pie" id="bt-v-pie"></div></div>'
+      + '<button type="button" class="bt-v-x" id="bt-v-x" aria-label="Cerrar" onclick="btVisorCerrar()">✕</button>';
+    document.body.appendChild(m);
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', teclas);
+    pintarVisor();
+  };
+  function teclas(ev){
+    if(ev.key === 'Escape') btVisorCerrar();
+    else if(ev.key === 'ArrowRight' || ev.key === 'ArrowDown') btVisorMover(1);
+    else if(ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') btVisorMover(-1);
+  }
+  window.btVisorCerrar = function(){
+    var m = document.getElementById('bt-visor'); if(m) m.remove();
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', teclas);
+  };
+  window.btVisorMover = function(d){
+    var n = V.i + d; if(n < 0 || n >= V.l.length) return;
+    V.i = n; pintarVisor();
+  };
+  function pintarVisor(){
+    var caja = document.getElementById('bt-v-video'), pie = document.getElementById('bt-v-pie');
+    if(!caja || !pie) return;
+    var x = V.l[V.i], t = x.t, d = t.disc || {}, visible = t.modo === 'visible';
+    var inv = window.CERCO_invitacionDe ? CERCO_invitacionDe(t.uid, ofertaElegida()) : null;
+    var nombre = visible ? e((t.nombre || '') + (t.inicial ? ' ' + t.inicial + '.' : '')) : e(t.profesion || 'Profesional');
+    caja.innerHTML = '<div class="bt-v-cargando">Cargando el vídeo…</div>';
+    pie.innerHTML = '<div class="bt-v-datos">'
+      + '<div class="bt-v-n">'+nombre+(visible ? '' : ' <span class="bt-anon">Anónimo</span>')+'</div>'
+      + '<div class="bt-v-s">'+[visible ? e(t.profesion || '') : '', e(t.experiencia || ''),
+          d.dom ? e(NOM[d.dom]) : '', x.km !== null ? 'a ' + x.km + ' km' : ''].filter(Boolean).join(' · ')+'</div>'
+      + '</div>'
+      + '<div class="bt-v-acc">'
+      +   (inv ? '<span class="bt-pill bt-inv">'+sv('check','#1A56DB',12)+(inv.estado === 'aceptada' ? 'Ha solicitado' : 'Ya invitada')+'</span>'
+               : '<button type="button" class="bt-inv-b" onclick="abrirInvitar(\''+e(t.uid)+'\')">'+sv('send','#fff',14)+'Invitar</button>')
+      +   '<button type="button" class="bt-v-nav" onclick="btVisorMover(-1)"'+(V.i === 0 ? ' disabled' : '')+' aria-label="Anterior">'+sv('left','currentColor',16)+'</button>'
+      +   '<button type="button" class="bt-v-nav" id="bt-v-sig" onclick="btVisorMover(1)"'+(V.i >= V.l.length - 1 ? ' disabled' : '')+'>Siguiente</button>'
+      +   '<span class="bt-v-cuenta">'+(V.i + 1)+' de '+V.l.length+'</span>'
+      + '</div>';
+    var turno = V.i;
+    traerVideo(t).then(function(u){
+      if(turno !== V.i) return;                      // ya ha pasado al siguiente
+      caja.innerHTML = '<video src="'+e(u)+'" controls autoplay playsinline></video>';
+    }).catch(function(){
+      if(turno !== V.i) return;
+      caja.innerHTML = '<div class="bt-v-cargando">No hemos podido cargar este vídeo.</div>';
+    });
+    // se va adelantando el siguiente, para que no haya espera al pasar
+    var sig = V.l[V.i + 1]; if(sig) traerVideo(sig.t).catch(function(){});
   }
 
   /* ---------- montar la pantalla y el menú ---------- */
@@ -283,6 +364,23 @@
     + '.bt-mas{background:white;border:1px solid #D8DEE9;color:#374151;border-radius:10px;padding:11px 22px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;}'
     + '.bt-mas[disabled]{color:#9CA3AF;cursor:default;}'
     + '.bt-fin{text-align:center;font-size:12.5px;color:#9CA3AF;margin-top:16px;}'
+    + '.bt-vid-w{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px;}'
+    + '.bt-vid-b{background:#111827;color:white;border:none;border-radius:10px;padding:11px 18px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;}'
+    + '.bt-vid-n{background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px;font-size:12px;}'
+    + '.bt-vid-h{font-size:12.5px;color:#6B7280;}'
+    + '.bt-visor{position:fixed;inset:0;background:#0A0E1E;z-index:10050;display:flex;align-items:center;justify-content:center;}'
+    + '.bt-v-caja{display:flex;flex-direction:column;width:100%;height:100%;max-width:520px;}'
+    + '.bt-v-video{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#000;}'
+    + '.bt-v-video video{width:100%;height:100%;object-fit:contain;display:block;}'
+    + '.bt-v-cargando{color:#9CA3AF;font-size:13.5px;}'
+    + '.bt-v-pie{background:#111827;color:white;padding:14px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;}'
+    + '.bt-v-n{font-size:15.5px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}'
+    + '.bt-v-s{font-size:12.5px;color:#C3C9D4;margin-top:3px;}'
+    + '.bt-v-acc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}'
+    + '.bt-v-nav{background:#1F2937;color:white;border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}'
+    + '.bt-v-nav[disabled]{opacity:.4;cursor:default;}'
+    + '.bt-v-cuenta{font-size:12px;color:#9CA3AF;}'
+    + '.bt-v-x{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.14);color:white;border:none;border-radius:50%;width:38px;height:38px;font-size:17px;cursor:pointer;font-family:inherit;}'
     + '@media(max-width:700px){.bt-f-t{min-width:100%;}.bt-der{width:100%;justify-content:space-between;}}';
   document.head.appendChild(css);
   try{ montar(); }catch(x){}

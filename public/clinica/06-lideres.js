@@ -188,7 +188,13 @@
   }
   window.abrirInvitar = function(tuid){
     var t = window.CERCO_talentoDe ? CERCO_talentoDe(tuid) : null; if(!t) return;
-    var ofs = ofertasActivas(); if(!ofs.length) return;
+    // Se invita siempre a una oferta concreta: sin ninguna activa no se puede.
+    // Antes el botón no hacía nada y no se entendía por qué.
+    var ofs = ofertasActivas();
+    if(!ofs.length){
+      if(typeof showToast === 'function') showToast('Para invitar a alguien necesitas una oferta publicada. Publica una y vuelve.');
+      return;
+    }
     var o0 = (typeof ofertaEnPortal !== 'undefined' && ofertaEnPortal) ? ofertaEnPortal : ofs[0];
     var cli = ''; try{ cli = CDB.nombreClinica(); }catch(x){}
     var m = document.createElement('div'); m.id = 'modal-inv';

@@ -380,7 +380,16 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
    - Código nuevo: `public/clinica/17-buscar-talento.js`. Prueba nueva:
      `pruebas/e2e/70-buscar-talento.spec.js`, con 24 perfiles sembrados.
    - **Nota:** la consulta no necesita ningún índice nuevo en Firebase.
-4. Vista en vídeo, uno detrás de otro.
+4. ~~Vista en vídeo, uno detrás de otro.~~ **HECHO** (15 de noviembre).
+   - Botón «Verlos en vídeo» encima de la lista, que cuenta solo a quien tiene vídeo.
+   - Visor a pantalla completa: un vídeo cada vez, con el nombre (o «Anónimo»), la
+     forma de trabajar y los km; «Invitar» sin salir, «Siguiente»/«Anterior»,
+     flechas del teclado y Escape para cerrar. El siguiente se va adelantando solo.
+   - Para poder montar el vídeo, `talento` publica ahora `videoMeta` (en cuántos
+     trozos está y de qué tipo es). **No lleva ningún dato de la persona** y las
+     reglas lo comprueban: solo puede tener `n`, `mime` y `v`.
+   - Arreglado de paso: si la clínica no tenía ninguna oferta publicada, el botón
+     «Invitar» no hacía nada y no se entendía por qué. Ahora lo dice.
 5. Invitaciones (elegir oferta y mensaje; al aceptar, pasa a «Candidatos»).
 
 ## Pendiente para más adelante

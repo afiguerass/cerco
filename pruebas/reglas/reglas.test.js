@@ -190,6 +190,14 @@ describe('Talento (cómo te ven las clínicas en «Buscar talento»)', () => {
     await assertFails(setDoc(yo, sinModo));
   });
 
+  test('«videoMeta» solo puede decir en cuántos trozos está el vídeo', async () => {
+    const yo = doc(cuenta(PRO), `talento/${PRO}`);
+    await assertSucceeds(setDoc(yo, talentoBase({ videoMeta: { n: 2, mime: 'video/webm', v: 17 } })));
+    await assertSucceeds(setDoc(yo, talentoBase({ videoMeta: null })));
+    await assertFails(setDoc(yo, talentoBase({ videoMeta: { n: 2, mime: 'video/webm', v: 17, nombre: 'Laura Pérez' } })));
+    await assertFails(setDoc(yo, talentoBase({ videoMeta: { n: 0, mime: 'video/webm', v: 1 } })));
+  });
+
   test('aquí nunca caben el teléfono, el correo ni el CV', async () => {
     const yo = doc(cuenta(PRO), `talento/${PRO}`);
     await assertFails(setDoc(yo, talentoBase({ telefono: '600000000' })));

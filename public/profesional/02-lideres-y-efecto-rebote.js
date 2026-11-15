@@ -113,6 +113,9 @@ function publicarTalento(p){
     fuertes:(p.fuertes||[]).slice(0,5), disc:{dom:p.disc.dom, sec:p.disc.sec, norm:p.disc.norm},
     geo: g ? {lat:Math.round(g.lat*100)/100, lng:Math.round(g.lng*100)/100, prov:g.prov, n:g.n} : null,
     radio: p.radio || 25, video:!!p.video, cv:!!p.cv, colegiado:!!p.colegiado,
+    // en cuántos trozos está el vídeo y de qué tipo es: sin esto la clínica no
+    // sabría cómo montarlo. No lleva ningún dato de la persona.
+    videoMeta: p.video ? {n:p.video.n, mime:String(p.video.mime||''), v:p.video.v || 0} : null,
     ocultar:(p.ocultar||[]).slice(0,50), actualizado:new Date().toISOString()
   };
   if(modo !== 'visible'){ ref.set(d).catch(function(){}); return; }

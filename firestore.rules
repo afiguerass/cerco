@@ -40,11 +40,17 @@ service cloud.firestore {
       let d = request.resource.data;
       let k = d.keys();
       return k.hasOnly(['modo','modoFecha','profesion','experiencia','jornada','disponibilidad',
-                        'fuertes','disc','geo','radio','video','cv','colegiado','ocultar',
+                        'fuertes','disc','geo','radio','video','videoMeta','cv','colegiado','ocultar',
                         'actualizado','nombre','inicial','fotoMini'])
           && d.modo in ['visible','anonimo']
           && (!k.hasAny(['video']) || d.video is bool)
           && (!k.hasAny(['cv']) || d.cv is bool)
+          // «videoMeta» solo dice en cuántos trozos está el vídeo y de qué tipo
+          // es, para poder verlo. No lleva ningún dato de la persona.
+          && (!k.hasAny(['videoMeta']) || d.videoMeta == null
+              || (d.videoMeta.keys().hasOnly(['n','mime','v'])
+                  && d.videoMeta.n is number && d.videoMeta.n > 0 && d.videoMeta.n <= 200
+                  && d.videoMeta.mime is string && d.videoMeta.mime.size() <= 60))
           && (d.modo == 'visible'
               ? ((!k.hasAny(['nombre'])   || (d.nombre is string && d.nombre.size() <= 40 && d.nombre.matches('^[^ ]+$')))
                  && (!k.hasAny(['inicial'])  || (d.inicial is string && d.inicial.size() <= 1))

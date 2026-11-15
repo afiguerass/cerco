@@ -112,6 +112,8 @@ window.showScreen = function(id){
   try{ if(window.CERCO_interfazTrasPantalla) CERCO_interfazTrasPantalla(id); }catch(x){}
   // La Agenda se pinta al entrar (clinica/12-todo-conectado.js)
   if(id === 'agenda' && window.CERCO_agendaAlMostrar) CERCO_agendaAlMostrar();
+  // «Buscar talento» trae la primera página al entrar (clinica/17-buscar-talento.js)
+  if(id === 'buscar' && window.CERCO_buscarAlMostrar) CERCO_buscarAlMostrar();
   // El formulario de oferta se prepara al abrirlo (clinica/13-formulario-oferta.js)
   if(pedida === 'crear-oferta' && window.CERCO_formularioOfertaListo) setTimeout(CERCO_formularioOfertaListo, 50);
   return r;

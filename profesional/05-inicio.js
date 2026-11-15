@@ -294,12 +294,12 @@ function inPerfilLinea(pasos, heroEsPaso){
 }
 function inSugerencia(){
   var p = S.perfil || {};
+  if(p.disc && window.CERCO_modoElegido && !CERCO_modoElegido(p))
+    return '<div class="in2-sug"><span class="in2-sug-ic">'+svg('eye','#1A56DB',18)+'</span><span class="in2-sug-tx"><b>Que te encuentren</b><span>Elige qué pueden ver de ti las clínicas que buscan profesionales.</span></span>'
+      + '<button class="btn btn-s" onclick="abrirModo()">Elegir</button></div>';
   if(p.disc && !p.rebote)
     return '<div class="in2-sug"><span class="in2-sug-ic" style="background:#F3EEFA;">'+svg('rebote','#66328A',18)+'</span><span class="in2-sug-tx"><b>Efecto rebote</b><span>Si una clínica te dice que no, te buscamos otra.</span></span>'
       + '<button class="btn btn-s" onclick="guardarAjuste({rebote:\'preguntar\'}, \'Activado. Te preguntaremos antes de presentarte a cada clínica.\')">Activar</button></div>';
-  if(p.disc && p.visible === undefined)
-    return '<div class="in2-sug"><span class="in2-sug-ic">'+svg('eye','#1A56DB',18)+'</span><span class="in2-sug-tx"><b>Que te encuentren</b><span>Las clínicas ven tu perfil sin tu nombre ni tu foto y te invitan.</span></span>'
-      + '<button class="btn btn-s" onclick="guardarAjuste({visible:true}, \'Listo. Las clínicas que buscan tu perfil podrán invitarte.\')">Activar</button></div>';
   if(avisosSoportados() && Notification.permission === 'default' && !sessionStorage.getItem('cerco_av_no'))
     return '<div class="in2-sug"><span class="in2-sug-ic">'+svg('bell','#1A56DB',18)+'</span><span class="in2-sug-tx"><b>Avisos</b><span>Entérate al momento cuando te contesten.</span></span>'
       + '<button class="btn btn-s" onclick="activarAvisos()">Activar</button></div>';

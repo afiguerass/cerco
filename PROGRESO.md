@@ -402,6 +402,18 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
      - cada invitación se contaba **dos veces** contra el tope de 10 por semana;
      - la ventana de invitar enseñaba el pueblo de una persona anónima (ahora, los km).
 
+### Arreglos pedidos por Asish tras probar la vista previa (15 de noviembre)
+- [x] En «Buscar talento», los perfiles «Anónimo» llevan un **«?» gris**. Antes salía la
+      letra de su forma de trabajar (la D, I, S o C), que se podía confundir con la
+      inicial de su nombre y daba una pista de quién era.
+- [x] **Fuera el interruptor «Datos de ejemplo»** del panel de la clínica. La clínica de
+      ejemplo sigue siendo el escaparate de quien entra sin registrarse, y se apaga sola
+      al registrarse o iniciar sesión; lo que ya no hay es forma de volver a encenderla.
+- [x] Comprobado con una prueba que alguien en «Solo cuando yo solicite», **sin ninguna
+      solicitud**, no sale en «Buscar talento», y que al volver a «Visible» vuelve a salir.
+- [x] De paso: la lista de «Buscar talento» se vuelve a pedir **cada vez que se entra**.
+      Antes se guardaba de antes, así que quien se apagaba seguía saliendo hasta recargar.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

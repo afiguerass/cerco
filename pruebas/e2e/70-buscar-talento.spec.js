@@ -230,3 +230,70 @@ test('Verlos en vídeo: uno detrás de otro, y se puede invitar sin salir', asyn
   expect(c.erroresPagina).toEqual([]);
   await v.context.close();
 });
+
+test('«Solo cuando yo solicite»: desaparece de la búsqueda, y al volver a «Visible» reaparece', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  await vaciarEmulador();
+
+  // Una profesional que NO ha solicitado a nadie: así lo único que decide si
+  // sale en la búsqueda es su elección, no el haber solicitado.
+  const vp = await nuevaVentana(browser, testInfo);
+  const p = vp.page;
+  await A.registrarProfesional(p, 'elige@prueba.es');
+  await A.altaProfesional(p);
+  await p.check('#t-consent');
+  await p.getByRole('button', { name: 'Empezar el test' }).click();
+  await A.contestarTestProfesional(p, { pesos: { D: 1, I: 3, S: 2, C: 4 } });
+  await p.click('#tr-btn');
+  await A.elegirComoTeVen(p, 'visible');
+  await p.locator('#gu-next').waitFor();
+  await p.evaluate(() => guiaCerrar());
+
+  const vc = await nuevaVentana(browser, testInfo);
+  const c = vc.page;
+  await A.registrarClinica(c, 'elige-clinica@prueba.es');
+  await A.configurarClinica(c, {}, { ...A.CLINICA, clinica: 'Clínica que Busca' });
+  const tarjetas = c.locator('#buscar-box .bt-card');
+  // La lista se vuelve a pedir cada vez que se entra en la pantalla
+  const mirar = async () => {
+    await c.evaluate(() => showScreen('inicio'));
+    await c.evaluate(() => showScreen('buscar'));
+  };
+  // Antes de que mire la clínica, se espera a que la elección esté guardada
+  const yaGuardado = async (debeSalir) => {
+    await expect.poll(() => p.evaluate(() => firebase.firestore().collection('talento').doc(Nube.uid)
+      .get().then((d) => d.exists)), { timeout: 20_000 }).toBe(debeSalir);
+  };
+
+  // 1. En «Visible» sale, con su nombre de pila y la inicial
+  await yaGuardado(true);
+  await mirar();
+  await expect(tarjetas).toHaveCount(1, { timeout: 20_000 });
+  await expect(tarjetas.first()).toContainText('Laura P.');
+  await expect(tarjetas.first().locator('img')).toHaveCount(0); // no tiene foto puesta
+
+  // 2. Elige «Solo cuando yo solicite» desde Mi perfil
+  await p.evaluate(() => ir('perfil'));
+  await p.locator('#aj-comoteven .ctv-op[data-k="solicito"]').click();
+  await expect(p.getByText('Ya no apareces en las búsquedas de las clínicas.')).toBeVisible();
+
+  // 3. Ya no sale. Y no es porque haya solicitado: no ha solicitado nada.
+  expect(await p.evaluate(() => S.sols.length)).toBe(0);
+  await yaGuardado(false);
+  await mirar();
+  await expect(tarjetas).toHaveCount(0, { timeout: 20_000 });
+  await expect(c.locator('#buscar-box')).toContainText('Nadie encaja con estos filtros');
+
+  // 4. Vuelve a «Visible» y reaparece
+  await p.waitForTimeout(700);  // la web ignora dos cambios seguidos en menos de 0,6 s
+  await p.locator('#aj-comoteven .ctv-op[data-k="visible"]').click();
+  await expect(p.getByText('Las clínicas te ven como «Visible».')).toBeVisible();
+  await yaGuardado(true);
+  await mirar();
+  await expect(tarjetas).toHaveCount(1, { timeout: 20_000 });
+  await expect(tarjetas.first()).toContainText('Laura P.');
+
+  expect(c.erroresPagina).toEqual([]);
+  expect(p.erroresPagina).toEqual([]);
+  await vp.context.close(); await vc.context.close();
+});

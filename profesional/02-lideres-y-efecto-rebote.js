@@ -116,12 +116,20 @@ function publicarTalento(p){
     // en cuántos trozos está el vídeo y de qué tipo es: sin esto la clínica no
     // sabría cómo montarlo. No lleva ningún dato de la persona.
     videoMeta: p.video ? {n:p.video.n, mime:String(p.video.mime||''), v:p.video.v || 0} : null,
+    titulacion: String(p.titulacion || '').slice(0,120),
     ocultar:(p.ocultar||[]).slice(0,50), actualizado:new Date().toISOString()
   };
   if(modo !== 'visible'){ ref.set(d).catch(function(){}); return; }
   var nom = String(p.nombre || '').trim().split(/\s+/);
   d.nombre = (nom[0] || '').slice(0,40);
   d.inicial = nom.length > 1 ? nom[1].charAt(0).toUpperCase() : '';
+  // Su presentación y dónde ha trabajado: solo en «Visible». Están escritas con
+  // sus palabras y llevan nombres de clínicas, así que en «Anónimo» dirían
+  // quién es.
+  d.resumen = String(p.resumen || '').slice(0,400);
+  d.trabajos = (p.trabajos || []).slice(0,5).map(function(t){
+    return { puesto:String(t.puesto||'').slice(0,80), centro:String(t.centro||'').slice(0,80), tiempo:String(t.tiempo||'').slice(0,40) };
+  });
   fotoPequena(p.foto).then(function(mini){ if(mini) d.fotoMini = mini; })
     .catch(function(){})
     .then(function(){ ref.set(d).catch(function(){}); });

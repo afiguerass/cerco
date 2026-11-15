@@ -40,6 +40,26 @@
     var m = {}; try{ (CERCO_candidaturas() || []).forEach(function(c){ if(c.candidatoUid) m[c.candidatoUid] = 1; }); }catch(x){}
     return m;
   }
+  /* Dónde vive una persona, en texto. Un solo sitio lo decide, para que no se
+     escape por ninguna pantalla:
+       - «Visible»: su pueblo, y los km si se pueden calcular;
+       - «Anónimo»: SOLO los km. Si no se pueden calcular, su provincia; y si
+         tampoco se sabe, nada. Su pueblo no se dice nunca: en un pueblo
+         pequeño, decirlo es casi decir quién es.
+     Lo usan la lista, la ficha, el visor de vídeos y la ventana de invitar. */
+  function lugar(t, km){
+    if(!t || !t.geo) return '';
+    if(t.modo === 'visible') return t.geo.n + (km !== null && km !== undefined ? ', a ' + km + ' km' : '');
+    if(km !== null && km !== undefined) return 'a ' + km + ' km';
+    return t.geo.prov || '';
+  }
+  window.CERCO_lugarTalento = lugar;
+  function kmDe(t){
+    var org = origen();
+    return (org && t.geo && window.CGeo) ? CGeo.km(org, t.geo) : null;
+  }
+  window.CERCO_kmTalento = kmDe;
+
   // La persona que está en la lista, para la ventana de invitar (clinica/06-lideres.js)
   window.CERCO_talentoDe = function(tuid){ return B.l.filter(function(t){ return t.uid === tuid; })[0] || null; };
 
@@ -142,12 +162,13 @@
       : e(t.experiencia || '');
     var linea2 = [
       d.dom ? NOM[d.dom] + (d.sec ? ' con rasgo ' + NOM[d.sec].toLowerCase() : '') : '',
-      t.geo ? (x.km !== null ? 'a ' + x.km + ' km' : t.geo.n) : ''
+      lugar(t, x.km)
     ].filter(Boolean).map(e).join(' · ');
     var linea3 = [t.jornada ? 'Jornada ' + String(t.jornada).toLowerCase() : '',
       t.disponibilidad ? 'Empieza: ' + String(t.disponibilidad).toLowerCase() : '',
       t.video ? 'con vídeo' : '', t.colegiado ? 'colegiado/a' : ''].filter(Boolean).map(e).join(' · ');
-    return '<div class="bt-card">'
+    return '<div class="bt-card" role="button" tabindex="0" onclick="btAbrir(\''+e(t.uid)+'\')"'
+      + ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault(); btAbrir(\''+e(t.uid)+'\');}">'
       + av
       + '<div class="bt-txt">'
       +   '<div class="bt-n">'+titulo+(visible ? '' : ' <span class="bt-anon">Anónimo</span>')+'</div>'
@@ -159,7 +180,7 @@
       + '</div>'
       + '<div class="bt-der">'
       +   (x.p !== null ? '<div class="bt-pct" style="color:'+(x.p >= 80 ? '#0E9F6E' : (x.p >= 65 ? '#1A56DB' : '#6B7280'))+';">'+x.p+' %</div><div class="bt-pct-l">encaje</div>' : '')
-      +   (inv ? '' : '<button type="button" class="bt-inv-b" onclick="abrirInvitar(\'' + e(t.uid) + '\')">'+sv('send','#fff',14)+'Invitar</button>')
+      +   (inv ? '' : '<button type="button" class="bt-inv-b" onclick="event.stopPropagation(); abrirInvitar(\'' + e(t.uid) + '\')">'+sv('send','#fff',14)+'Invitar</button>')
       + '</div></div>';
   }
   function pintar(){
@@ -176,6 +197,12 @@
       + '<p class="bt-p">Profesionales de toda España que han elegido que las clínicas puedan encontrarles. El nombre completo, el teléfono, el correo y el CV los verás cuando acepten tu invitación.</p></div>'
       + '<span class="bt-cuota" style="color:'+(quedan > 0 ? '#1A56DB' : '#B42318')+';background:'+(quedan > 0 ? '#EEF3FE' : '#FEF2F2')+';">'+quedan+' de '+inv.max+' invitaciones esta semana</span>'
       + '</div>' + filtros();
+    // Sin el pueblo de la clínica no se puede medir ninguna distancia: ni se
+    // ordena por cercanía, ni funciona el filtro de km, ni se dice a cuántos
+    // km está cada persona. Se avisa, con el camino para arreglarlo.
+    if(!origen()) h += '<div class="bt-aviso">' + sv('pin','#8A5A00',16)
+      + '<span><b>Pon el pueblo de tu clínica para ver distancias.</b> Sin él no podemos decirte a cuántos kilómetros está cada profesional, ni ordenarlos por cercanía, ni usar el filtro de distancia.</span>'
+      + '<button type="button" class="bt-aviso-b" onclick="showScreen(\'onboarding\')">Ponerlo ahora</button></div>';
     h += '<div class="bt-n-res">' + (l.length ? l.length + ' profesional' + (l.length === 1 ? '' : 'es') : '') + '</div>';
     if(B.error) h += '<div class="bt-vacio">No hemos podido cargar la lista. Revisa tu conexión y vuelve a intentarlo.<div style="margin-top:10px;"><button type="button" class="bt-mas" onclick="btVerMas()">Volver a intentarlo</button></div></div>';
     else if(!l.length && B.cargando) h += '<div class="bt-vacio">Buscando…</div>';
@@ -183,7 +210,7 @@
         ? 'Nadie encaja con estos filtros. Prueba a ampliar la distancia o a quitar alguno.'
         : 'Nadie de los cargados encaja con estos filtros. Pulsa «Ver más» para seguir buscando.') + '</div>';
     else {
-      var conVideo = l.filter(function(x){ return x.t.videoMeta && x.t.videoMeta.n; });
+      var conVideo = l.filter(function(x){ return tieneVideo(x.t); });
       if(conVideo.length) h += '<div class="bt-vid-w"><button type="button" class="bt-vid-b" id="bt-videos" onclick="btVideos()">'
         + sv('video','#fff',16) + 'Verlos en vídeo <span class="bt-vid-n">'+conVideo.length+'</span></button>'
         + '<span class="bt-vid-h">Uno detrás de otro, a pantalla completa. Puedes invitar sin salir.</span></div>';
@@ -214,23 +241,34 @@
 
   /* ---------- verlos en vídeo, uno detrás de otro ---------- */
   var V = { l:[], i:0, url:null, cache:{} };
+  // Tiene vídeo quien lo dice en su perfil. Los perfiles guardados antes de
+  // que se publicara «en cuántos trozos está» también cuentan: ese dato se
+  // saca del primer trozo, que ya lo lleva dentro.
+  function tieneVideo(t){ return !!(t && (t.video || (t.videoMeta && t.videoMeta.n))); }
+  window.CERCO_tieneVideo = tieneVideo;
   // Monta el vídeo a partir de sus trozos. La clínica puede leer el vídeo de
   // quien está en «Buscar talento», nunca su CV (lo dicen las reglas).
   function traerVideo(t){
     var m = t.videoMeta || {}, clave = t.uid + '_' + (m.v || 0);
     if(V.cache[clave]) return Promise.resolve(V.cache[clave]);
-    var col = db().collection('candidatos').doc(t.uid).collection('media'), ps = [];
-    for(var k = 0; k < m.n; k++) ps.push(col.doc('video_' + k).get());
-    return Promise.all(ps).then(function(docs){
-      var b64 = docs.map(function(d){ if(!d.exists) throw 'falta'; return d.data().d; }).join('');
-      var bin = atob(b64), arr = new Uint8Array(bin.length);
-      for(var j = 0; j < bin.length; j++) arr[j] = bin.charCodeAt(j);
-      var u = URL.createObjectURL(new Blob([arr], {type: m.mime || 'video/webm'}));
-      V.cache[clave] = u; return u;
+    var col = db().collection('candidatos').doc(t.uid).collection('media');
+    // El primer trozo dice cuántos son en total: así también se puede ver el
+    // vídeo de quien guardó su perfil antes de que eso se publicara aparte.
+    return col.doc('video_0').get().then(function(d0){
+      if(!d0.exists) throw 'sin vídeo';
+      var n = m.n || (d0.data() || {}).n || 1, ps = [];
+      for(var k = 1; k < n; k++) ps.push(col.doc('video_' + k).get());
+      return Promise.all(ps).then(function(resto){
+        var b64 = [d0].concat(resto).map(function(d){ if(!d.exists) throw 'falta'; return d.data().d; }).join('');
+        var bin = atob(b64), arr = new Uint8Array(bin.length);
+        for(var j = 0; j < bin.length; j++) arr[j] = bin.charCodeAt(j);
+        var u = URL.createObjectURL(new Blob([arr], {type: m.mime || 'video/webm'}));
+        V.cache[clave] = u; return u;
+      });
     });
   }
   window.btVideos = function(){
-    V.l = lista().filter(function(x){ return x.t.videoMeta && x.t.videoMeta.n; });
+    V.l = lista().filter(function(x){ return tieneVideo(x.t); });
     if(!V.l.length) return;
     V.i = 0;
     var m = document.createElement('div'); m.id = 'bt-visor'; m.className = 'bt-visor';
@@ -266,7 +304,7 @@
     pie.innerHTML = '<div class="bt-v-datos">'
       + '<div class="bt-v-n">'+nombre+(visible ? '' : ' <span class="bt-anon">Anónimo</span>')+'</div>'
       + '<div class="bt-v-s">'+[visible ? e(t.profesion || '') : '', e(t.experiencia || ''),
-          d.dom ? e(NOM[d.dom]) : '', x.km !== null ? 'a ' + x.km + ' km' : ''].filter(Boolean).join(' · ')+'</div>'
+          d.dom ? e(NOM[d.dom]) : '', e(lugar(t, x.km))].filter(Boolean).join(' · ')+'</div>'
       + '</div>'
       + '<div class="bt-v-acc">'
       +   (inv ? '<span class="bt-pill bt-inv">'+sv('check','#1A56DB',12)+(inv.estado === 'aceptada' ? 'Ha solicitado' : 'Ya invitada')+'</span>'
@@ -287,6 +325,111 @@
     var sig = V.l[V.i + 1]; if(sig) traerVideo(sig.t).catch(function(){});
   }
 
+  /* ---------- la ficha de un profesional ----------
+     Mismo diseño que la ficha de Candidatos. Lo que se ve depende de lo que
+     haya elegido la persona; el nombre completo, el teléfono, el correo y el
+     CV no están aquí en ningún caso: esos llegan cuando acepta la invitación. */
+  var F = { uid:null, desde:'buscar' };
+  function pantallaFicha(){
+    var s = document.getElementById('screen-talento'); if(s) return s;
+    s = document.createElement('div'); s.id = 'screen-talento'; s.className = 'app-screen';
+    var ref = document.getElementById('screen-buscar');
+    if(ref && ref.parentElement) ref.parentElement.insertBefore(s, ref.nextSibling);
+    else (document.querySelector('main') || document.body).appendChild(s);
+    return s;
+  }
+  window.btAbrir = function(tuid){
+    var x = lista().filter(function(y){ return y.t.uid === tuid; })[0]; if(!x) return;
+    if(window.CERCO_estiloFicha) CERCO_estiloFicha('screen-talento');
+    F.uid = tuid;
+    pintarFicha(x);
+    showScreen('talento');
+    window.scrollTo(0, 0);
+  };
+  window.btFichaVolver = function(){ F.uid = null; showScreen('buscar'); };
+  function pintarFicha(x){
+    var s = pantallaFicha(), t = x.t, d = t.disc || {}, visible = t.modo === 'visible';
+    var inv = window.CERCO_invitacionDe ? CERCO_invitacionDe(t.uid, ofertaElegida()) : null;
+    var o = ofertaElegida();
+    var titulo = visible ? e((t.nombre || '') + (t.inicial ? ' ' + t.inicial + '.' : '')) : e(t.profesion || 'Profesional');
+    var av = !visible
+      ? '<span class="bt-av bt-av-l" style="background:#9CA3AF;width:38px;height:38px;font-size:15px;">?</span>'
+      : (t.fotoMini ? '<img class="cand-foto" src="'+e(t.fotoMini)+'" alt="">'
+                    : '<span class="bt-av bt-av-l" style="background:'+(d.dom ? COL[d.dom] : '#9CA3AF')+';width:38px;height:38px;font-size:15px;">'+e((t.nombre || '?').charAt(0))+'</span>');
+    var resumen = '<b>' + e(t.profesion || 'Profesional') + '</b>'
+      + (t.experiencia ? ', con <b>' + e(String(t.experiencia).toLowerCase()) + '</b> de experiencia' : '')
+      + (d.dom ? ', perfil <b>' + NOM[d.dom] + ' (' + d.dom + ')</b>' : '') + '.'
+      + (t.disponibilidad ? ' Puede empezar: ' + e(String(t.disponibilidad).toLowerCase()) + '.' : '')
+      + (x.p !== null ? ' Encaje con «' + e((o || {}).titulo || '') + '»: <b>' + x.p + ' %</b>.' : '');
+
+    var discCard = d.dom
+      ? '<div class="card"><h3>Perfil de personalidad</h3>'
+        + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;"><span class="bt-av bt-av-l" style="background:'+COL[d.dom]+';width:42px;height:42px;">'+e(d.dom)+'</span>'
+        + '<div><div style="font-size:14.5px;font-weight:800;color:#111827;">'+e(NOM[d.dom])+(d.sec ? ' con rasgo '+e(NOM[d.sec].toLowerCase()) : '')+'</div>'
+        + '<div style="font-size:12.5px;color:#6B7280;">Lo dice el test que ha hecho en CERCO</div></div></div>'
+        + (d.norm ? '<div class="bars">' + ['D','I','S','C'].map(function(k){
+            var v2 = Math.round(d.norm[k] || 0);
+            return '<div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;"><span style="width:88px;color:#4B5563;">'+e(NOM[k])+'</span>'
+              + '<span style="flex:1;height:7px;background:#F0F2F5;border-radius:99px;overflow:hidden;"><span style="display:block;height:100%;width:'+v2+'%;background:'+COL[k]+';"></span></span>'
+              + '<span style="width:34px;text-align:right;color:#6B7280;">'+v2+' %</span></div>';
+          }).join('') + '</div>' : '')
+        + '</div>'
+      : '<div class="card"><h3>Perfil de personalidad</h3><p>Todavía no ha hecho el test.</p></div>';
+
+    var trabajos = (t.trabajos || []).filter(function(w){ return w && (w.puesto || w.centro); });
+    var lugarTxt = lugar(t, x.km);
+    var botonInv = inv
+      ? '<div class="bt-pill '+(inv.estado === 'aceptada' ? 'bt-ok' : 'bt-inv')+'" style="padding:9px 14px;">'+(inv.estado === 'aceptada' ? 'Ha solicitado' : (inv.estado === 'rechazada' ? 'Esta vez no le interesa' : 'Invitación enviada'))+'</div>'
+      : '<button type="button" class="bt-inv-b" style="width:100%;justify-content:center;" onclick="abrirInvitar(\''+e(t.uid)+'\')">'+sv('send','#fff',14)+'Invitar a solicitar</button>';
+
+    s.innerHTML = '<div class="topbar"><button class="back" onclick="btFichaVolver()">'+sv('left','currentColor',16)+'Volver a Buscar talento</button></div>'
+      + '<div class="wrap">'
+      + '<div class="card" style="margin-bottom:16px;">'
+      +   '<div class="cand-name">'+av+'<h1 style="font-size:20px;font-weight:800;margin:0;">'+titulo+(visible ? '' : ' <span class="bt-anon">Anónimo</span>')+'</h1></div>'
+      +   '<p style="font-size:14px;color:#4B5563;line-height:1.6;margin:10px 0 0;">'+resumen+'</p>'
+      + '</div>'
+      + '<div class="grid"><div id="ft-izq">'
+      +   '<div class="card video-card"><h3>Vídeo de presentación</h3>'
+      +     '<div class="video-frame'+(tieneVideo(t) ? '' : ' sin')+'" id="ft-video">'+(tieneVideo(t) ? '<div class="bt-v-cargando">Cargando el vídeo…</div>' : 'Todavía no ha grabado su vídeo')+'</div>'
+      +   '</div>'
+      +   (visible && t.resumen ? '<div class="card"><h3>Sobre mí</h3><p style="white-space:pre-line;">'+e(t.resumen)+'</p></div>' : '')
+      +   ((t.fuertes || []).length ? '<div class="card"><h3>Cualidades y puntos fuertes</h3><div class="skills-row">'+t.fuertes.map(function(f){ return '<span class="skill-pill">'+e(f)+'</span>'; }).join('')+'</div></div>' : '')
+      +   (t.titulacion ? '<div class="card"><h3>Formación</h3><div class="edu-item"><div class="exp-dot"></div><div><div class="exp-title">'+e(t.titulacion)+'</div>'
+          + (t.colegiado ? '<div class="exp-sub">Colegiado/a</div>' : '') + '</div></div></div>' : '')
+      +   (visible && trabajos.length
+            ? '<div class="card"><h3>Experiencia profesional</h3>'
+              + trabajos.map(function(w){ return '<div class="edu-item"><div class="exp-dot"></div><div><div class="exp-title">'+e(w.puesto || '')+'</div>'
+                  + '<div class="exp-sub">'+[e(w.centro || ''), e(w.tiempo || '')].filter(Boolean).join(' · ')+'</div></div></div>'; }).join('')
+              + '</div>'
+            : (visible ? '' : '<div class="card"><h3>Su presentación y dónde ha trabajado</h3><p>Ha elegido estar en anónimo, así que su presentación y los sitios donde ha trabajado no se publican: llevan sus palabras y el nombre de otras clínicas, y dirían quién es. Los verás cuando acepte tu invitación.</p></div>'))
+      + '</div><div id="ft-der">'
+      +   '<div class="card"><h3>Información rápida</h3>'
+      +     (t.disponibilidad ? '<div class="contact-row">'+sv('pin','#6B7280',14)+' Puede empezar: '+e(String(t.disponibilidad).toLowerCase())+'</div>' : '')
+      +     (lugarTxt ? '<div class="contact-row">'+sv('pin','#6B7280',14)+' '+e(lugarTxt)+'</div>' : '')
+      +     (t.jornada ? '<div class="contact-row">'+sv('pin','#6B7280',14)+' Jornada: '+e(t.jornada)+'</div>' : '')
+      +     (t.radio ? '<div class="contact-row">'+sv('pin','#6B7280',14)+' Se desplaza hasta '+e(t.radio)+' km</div>' : '')
+      +     (t.cv ? '<div class="contact-row">'+sv('check','#6B7280',14)+' Tiene CV preparado</div>' : '')
+      +   '</div>'
+      +   discCard
+      +   '<div class="card"><h3>Qué ves y qué no</h3>'
+      +     '<p>Su nombre completo, su teléfono, su correo y su CV los verás cuando acepte tu invitación y te envíe su solicitud. Hasta entonces, no.</p>'
+      +     '<div style="margin-top:12px;">'+botonInv+'</div>'
+      +   '</div>'
+      + '</div></div></div>';
+
+    if(tieneVideo(t)){
+      var caja = document.getElementById('ft-video'), turno = F.uid;
+      traerVideo(t).then(function(u){
+        if(turno !== F.uid) return;
+        caja.classList.remove('sin');
+        caja.innerHTML = '<video src="'+e(u)+'" controls playsinline style="width:100%;height:100%;object-fit:contain;display:block;"></video>';
+      }).catch(function(){
+        if(turno !== F.uid) return;
+        caja.classList.add('sin'); caja.textContent = 'No hemos podido cargar su vídeo.';
+      });
+    }
+  }
+
   /* ---------- montar la pantalla y el menú ---------- */
   function montar(){
     menu();
@@ -295,7 +438,7 @@
     var s = document.createElement('div'); s.id = 'screen-buscar'; s.className = 'app-screen';
     s.innerHTML = '<div class="wrap-buscar" id="buscar-box"></div>';
     ref.parentElement.insertBefore(s, ref);
-    try{ if(window.MTAB_TITLES) MTAB_TITLES.buscar = 'Buscar talento'; }catch(x){}
+    try{ if(window.MTAB_TITLES){ MTAB_TITLES.buscar = 'Buscar talento'; MTAB_TITLES.talento = 'Profesional'; } }catch(x){}
   }
   /* El menú de la izquierda, con «Buscar talento» justo debajo de «Candidatos».
      Se vuelve a colocar cada vez, porque la Agenda también se añade ahí y
@@ -351,7 +494,15 @@
     + '.bt-chip:focus-visible{outline:2px solid #1A56DB;outline-offset:2px;}'
     + '.bt-n-res{font-size:12.5px;color:#6B7280;margin:14px 0 8px;}'
     + '.bt-lista{display:grid;gap:10px;}'
-    + '.bt-card{background:white;border:1px solid #EAECF0;border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;}'
+    + '.bt-card{background:white;border:1px solid #EAECF0;border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;cursor:pointer;}'
+    + '.bt-card:hover{border-color:#C3D4F7;box-shadow:0 2px 10px rgba(26,86,219,.07);}'
+    + '.bt-card:focus-visible{outline:2px solid #1A56DB;outline-offset:2px;}'
+    + '#screen-talento .grid{display:grid;gap:16px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);}'
+    + '#screen-talento .wrap{max-width:1000px;margin:0 auto;padding:18px 20px 60px;}'
+    + '#screen-talento .topbar{padding:14px 20px;}'
+    + '#screen-talento .video-frame{min-height:320px;background:#0F1420;display:flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden;}'
+    + '#screen-talento .video-frame.sin{color:rgba(255,255,255,.75);font-size:13px;}'
+    + '@media(max-width:760px){#screen-talento .grid{grid-template-columns:minmax(0,1fr);}}'
     + '.bt-av{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;display:block;}'
     + '.bt-av-l{display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:17px;}'
     + '.bt-txt{flex:1;min-width:200px;}'
@@ -373,6 +524,9 @@
     + '.bt-mas{background:white;border:1px solid #D8DEE9;color:#374151;border-radius:10px;padding:11px 22px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;}'
     + '.bt-mas[disabled]{color:#9CA3AF;cursor:default;}'
     + '.bt-fin{text-align:center;font-size:12.5px;color:#9CA3AF;margin-top:16px;}'
+    + '.bt-aviso{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#FFF8E6;border:1px solid #F3DFA8;border-radius:12px;padding:12px 14px;margin:14px 0 0;font-size:13px;color:#6B4A00;line-height:1.55;}'
+    + '.bt-aviso span{flex:1;min-width:220px;}'
+    + '.bt-aviso-b{background:#8A5A00;color:white;border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;}'
     + '.bt-vid-w{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px;}'
     + '.bt-vid-b{background:#111827;color:white;border:none;border-radius:10px;padding:11px 18px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;}'
     + '.bt-vid-n{background:rgba(255,255,255,.22);border-radius:99px;padding:1px 8px;font-size:12px;}'

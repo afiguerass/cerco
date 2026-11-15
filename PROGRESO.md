@@ -363,7 +363,23 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
    - De paso: las fechas relativas («Ahora mismo», «Hace 3 min») hacían que una misma
      pantalla saliera distinta de un día a otro, porque el recuadro que las tapa medía
      lo que midiera el texto. Ahora tienen ancho fijo en las capturas (`pruebas/apoyo/captura.css`).
-3. «Buscar talento» en la clínica (lista, filtros y orden).
+3. ~~«Buscar talento» en la clínica (lista, filtros y orden).~~ **HECHO** (15 de noviembre).
+   - Pantalla propia (`screen-buscar`), en el menú justo debajo de «Candidatos»
+     (se recoloca sola, porque la Agenda también se añade ahí).
+   - Se trae **de 20 en 20**: con «Ver más» y también sola al llegar al final de la lista.
+     Nunca se descargan todos los perfiles de golpe (antes se pedían 400 de una vez).
+   - Filtros: profesión (se la pide a la base de datos, así que no hay que cargarlo todo
+     para filtrar), distancia (10, 25, 50, 100 km, mi provincia o toda España) y forma de
+     trabajar. Si hay más de una oferta activa, se elige con cuál se mide el encaje.
+   - Orden: primero el encaje (con un extra para el perfil que le falta al equipo) y,
+     a igual encaje, quien esté más cerca.
+   - Las fichas «Visible» llevan nombre de pila, inicial y foto pequeña; las «Anónimo»,
+     solo profesión, experiencia, forma de trabajar y km. Los perfiles de antes (sin
+     elección hecha) salen como anónimos.
+   - En «Candidatos», «Talento que encaja» pasa a ser un acceso a esta pantalla.
+   - Código nuevo: `public/clinica/17-buscar-talento.js`. Prueba nueva:
+     `pruebas/e2e/70-buscar-talento.spec.js`, con 24 perfiles sembrados.
+   - **Nota:** la consulta no necesita ningún índice nuevo en Firebase.
 4. Vista en vídeo, uno detrás de otro.
 5. Invitaciones (elegir oferta y mensaje; al aceptar, pasa a «Candidatos»).
 

@@ -217,6 +217,13 @@ describe('Talento (cómo te ven las clínicas en «Buscar talento»)', () => {
     await assertSucceeds(setDoc(yo, talentoBase({ titulacion: 'Técnico Superior en Higiene Bucodental' })));
   });
 
+  test('la portada del vídeo es una foto suya: solo en «Visible»', async () => {
+    const yo = doc(cuenta(PRO), `talento/${PRO}`);
+    const portada = 'data:image/jpeg;base64,AAAA';
+    await assertSucceeds(setDoc(yo, talentoBase({ modo: 'visible', nombre: 'Laura', inicial: 'P', videoPortada: portada })));
+    await assertFails(setDoc(yo, talentoBase({ videoPortada: portada })));   // anónimo
+  });
+
   test('al elegir «Solo cuando yo solicite», el profesional borra su perfil', async () => {
     await sembrar(`talento/${PRO}`, talentoBase());
     await assertFails(deleteDoc(doc(cuenta(CLINICA), `talento/${PRO}`)));

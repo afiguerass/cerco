@@ -55,6 +55,9 @@ async function sembrarVideo(id, ruta, trozos = 3) {
 
 const DISC = (dom, sec) => ({ dom, sec, norm: { D: dom === 'D' ? 90 : 20, I: dom === 'I' ? 90 : 20, S: dom === 'S' ? 90 : 20, C: dom === 'C' ? 90 : 20 } });
 const GIRONA = { lat: 41.98, lng: 2.82, prov: 'Girona', n: 'Girona' };
+// Un fotograma del vídeo, en pequeño: es lo que la persona publica como portada
+const PORTADA = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AKAAf//Z';
+
 const OFERTA_HIG = {
   titulo: 'Higienista dental', municipio: 'Girona', jornada: 'Completa · 40 h/semana',
   salarioMin: '22000', salarioMax: '26000', contrato: 'Indefinido',
@@ -171,7 +174,7 @@ test('Verlos en vídeo: uno detrás de otro, y se puede invitar sin salir', asyn
   await sembrarTalento('vid-1', {
     modo: 'visible', profesion: 'Higienista dental', experiencia: 'De 3 a 5 años',
     jornada: 'Completa', disponibilidad: 'Ya', disc: DISC('S', 'I'), geo: GIRONA, radio: 25,
-    video: true, videoMeta: meta, cv: true, colegiado: false, ocultar: [],
+    video: true, videoMeta: meta, videoPortada: PORTADA, cv: true, colegiado: false, ocultar: [],
     actualizado: '2026-11-15T09:00:00.000Z', nombre: 'Ana', inicial: 'R',
   });
   await sembrarTalento('vid-2', {
@@ -241,6 +244,14 @@ test('Verlos en vídeo: uno detrás de otro, y se puede invitar sin salir', asyn
   await expect(f.locator('video')).toHaveCount(0);
   const portada = f.locator('.ft-play');
   await expect(portada).toContainText('Ver su vídeo de presentación');
+  // la portada es un fotograma de su vídeo, no un recuadro negro
+  expect(await f.locator('#ft-video').evaluate((el) => getComputedStyle(el).backgroundImage))
+    .toContain('data:image/jpeg');
+  // y el título tiene el mismo margen que los demás bloques
+  const tituloX = (await f.locator('h3', { hasText: 'Vídeo de presentación' }).boundingBox()).x;
+  const otroX = (await f.locator('h3', { hasText: 'Información rápida' }).boundingBox()).x;
+  const cajaX = (await f.locator('.card').first().boundingBox()).x;
+  expect(Math.round(tituloX - cajaX)).toBe(Math.round(otroX - (await f.locator('#ft-der .card').first().boundingBox()).x));
   // la caja es más alta que ancha (vídeo vertical) y no ocupa toda la columna
   const caja = await f.locator('#ft-video').boundingBox();
   expect(caja.height).toBeGreaterThan(caja.width);

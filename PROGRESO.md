@@ -437,7 +437,13 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
       la información al lado: igual que la ficha de Candidatos. El vídeo se carga al pulsar.
 - [x] Si no se puede publicar el perfil para las búsquedas, **se avisa a la persona**.
       Antes fallaba en silencio: creía que había quedado guardado y no era verdad.
-- **Reglas de Firebase: vuelven a cambiar** (campos `titulacion`, `resumen` y `trabajos`).
+- [x] La portada del vídeo en la ficha salía negra. Ahora se publica un fotograma del
+      vídeo (`videoPortada`, 270 px), **solo en «Visible»**: es una imagen de su cara, así
+      que en «Anónimo» se queda la portada oscura con el botón.
+- [x] El título «Vídeo de presentación» estaba pegado al borde: era la clase `video-card`
+      del estilo de la clínica, que quita el relleno. Ahora tiene el mismo margen que el resto.
+- **Reglas de Firebase: vuelven a cambiar** (campos `titulacion`, `resumen`, `trabajos`
+  y `videoPortada`).
   Asish tendrá que volver a publicarlas al publicar esto. **Comprobado** pasando las
   pruebas de reglas contra las que están publicadas ahora: rechazan esos tres campos,
   así que hasta que se publiquen las nuevas, un profesional no puede publicar su

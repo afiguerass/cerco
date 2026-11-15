@@ -40,15 +40,19 @@
   };
 
   /* --- el mismo estilo que la pantalla de siempre, copiado para esta --- */
-  function copiarEstilo(){
-    if($('ficha-estilo')) return;
+  function copiarEstilo(){ reglasFicha('screen-ficha'); }
+  /* El mismo estilo de la pantalla de siempre, copiado para otra pantalla.
+     Lo usa también la ficha del profesional de «Buscar talento»
+     (clinica/17-buscar-talento.js). */
+  function reglasFicha(id){
+    if($('estilo-' + id)) return;
     var out = [];
     function recorrer(rs){ [].forEach.call(rs, function(r){
-      if(r.cssText && r.cssText.indexOf('#screen-candidat') > -1 && r.cssText.indexOf('#screen-candidat-publica') === -1) out.push(r.cssText.split('#screen-candidat').join('#screen-ficha'));
+      if(r.cssText && r.cssText.indexOf('#screen-candidat') > -1 && r.cssText.indexOf('#screen-candidat-publica') === -1) out.push(r.cssText.split('#screen-candidat').join('#' + id));
     }); }
     [].forEach.call(document.styleSheets, function(sh){ try{ recorrer(sh.cssRules); }catch(x){} });
-    var st = document.createElement('style'); st.id = 'ficha-estilo';
-    st.textContent = out.join('\n') + '\n'
+    var st = document.createElement('style'); st.id = 'estilo-' + id;
+    st.textContent = (out.join('\n') + '\n'
       + '#screen-ficha .topbar{position:sticky;top:0;z-index:20;}'
       + '#screen-ficha .grid > div{min-width:0;}#screen-ficha .grid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);}#screen-ficha .video-cv-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}'
       + '@media (max-width:760px){#screen-ficha .grid,#screen-ficha .video-cv-row{grid-template-columns:minmax(0,1fr);}}'
@@ -74,9 +78,11 @@
       + '#screen-ficha .ficha-guard{margin:0 !important;}'
       + '#screen-ficha #fs-ancho > .card{margin:0 0 16px !important;padding:20px 22px !important;border-radius:16px !important;background:#fff !important;border:1px solid #E5E7EB !important;}'
       + '#screen-ficha .pie{font-size:12px;color:#6B7280;line-height:1.5;padding:0 4px;}'
-      + '@media (max-width:760px){#screen-ficha .topbar{padding:12px 14px;}#screen-ficha #ficha-video.vid-vertical{width:min(100%,270px) !important;margin:0 auto !important;}#screen-ficha .crumb{display:none;}#screen-ficha .back{white-space:nowrap;}#screen-ficha .wrap{padding:14px 10px 40px;}}';
+      + '@media (max-width:760px){#screen-ficha .topbar{padding:12px 14px;}#screen-ficha #ficha-video.vid-vertical{width:min(100%,270px) !important;margin:0 auto !important;}#screen-ficha .crumb{display:none;}#screen-ficha .back{white-space:nowrap;}#screen-ficha .wrap{padding:14px 10px 40px;}}')
+      .split('#screen-ficha').join('#' + id);
     document.head.appendChild(st);
   }
+  window.CERCO_estiloFicha = reglasFicha;
   function pantalla(){
     var s = $('screen-ficha'); if(s) return s;
     s = document.createElement('div'); s.id = 'screen-ficha'; s.className = 'app-screen';

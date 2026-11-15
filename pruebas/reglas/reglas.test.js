@@ -206,6 +206,17 @@ describe('Talento (cómo te ven las clínicas en «Buscar talento»)', () => {
     await assertFails(setDoc(yo, talentoBase({ video: 'data:video/webm;base64,AAAA' })));
   });
 
+  test('la presentación y los trabajos solo caben en «Visible»', async () => {
+    const yo = doc(cuenta(PRO), `talento/${PRO}`);
+    const extra = { resumen: 'Me gusta el trato con el paciente.', trabajos: [{ puesto: 'Higienista', centro: 'Clínica Sonrisa', tiempo: '5 años' }] };
+    await assertSucceeds(setDoc(yo, talentoBase({ modo: 'visible', nombre: 'Laura', inicial: 'P', ...extra })));
+    await assertFails(setDoc(yo, talentoBase({ ...extra })));                       // anónimo
+    await assertFails(setDoc(yo, talentoBase({ resumen: extra.resumen })));
+    await assertFails(setDoc(yo, talentoBase({ trabajos: extra.trabajos })));
+    // la titulación sí, porque es genérica y no dice quién es
+    await assertSucceeds(setDoc(yo, talentoBase({ titulacion: 'Técnico Superior en Higiene Bucodental' })));
+  });
+
   test('al elegir «Solo cuando yo solicite», el profesional borra su perfil', async () => {
     await sembrar(`talento/${PRO}`, talentoBase());
     await assertFails(deleteDoc(doc(cuenta(CLINICA), `talento/${PRO}`)));

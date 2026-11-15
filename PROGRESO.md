@@ -416,6 +416,25 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
 - [x] De paso: la lista de «Buscar talento» se vuelve a pedir **cada vez que se entra**.
       Antes se guardaba de antes, así que quien se apagaba seguía saliendo hasta recargar.
 
+### Arreglos tras probar «Buscar talento» en la web publicada (15 de noviembre)
+- [x] **Privacidad:** si no se podían calcular los km (clínica sin pueblo), de una persona
+      anónima se enseñaba **su pueblo**. Ahora un solo sitio decide qué se dice del lugar
+      (`CERCO_lugarTalento`), y lo usan la lista, la ficha, el visor de vídeos y la ventana
+      de invitar: «Visible» → su pueblo; «Anónimo» → solo los km, o su provincia, o nada.
+- [x] Si la clínica no tiene pueblo puesto, «Buscar talento» lo avisa y lleva a ponerlo.
+- [x] **Ficha del profesional** (`screen-talento`), con el mismo diseño que la de Candidatos:
+      vídeo, perfil DISC con sus barras, encaje, experiencia, formación, «Sobre mí»,
+      cualidades, disponibilidad, jornada, km y radio, y el botón «Invitar».
+      Nunca el nombre completo, el teléfono, el correo ni el CV.
+      **«Sobre mí» y dónde ha trabajado solo se publican en «Visible»**: están escritos con
+      sus palabras y llevan nombres de clínicas, así que en «Anónimo» dirían quién es.
+      La titulación sí se enseña en los dos modos, porque es genérica.
+- [x] El contador de «Verlos en vídeo» contaba solo a quien tuviera publicado en cuántos
+      trozos está su vídeo. Los perfiles guardados antes de que eso existiera quedaban fuera.
+      Ahora cuenta a quien dice tener vídeo, y los trozos se cuentan leyendo el primero.
+- **Reglas de Firebase: vuelven a cambiar** (campos `titulacion`, `resumen` y `trabajos`).
+  Asish tendrá que volver a publicarlas al publicar esto.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

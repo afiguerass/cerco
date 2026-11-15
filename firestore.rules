@@ -41,7 +41,7 @@ service cloud.firestore {
       let k = d.keys();
       return k.hasOnly(['modo','modoFecha','profesion','experiencia','jornada','disponibilidad',
                         'fuertes','disc','geo','radio','video','videoMeta','cv','colegiado','ocultar',
-                        'actualizado','nombre','inicial','fotoMini'])
+                        'actualizado','nombre','inicial','fotoMini','titulacion','resumen','trabajos'])
           && d.modo in ['visible','anonimo']
           && (!k.hasAny(['video']) || d.video is bool)
           && (!k.hasAny(['cv']) || d.cv is bool)
@@ -51,11 +51,19 @@ service cloud.firestore {
               || (d.videoMeta.keys().hasOnly(['n','mime','v'])
                   && d.videoMeta.n is number && d.videoMeta.n > 0 && d.videoMeta.n <= 200
                   && d.videoMeta.mime is string && d.videoMeta.mime.size() <= 60))
+          // La titulación es genérica («Técnico Superior en…»), así que la ven
+          // también de quien está en «Anónimo».
+          && (!k.hasAny(['titulacion']) || (d.titulacion is string && d.titulacion.size() <= 120))
           && (d.modo == 'visible'
               ? ((!k.hasAny(['nombre'])   || (d.nombre is string && d.nombre.size() <= 40 && d.nombre.matches('^[^ ]+$')))
                  && (!k.hasAny(['inicial'])  || (d.inicial is string && d.inicial.size() <= 1))
-                 && (!k.hasAny(['fotoMini']) || (d.fotoMini is string && d.fotoMini.size() <= 30000)))
-              : !k.hasAny(['nombre','inicial','fotoMini']));
+                 && (!k.hasAny(['fotoMini']) || (d.fotoMini is string && d.fotoMini.size() <= 30000))
+                 && (!k.hasAny(['resumen'])  || (d.resumen is string && d.resumen.size() <= 400))
+                 && (!k.hasAny(['trabajos']) || (d.trabajos is list && d.trabajos.size() <= 5)))
+              // En «Anónimo» no caben: su presentación está escrita con sus
+              // palabras y sus trabajos llevan el nombre de las clínicas. Las
+              // dos cosas pueden decir quién es.
+              : !k.hasAny(['nombre','inicial','fotoMini','resumen','trabajos']));
     }
 
     // ¿Este profesional ha elegido que las clínicas le encuentren?

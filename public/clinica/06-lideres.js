@@ -190,11 +190,12 @@
       +   '<span style="background:#1A56DB;color:white;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:800;white-space:nowrap;">Buscar</span>'
       + '</div></div>';
   }
+  // Lo decide «Buscar talento», para que lista, ficha, vídeo e invitación digan
+  // siempre lo mismo (clinica/17-buscar-talento.js)
   function dondeVive(t){
-    if(!t.geo) return '';
-    if(t.modo === 'visible') return ' · ' + (t.geo.n || '');
-    var org = origen();
-    return (org && window.CGeo) ? ' · a ' + CGeo.km(org, t.geo) + ' km' : '';
+    if(!window.CERCO_lugarTalento) return '';
+    var txt = CERCO_lugarTalento(t, window.CERCO_kmTalento ? CERCO_kmTalento(t) : null);
+    return txt ? ' · ' + txt : '';
   }
   window.abrirInvitar = function(tuid){
     var t = window.CERCO_talentoDe ? CERCO_talentoDe(tuid) : null; if(!t) return;

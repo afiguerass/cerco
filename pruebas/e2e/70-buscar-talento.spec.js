@@ -55,6 +55,12 @@ async function sembrarVideo(id, ruta, trozos = 3) {
 
 const DISC = (dom, sec) => ({ dom, sec, norm: { D: dom === 'D' ? 90 : 20, I: dom === 'I' ? 90 : 20, S: dom === 'S' ? 90 : 20, C: dom === 'C' ? 90 : 20 } });
 const GIRONA = { lat: 41.98, lng: 2.82, prov: 'Girona', n: 'Girona' };
+const OFERTA_HIG = {
+  titulo: 'Higienista dental', municipio: 'Girona', jornada: 'Completa · 40 h/semana',
+  salarioMin: '22000', salarioMax: '26000', contrato: 'Indefinido',
+  convenio: 'Convenio colectivo de clínicas dentales de la provincia',
+  horario: ['Mañanas'], tareas: ['Higienes y mantenimientos'], proceso: ['Entrevista'], requisitos: 'Titulación',
+};
 const MADRID = { lat: 40.42, lng: -3.7, prov: 'Madrid', n: 'Madrid' };
 
 test('Buscar talento: de 20 en 20, con filtros, y los anónimos sin nombre ni foto', async ({ browser }, testInfo) => {
@@ -296,4 +302,129 @@ test('«Solo cuando yo solicite»: desaparece de la búsqueda, y al volver a «V
   expect(c.erroresPagina).toEqual([]);
   expect(p.erroresPagina).toEqual([]);
   await vp.context.close(); await vc.context.close();
+});
+
+test('Una clínica sin pueblo: aviso, y del anónimo nunca se dice su pueblo', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  await vaciarEmulador();
+
+  // Alguien en «Anónimo» que vive en un pueblo pequeño
+  await sembrarTalento('anon-pueblo', {
+    modo: 'anonimo', profesion: 'Higienista dental', experiencia: 'De 3 a 5 años',
+    jornada: 'Completa', disponibilidad: 'Ya', disc: DISC('S', 'I'),
+    geo: { lat: 40.9, lng: -5.9, prov: 'Salamanca', n: 'Galindo y Perahuy' },
+    radio: 25, video: false, videoMeta: null, cv: true, colegiado: false,
+    ocultar: [], actualizado: '2026-11-15T09:00:00.000Z',
+  });
+
+  // Una clínica cuya dirección no es un pueblo, así que no se pueden medir km
+  const v = await nuevaVentana(browser, testInfo);
+  const c = v.page;
+  await A.registrarClinica(c, 'sin-pueblo@prueba.es');
+  await A.configurarClinica(c, {}, { ...A.CLINICA, clinica: 'Clínica Sin Pueblo' });
+  await A.publicarOferta(c, OFERTA_HIG);   // hace falta una oferta para poder invitar
+  // Su dirección es «Castilla y León», sin pueblo: así no se pueden medir km.
+  // Se cambia en la nube y en el navegador, porque la ficha se sincroniza.
+  await c.evaluate(async () => {
+    await firebase.firestore().collection('clinicas').doc(Nube.uid).set({ ciutat: 'Castilla y León' }, { merge: true });
+    await firebase.firestore().collection('clinicas_publicas').doc(Nube.uid).set({ ciutat: 'Castilla y León' }, { merge: true });
+  });
+  await c.reload();
+  await expect.poll(() => c.evaluate(() => (CDB.clinica() || {}).ciutat), { timeout: 20_000 }).toBe('Castilla y León');
+  // Y tampoco ha puesto la dirección desde la que se miden los km
+  await c.evaluate(() => { const i = document.getElementById('clinic-address-portal'); if (i) i.value = ''; });
+  await c.evaluate(() => showScreen('buscar'));
+  // no se puede medir ninguna distancia
+  expect(await c.evaluate(() => CERCO_origenClinica())).toBeNull();
+
+  const caja = c.locator('#buscar-box');
+  await expect(caja.locator('.bt-card')).toHaveCount(1, { timeout: 20_000 });
+
+  // 1. Se avisa de que falta el pueblo, con el camino para ponerlo
+  await expect(caja.locator('.bt-aviso')).toContainText('Pon el pueblo de tu clínica para ver distancias');
+
+  // 2. Su pueblo NO sale por ningún lado: como no hay km, sale su provincia
+  await expect(caja).not.toContainText('Galindo y Perahuy');
+  await expect(caja.locator('.bt-card').first()).toContainText('Salamanca');
+  await capturar(c, 'clinica-74-buscar-sin-pueblo');
+
+  // 3. Tampoco en su ficha
+  await caja.locator('.bt-card').first().click();
+  const ficha = c.locator('#screen-talento');
+  await expect(ficha).toBeVisible();
+  await expect(ficha).not.toContainText('Galindo y Perahuy');
+  await expect(ficha).toContainText('Salamanca');
+
+  // 4. Ni en la ventana de invitar
+  await ficha.getByRole('button', { name: 'Invitar a solicitar' }).click();
+  await expect(c.locator('#modal-inv')).toBeVisible();
+  await expect(c.locator('#modal-inv')).not.toContainText('Galindo y Perahuy');
+
+  expect(c.erroresPagina).toEqual([]);
+  await v.context.close();
+});
+
+test('La ficha del profesional: lo que se ve y lo que no', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  await vaciarEmulador();
+
+  const comun = {
+    profesion: 'Higienista dental', experiencia: 'De 3 a 5 años', jornada: 'Completa',
+    disponibilidad: 'Ya', disc: DISC('C', 'I'), geo: GIRONA, radio: 25,
+    video: false, videoMeta: null, cv: true, colegiado: true,
+    fuertes: ['Trato con el paciente', 'Precisión'],
+    titulacion: 'Técnico Superior en Higiene Bucodental',
+    ocultar: [], actualizado: '2026-11-15T09:00:00.000Z',
+  };
+  await sembrarTalento('ficha-vis', {
+    ...comun, modo: 'visible', nombre: 'Ana', inicial: 'R',
+    resumen: 'Me gusta el trato con el paciente y trabajar con calma.',
+    trabajos: [{ puesto: 'Higienista dental', centro: 'Clínica Sonrisa', tiempo: '5 años' }],
+  });
+  await sembrarTalento('ficha-anon', { ...comun, modo: 'anonimo', experiencia: 'Más de 5 años' });
+
+  const v = await nuevaVentana(browser, testInfo);
+  const c = v.page;
+  await A.registrarClinica(c, 'ficha-clinica@prueba.es');
+  await A.configurarClinica(c, {}, { ...A.CLINICA, clinica: 'Clínica de la Ficha' });
+  await A.publicarOferta(c, OFERTA_HIG);
+  await c.evaluate(() => showScreen('buscar'));
+  await expect(c.locator('#buscar-box .bt-card')).toHaveCount(2, { timeout: 20_000 });
+
+  // 1. La ficha de quien está «Visible»
+  await c.locator('#buscar-box .bt-card', { hasText: 'Ana R.' }).click();
+  const f = c.locator('#screen-talento');
+  await expect(f).toBeVisible();
+  await expect(f).toContainText('Ana R.');
+  await expect(f).toContainText('Higienista dental');
+  await expect(f).toContainText('de 3 a 5 años');
+  await expect(f).toContainText('Concienzudo');
+  await expect(f).toContainText('Técnico Superior en Higiene Bucodental');
+  await expect(f).toContainText('Me gusta el trato con el paciente');
+  await expect(f).toContainText('Clínica Sonrisa');
+  await expect(f).toContainText('Trato con el paciente');
+  await expect(f).toContainText('Se desplaza hasta 25 km');
+  await expect(f).toContainText('Encaje con');
+  await expect(f.getByRole('button', { name: 'Invitar a solicitar' })).toBeVisible();
+  await capturar(c, 'clinica-75-ficha-profesional');
+
+  // 2. Lo que NO se ve hasta que acepte
+  await expect(f).toContainText('Su nombre completo, su teléfono, su correo y su CV los verás cuando acepte');
+  await expect(f).not.toContainText('@');
+  await expect(f).not.toContainText('Descargar CV');
+
+  // 3. Volver, y la ficha de quien está «Anónimo»
+  await f.getByRole('button', { name: 'Volver a Buscar talento' }).click();
+  await expect(c.locator('#screen-buscar')).toBeVisible();
+  await c.locator('#buscar-box .bt-card', { hasText: 'Anónimo' }).click();
+  await expect(f).toContainText('Anónimo');
+  await expect(f).toContainText('Técnico Superior en Higiene Bucodental');  // la titulación sí
+  await expect(f).not.toContainText('Ana');
+  await expect(f).not.toContainText('Clínica Sonrisa');
+  await expect(f).not.toContainText('Me gusta el trato con el paciente y trabajar con calma');
+  await expect(f).toContainText('Ha elegido estar en anónimo');
+  await expect(f.locator('img')).toHaveCount(0);
+
+  expect(c.erroresPagina).toEqual([]);
+  await v.context.close();
 });

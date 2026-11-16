@@ -454,6 +454,35 @@ Objetivo: una clínica puede buscar profesionales aunque nadie haya solicitado s
   así que hasta que se publiquen las nuevas, un profesional no puede publicar su
   formación, su presentación ni sus trabajos (y por eso no salen en la ficha).
 
+## Vídeos de iPhone que no se podían subir (16 de noviembre)
+Asish, con un vídeo de su iPhone (69 MB, 30 s ≈ 18 Mbps, calidad de serie), recibía
+«El móvil ha parado el vídeo a medias» y no había forma de subirlo.
+
+**Causa.** Un vídeo de más de 15 MB no se sube tal cual: CERCO lo vuelve a grabar dentro
+de la página (reproduce el vídeo, copia cada fotograma a un lienzo y lo regraba más
+pequeño). Con un 4K/HDR del iPhone eso gasta tantísima memoria que Safari **pausa el
+vídeo**; el vigilante lo veía parado 6 segundos y se rendía.
+
+**Qué se ha hecho** (sin tocar nada de la Fase 2):
+- Con vídeos de origen muy grandes (más de ~1,2 × 1080p) el lienzo baja de 720 a **540**
+  por el lado corto: mucho menos trabajo por fotograma, y en el móvil de una clínica se
+  ve igual.
+- Ya no se dibuja en cada fotograma de pantalla (60/s) sino **25 por segundo**: la
+  grabación va a 30, así que lo demás era trabajo tirado.
+- Si el vídeo se para, se intenta reanudar **cada segundo** (y también al recibir «pause»),
+  y se espera **15 segundos** en vez de 6 antes de rendirse.
+- Mensajes nuevos: **antes de elegir el vídeo** se avisa en iPhone de que un vídeo de
+  mucha calidad puede no poder prepararse y de que grabar desde CERCO es lo más rápido;
+  y si falla, el mensaje ya no dice «prueba con Chrome» (en iPhone todos los navegadores
+  son Safari por dentro), sino qué hacer de verdad.
+- **Prueba nueva** `pruebas/e2e/72-video-pesado.spec.js`: el camino de volver a grabar el
+  vídeo no tenía ninguna prueba y acababa de tocarse. Ahora se comprueba entero.
+
+**Lo que NO se arregla con esto.** Un iPhone puede seguir sin poder con un 4K/HDR muy
+grande: decodificarlo es caro y eso no se puede evitar desde la web. La salida fiable es
+**grabar desde CERCO** («Encender cámara»), que no recodifica nada. Arreglarlo del todo
+pide subir el vídeo a Firebase Storage y recodificar fuera del móvil: eso es Fase 2.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

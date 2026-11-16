@@ -130,8 +130,15 @@ function publicarTalento(p){
   d.trabajos = (p.trabajos || []).slice(0,5).map(function(t){
     return { puesto:String(t.puesto||'').slice(0,80), centro:String(t.centro||'').slice(0,80), tiempo:String(t.tiempo||'').slice(0,40) };
   });
-  fotoPequena(p.foto).then(function(mini){ if(mini) d.fotoMini = mini; })
-    .catch(function(){})
+  Promise.all([
+    fotoPequena(p.foto).catch(function(){ return ''; }),
+    // la portada del vídeo (un fotograma suyo), para que la clínica no vea un
+    // recuadro negro. Como es su cara, solo se publica en «Visible».
+    imagenPequena((p.video || {}).poster, 270, 58000).catch(function(){ return ''; })
+  ]).then(function(r){
+    if(r[0]) d.fotoMini = r[0];
+    if(r[1]) d.videoPortada = r[1];
+  }).catch(function(){})
     .then(function(){ ref.set(d).catch(falloAlPublicar); });
 }
 /* Si esto falla, la persona cree que ha quedado guardado y en realidad no
@@ -143,22 +150,31 @@ function falloAlPublicar(){
 /* Copia pequeña de la foto (96 px) para la lista de «Buscar talento»: así la
    clínica no descarga 200 fotos grandes al abrir la pantalla. */
 var _mini = {};
-function fotoPequena(foto){
-  if(!foto) return Promise.resolve('');
-  if(_mini[foto]) return Promise.resolve(_mini[foto]);
+function fotoPequena(foto){ return imagenPequena(foto, 96, 29000, true); }
+/* Copia pequeña de una imagen. «cuadrada» la recorta a un cuadrado (la foto de
+   perfil); si no, se respeta la forma (la portada del vídeo, que es vertical). */
+function imagenPequena(src, lado, tope, cuadrada){
+  if(!src) return Promise.resolve('');
+  var clave = lado + '_' + src;
+  if(_mini[clave]) return Promise.resolve(_mini[clave]);
   return new Promise(function(ok){
     var im = new Image();
     im.onload = function(){
       try{
-        var c = document.createElement('canvas'); c.width = c.height = 96;
-        c.getContext('2d').drawImage(im, 0, 0, 96, 96);
+        var w = lado, h = lado;
+        if(!cuadrada && im.width && im.height){
+          var k = lado / Math.max(im.width, im.height);
+          w = Math.max(1, Math.round(im.width * k)); h = Math.max(1, Math.round(im.height * k));
+        }
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(im, 0, 0, w, h);
         var out = c.toDataURL('image/jpeg', 0.7);
-        if(out.length > 29000) out = '';
-        _mini[foto] = out; ok(out);
+        if(out.length > tope) out = '';
+        _mini[clave] = out; ok(out);
       }catch(e){ ok(''); }
     };
     im.onerror = function(){ ok(''); };
-    im.src = foto;
+    im.src = src;
   });
 }
 

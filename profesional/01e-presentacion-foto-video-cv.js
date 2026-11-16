@@ -167,7 +167,8 @@ function abrirGrabadora(){
     + '<div class="gv-vacio" id="gv-vacio">'+svg('video','#fff',30)+'<span>Pulsa "Encender cámara"</span></div></div>'
     + '<div class="err" id="gv-err" style="margin-top:10px;"></div>'
     + '<div class="gv-acts" id="gv-acts"></div>'
-    + '<div class="gv-sub" id="gv-sub"><span>o</span><label class="btn btn-s gv-subir">'+svg('upload','currentColor',16)+'Subir un vídeo de mis archivos<input type="file" accept="video/*" class="sr" onchange="subirVideoArchivo(this)"></label><small>Del móvil o del ordenador. Si dura más de 30 segundos, eliges el trozo.</small></div>'
+    + '<div class="gv-sub" id="gv-sub"><span>o</span><label class="btn btn-s gv-subir">'+svg('upload','currentColor',16)+'Subir un vídeo de mis archivos<input type="file" accept="video/*" class="sr" onchange="subirVideoArchivo(this)"></label><small>Del móvil o del ordenador. Si dura más de 30 segundos, eliges el trozo.'
+    + (esIOS() ? '<br><b>En el iPhone:</b> un vídeo de mucha calidad (4K o HDR) puede no poder prepararse aquí. Si te pasa, grábalo con «Encender cámara»: tarda menos y siempre funciona.' : '') + '</small></div>'
     + '</div>';
   document.body.appendChild(m);
   gvBotones('inicio');
@@ -254,6 +255,13 @@ function subirVideoArchivo(inp){
   v.onerror = function(){ error('gv-err', 'No podemos leer ese vídeo. Prueba con otro formato (MP4) o grábalo desde aquí.'); };
   v.src = url;
 }
+/* ¿Hay que avisar de que esto puede no salir? En el iPhone, con vídeos de
+   mucha calidad (los 4K/HDR que graba de serie), preparar el vídeo gasta
+   tantísima memoria que Safari puede pausarlo a medias. Más vale decirlo
+   antes que dejar a la persona peleándose sin saber por qué. */
+function avisoPesadoIOS(){
+  return esIOS() && GV.archivo && GV.archivo.size > 45 * 1048576;
+}
 // vídeo largo o muy pesado: eliges el minuto y CERCO lo prepara (más ligero)
 function gvTramo(largo){
   var a = $('gv-acts'); if(!a) return;
@@ -262,6 +270,7 @@ function gvTramo(largo){
     + (largo ? '<label for="gv-ini"><b>Elige el minuto</b> que verá la clínica</label>'
       + '<div class="gv-tr-f"><input type="range" id="gv-ini" min="0" max="'+max.toFixed(1)+'" step="0.1" value="0" oninput="gvMoverTramo()"><span id="gv-tr-t">0:00 – '+mmss(Math.min(GV.dur, VIDEO_MAX_S))+'</span></div>'
       : '<p><b>Tu vídeo pesa ' + mb(GV.archivo.size) + '.</b> Lo preparamos para que pese menos y se vea igual de bien en el móvil de la clínica.</p>')
+    + (avisoPesadoIOS() ? '<div class="aviso aviso-info" style="margin:0 0 10px;">' + svg('info','#1E3A8A',16) + '<span><b>Puede que tu iPhone no pueda con él.</b> Es un vídeo de mucha calidad: prepararlo aquí gasta mucha memoria. Déjalo en esta pantalla mientras trabaja (dura lo mismo que el vídeo) y no cambies de app. Si no sale, cierra esto y pulsa «Encender cámara»: grabar aquí tarda menos y siempre funciona.</span></div>' : '')
     + '<div class="gv-prog" id="gv-prog" hidden><div id="gv-prog-b"></div></div>'
     + '<div class="gv-tr-a"><button class="btn btn-s" onclick="cerrarGrabadora()">Cancelar</button><button class="btn btn-p" id="gv-prep" onclick="gvPreparar()">'+(largo ? 'Usar este trozo' : 'Preparar mi vídeo')+'</button></div></div>';
   if(largo){ var pv = $('gv-v'); if(pv){ pv.currentTime = 0; pv.ontimeupdate = function(){ if(pv.currentTime > GV.ini + VIDEO_MAX_S){ pv.pause(); pv.currentTime = GV.ini; } }; } }
@@ -313,7 +322,13 @@ function gvPreparar(){
   var arranque = pv.play();
   b.disabled = true; b.textContent = 'Preparando…'; $('gv-prog').hidden = false; error('gv-err', '');
   var cancel = document.querySelector('.gv-tr-a .btn-s'); if(cancel) cancel.onclick = function(){ fin('cancel'); };
-  var w = pv.videoWidth || 720, h = pv.videoHeight || 1280, k = Math.min(1, 720 / Math.min(w, h));
+  // Cuanto más grande es el lienzo, más trabajo por fotograma. Con vídeos muy
+  // grandes (los 4K/HDR que graba el iPhone de serie) el móvil se queda sin
+  // memoria, pausa el vídeo y nos quedamos a medias. Con estos se baja a 540:
+  // en el móvil de una clínica se ve igual de bien.
+  var w = pv.videoWidth || 720, h = pv.videoHeight || 1280;
+  var lado = (w * h >= 1920 * 1080 * 1.2) ? 540 : 720;
+  var k = Math.min(1, lado / Math.min(w, h));
   var cv = document.createElement('canvas'); cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
   cv.style.cssText = 'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
   document.body.appendChild(cv);
@@ -335,7 +350,9 @@ function gvPreparar(){
       if(motivo === 'cancel'){ cerrarGrabadora(); return; }
       reiniciarBoton('Probar otra vez');
       return error('gv-err', motivo === 'fuera' ? 'Has salido de la página y el móvil ha parado el vídeo. Pulsa «Probar otra vez» y quédate en esta pantalla hasta que acabe (dura lo mismo que tu vídeo).'
-        : 'El móvil ha parado el vídeo a medias. Pulsa «Probar otra vez»; si vuelve a pasar, prueba con Chrome o Safari actualizado.');
+        : (esIOS()
+            ? 'Tu iPhone se ha quedado sin memoria a medio preparar el vídeo: es de mucha calidad y pesa ' + mb((GV.archivo || {}).size || 0) + '. Pulsa «Probar otra vez» cerrando antes las demás apps. Si vuelve a pasar, lo más rápido es grabarlo aquí mismo: cierra esto y pulsa «Encender cámara».'
+            : 'El navegador ha parado el vídeo a medias. Pulsa «Probar otra vez»; si vuelve a pasar, graba el vídeo aquí mismo con «Encender cámara».'));
     }
     rec.onstop = function(){
       limpiar();
@@ -354,9 +371,16 @@ function gvPreparar(){
   }
   function alVolver(){ if(document.visibilityState === 'hidden') fin('fuera'); }
   document.addEventListener('visibilitychange', alVolver);
+  var ultimoDibujo = 0;
   function dibuja(){
     if(hecho) return;
-    try{ cx.drawImage(pv, 0, 0, cv.width, cv.height); }catch(e){}
+    // la pantalla va a 60 por segundo y la grabación a 30: dibujar cada vez
+    // sería el doble de trabajo para nada. Con 25 por segundo basta.
+    var ahora = (window.performance && performance.now) ? performance.now() : Date.now();
+    if(ahora - ultimoDibujo >= 39){
+      ultimoDibujo = ahora;
+      try{ cx.drawImage(pv, 0, 0, cv.width, cv.height); }catch(e){}
+    }
     var t = pv.currentTime - ini, pb = $('gv-prog-b'); if(pb) pb.style.width = Math.max(0, Math.min(100, t / dur * 100)) + '%';
     b.textContent = 'Preparando… ' + Math.max(0, Math.round(dur - t)) + ' s';
     if(t >= dur - 0.05 || pv.ended){ fin('ok'); return; }
@@ -366,10 +390,18 @@ function gvPreparar(){
     if(hecho || rec.state !== 'inactive') return;
     try{ rec.start(500); }catch(e){ return fin('error'); }
     dibuja();
-    // si el vídeo se queda parado (llamada, bloqueo, el móvil lo pausa) lo decimos en vez de quedarnos colgados
+    // Si el vídeo se queda parado (una llamada, el móvil lo pausa porque va
+    // justo de memoria) se intenta reanudar una y otra vez antes de rendirse.
+    // Un iPhone con un vídeo 4K puede tardar varios segundos en recuperarse,
+    // así que se espera 15 en vez de 6.
+    pv.onpause = function(){ if(!hecho) try{ var q = pv.play(); if(q && q.catch) q.catch(function(){}); }catch(e){} };
     vigia = setInterval(function(){
       if(hecho) return;
-      if(Math.abs(pv.currentTime - ultimo) < 0.01){ quieto++; if(quieto === 2){ try{ var p = pv.play(); if(p && p.catch) p.catch(function(){}); }catch(e){} } if(quieto >= 6) fin('parado'); }
+      if(Math.abs(pv.currentTime - ultimo) < 0.01){
+        quieto++;
+        if(quieto >= 2){ try{ var p = pv.play(); if(p && p.catch) p.catch(function(){}); }catch(e){} }
+        if(quieto >= 15) fin('parado');
+      }
       else { quieto = 0; ultimo = pv.currentTime; }
     }, 1000);
   }

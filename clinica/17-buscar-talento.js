@@ -390,8 +390,9 @@
       +   '<p style="font-size:14px;color:#4B5563;line-height:1.6;margin:10px 0 0;">'+resumen+'</p>'
       + '</div>'
       + '<div class="grid"><div id="ft-izq">'
-      +   '<div class="card video-card"><h3>Vídeo de presentación</h3>'
-      +     '<div class="ft-vid-caja"><div class="video-frame'+(tieneVideo(t) ? '' : ' sin')+'" id="ft-video">'
+      +   '<div class="card"><h3>Vídeo de presentación</h3>'
+      +     '<div class="ft-vid-caja"><div class="video-frame'+(tieneVideo(t) ? '' : ' sin')+'" id="ft-video"'
+      +       (t.videoPortada ? ' style="background-image:linear-gradient(rgba(15,28,63,.35),rgba(15,28,63,.6)), url(\''+e(t.videoPortada)+'\');background-size:cover;background-position:center;"' : '')+'>'
       +       (tieneVideo(t)
             ? '<button type="button" class="ft-play" onclick="btVerVideo()"><span class="ft-play-c">'+sv('play','white',22)+'</span>Ver su vídeo de presentación</button>'
             : 'Todavía no ha grabado su vídeo')
@@ -507,6 +508,7 @@
     + '#screen-talento .wrap{max-width:1000px;margin:0 auto;padding:18px 20px 60px;}'
     + '#screen-talento .topbar{padding:14px 20px;}'
     + '#screen-talento .ft-vid-caja{display:flex;justify-content:center;}'
+    + '#screen-talento .card{padding:18px 20px;}'
     + '#screen-talento .video-frame{width:min(100%,250px);aspect-ratio:9/16;background:linear-gradient(135deg,#0F1C3F,#1A3A6B);display:flex;align-items:center;justify-content:center;border-radius:14px;overflow:hidden;}'
     + '#screen-talento .video-frame.sin{color:rgba(255,255,255,.75);font-size:13px;text-align:center;padding:0 18px;line-height:1.5;}'
     + '#screen-talento .video-frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000;}'

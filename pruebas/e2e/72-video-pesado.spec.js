@@ -58,3 +58,42 @@ test('Vídeo pesado: se prepara más pequeño y se sube', async ({ browser }, te
   expect(p.erroresPagina).toEqual([]);
   await v.context.close();
 });
+
+test('Si preparar el vídeo falla: «Cancelar» cierra y se puede grabar al momento', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  await vaciarEmulador();
+
+  const v = await nuevaVentana(browser, testInfo);
+  const p = v.page;
+  await A.registrarProfesional(p, 'video-falla@prueba.es');
+  await A.altaProfesional(p);
+  await p.check('#t-consent');
+  await p.getByRole('button', { name: 'Empezar el test' }).click();
+  await A.contestarTestProfesional(p, { pesos: { D: 1, I: 3, S: 2, C: 4 } });
+  await p.click('#tr-btn');
+  await A.elegirComoTeVen(p, 'visible');
+  await p.locator('#gu-next').waitFor();
+  await p.evaluate(() => guiaCerrar());
+
+  await p.evaluate(() => ir('perfil'));
+  await p.getByRole('button', { name: 'Grabar' }).first().click();
+  await p.evaluate(() => { window.VIDEO_MAX_MB = 0.1; });
+  await p.locator('input[onchange^="subirVideoArchivo"]').setInputFiles(A.archivo('video-vertical.webm'));
+  await expect(p.locator('#gv-prep')).toHaveText('Preparar mi vídeo');
+
+  // Se fuerza el fallo, como cuando el iPhone se queda sin memoria
+  await p.evaluate(() => { MediaRecorder.prototype.start = function(){ throw new Error('sin memoria'); }; });
+  await p.click('#gv-prep');
+  await expect(p.locator('#gv-err')).toContainText('ha parado el vídeo a medias');
+
+  // Quedan las tres salidas, y la de grabar aquí mismo bien visible
+  await expect(p.locator('#gv-prep')).toHaveText('Probar otra vez');
+  await expect(p.getByRole('button', { name: 'Grabar aquí mismo' })).toBeVisible();
+
+  // Y «Cancelar» cierra de verdad (antes se quedaba muerto tras el fallo)
+  await p.locator('.gv-tr-a').getByRole('button', { name: 'Cancelar' }).click();
+  await expect(p.locator('#modal')).toHaveCount(0);
+
+  expect(p.erroresPagina).toEqual([]);
+  await v.context.close();
+});

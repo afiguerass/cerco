@@ -255,6 +255,18 @@ function subirVideoArchivo(inp){
   v.onerror = function(){ error('gv-err', 'No podemos leer ese vídeo. Prueba con otro formato (MP4) o grábalo desde aquí.'); };
   v.src = url;
 }
+/* Dejar el vídeo del archivo y grabar aquí mismo. La grabación no recodifica
+   nada (sale ya pequeña), así que funciona aunque el archivo no haya podido. */
+function gvGrabarEnVezDeSubir(){
+  if(GV.url){ try{ URL.revokeObjectURL(GV.url); }catch(e){} }
+  GV.url = null; GV.archivo = null; GV.blob = null; GV.ini = 0; GV.fin = 0; GV.dur = 0;
+  var pv = $('gv-v');
+  if(pv){ try{ pv.pause(); }catch(e){} pv.removeAttribute('src'); try{ pv.load(); }catch(e){} }
+  error('gv-err', '');
+  var sub = $('gv-sub'); if(sub) sub.hidden = false;
+  gvBotones('inicio');
+  encenderCamara();
+}
 /* ¿Hay que avisar de que esto puede no salir? En el iPhone, con vídeos de
    mucha calidad (los 4K/HDR que graba de serie), preparar el vídeo gasta
    tantísima memoria que Safari puede pausarlo a medias. Más vale decirlo
@@ -321,7 +333,10 @@ function gvPreparar(){
   try{ pv.currentTime = ini; }catch(e){}
   var arranque = pv.play();
   b.disabled = true; b.textContent = 'Preparando…'; $('gv-prog').hidden = false; error('gv-err', '');
-  var cancel = document.querySelector('.gv-tr-a .btn-s'); if(cancel) cancel.onclick = function(){ fin('cancel'); };
+  // Mientras prepara, «Cancelar» corta la preparación. Cuando ya ha terminado
+  // (bien o mal) tiene que cerrar, como siempre: antes se quedaba muerto.
+  var cancel = document.querySelector('.gv-tr-a .btn-s');
+  if(cancel) cancel.onclick = function(){ if(hecho) cerrarGrabadora(); else fin('cancel'); };
   // Cuanto más grande es el lienzo, más trabajo por fotograma. Con vídeos muy
   // grandes (los 4K/HDR que graba el iPhone de serie) el móvil se queda sin
   // memoria, pausa el vídeo y nos quedamos a medias. Con estos se baja a 540:
@@ -332,7 +347,14 @@ function gvPreparar(){
   var cv = document.createElement('canvas'); cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
   cv.style.cssText = 'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
   document.body.appendChild(cv);
-  var cx = cv.getContext('2d'), st = cv.captureStream(30);
+  // Con un vídeo de origen enorme se baja también el ritmo: 15 fotogramas por
+  // segundo en vez de 25. Para alguien hablando a cámara no se nota, y es casi
+  // la mitad de trabajo. «alpha:false» ahorra el canal de transparencia, que
+  // aquí no sirve para nada.
+  var pesadote = (lado === 540);
+  var msPorFotograma = pesadote ? 66 : 39;
+  var cx = cv.getContext('2d', { alpha: false }) || cv.getContext('2d');
+  var st = cv.captureStream(pesadote ? 20 : 30);
   de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); });
   var rec, trozos = [], hecho = false, ultimo = -1, quieto = 0, vigia = null;
   try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1100000, audioBitsPerSecond:96000}); }catch(e){ rec = new MediaRecorder(st); }
@@ -343,12 +365,22 @@ function gvPreparar(){
     try{ pv.pause(); }catch(e){}
   }
   function reiniciarBoton(txt){ b.disabled = false; b.textContent = txt || 'Preparar mi vídeo'; $('gv-prog').hidden = true; var pb = $('gv-prog-b'); if(pb) pb.style.width = '0'; pv.controls = true; }
+  /* Si no ha salido, el camino que siempre funciona está a un toque: grabar
+     aquí mismo. Antes había que cerrar, volver a abrir y buscar el botón. */
+  function salidaTrasFallo(){
+    var a = document.querySelector('.gv-tr-a'); if(!a) return;
+    a.innerHTML = '<button class="btn btn-s" onclick="cerrarGrabadora()">Cancelar</button>'
+      + '<button class="btn btn-s" id="gv-prep" onclick="gvPreparar()">Probar otra vez</button>'
+      + '<button class="btn btn-p" onclick="gvGrabarEnVezDeSubir()">' + svg('video','#fff',16) + 'Grabar aquí mismo</button>';
+    $('gv-prog').hidden = true; pv.controls = true;
+  }
   function fin(motivo){
     if(hecho) return; hecho = true;
     if(motivo !== 'ok'){
       trozos = []; try{ if(rec.state !== 'inactive') rec.stop(); }catch(e){} limpiar();
       if(motivo === 'cancel'){ cerrarGrabadora(); return; }
       reiniciarBoton('Probar otra vez');
+      salidaTrasFallo();
       return error('gv-err', motivo === 'fuera' ? 'Has salido de la página y el móvil ha parado el vídeo. Pulsa «Probar otra vez» y quédate en esta pantalla hasta que acabe (dura lo mismo que tu vídeo).'
         : (esIOS()
             ? 'Tu iPhone se ha quedado sin memoria a medio preparar el vídeo: es de mucha calidad y pesa ' + mb((GV.archivo || {}).size || 0) + '. Pulsa «Probar otra vez» cerrando antes las demás apps. Si vuelve a pasar, lo más rápido es grabarlo aquí mismo: cierra esto y pulsa «Encender cámara».'
@@ -374,10 +406,10 @@ function gvPreparar(){
   var ultimoDibujo = 0;
   function dibuja(){
     if(hecho) return;
-    // la pantalla va a 60 por segundo y la grabación a 30: dibujar cada vez
-    // sería el doble de trabajo para nada. Con 25 por segundo basta.
+    // la pantalla repinta 60 veces por segundo; dibujar cada vez sería trabajo
+    // tirado. Se dibuja al ritmo que graba (25, o 15 si el vídeo es enorme).
     var ahora = (window.performance && performance.now) ? performance.now() : Date.now();
-    if(ahora - ultimoDibujo >= 39){
+    if(ahora - ultimoDibujo >= msPorFotograma){
       ultimoDibujo = ahora;
       try{ cx.drawImage(pv, 0, 0, cv.width, cv.height); }catch(e){}
     }

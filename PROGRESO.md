@@ -478,6 +478,18 @@ vídeo**; el vigilante lo veía parado 6 segundos y se rendía.
 - **Prueba nueva** `pruebas/e2e/72-video-pesado.spec.js`: el camino de volver a grabar el
   vídeo no tenía ninguna prueba y acababa de tocarse. Ahora se comprueba entero.
 
+**Segunda vuelta (Asish lo probó y seguía fallando):**
+- **Fallo encontrado por él:** tras un intento fallido, el botón **«Cancelar» se quedaba
+  muerto**. Durante la preparación se reprograma para cortarla, y al acabar (bien o mal)
+  nadie lo devolvía a su sitio. Ahora cierra siempre.
+- Tras un fallo aparece **«Grabar aquí mismo»**: enciende la cámara sin tener que cerrar,
+  volver a abrir y buscar el botón.
+- Se aprieta más el recodificado de vídeos enormes: **15 fotogramas por segundo** en vez
+  de 25 y captura a 20, además del lienzo de 540. Para alguien hablando a cámara no se
+  nota y es casi la mitad de trabajo. El lienzo va sin canal de transparencia.
+- Prueba nueva del fallo del «Cancelar», forzando el error como cuando el iPhone se
+  queda sin memoria.
+
 **Lo que NO se arregla con esto.** Un iPhone puede seguir sin poder con un 4K/HDR muy
 grande: decodificarlo es caro y eso no se puede evitar desde la web. La salida fiable es
 **grabar desde CERCO** («Encender cámara»), que no recodifica nada. Arreglarlo del todo

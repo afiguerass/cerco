@@ -496,9 +496,12 @@ cuatro peldaños (720 / 540 / 360 / 240 por el lado corto, con menos fotogramas 
 bits en cada uno). Se empieza por el que encaja con el vídeo y, **si falla, baja solo un
 peldaño y lo vuelve a intentar**, diciéndolo por pantalla. Solo se rinde si no puede ni
 con la mínima, y entonces ofrece «Grabar aquí mismo».
-- Tres pruebas en `pruebas/e2e/72-video-pesado.spec.js`: sale a la primera; falla dos
+- **«Cancelar» funciona en los tres momentos**: mientras prepara, en el momentito entre
+  un intento y el siguiente (ahí se quedaba sordo), y cuando ya ha terminado.
+- Cuatro pruebas en `pruebas/e2e/72-video-pesado.spec.js`: sale a la primera; falla dos
   veces y entra a la tercera (comprobando que el resultado es de 360); y no puede con
-  ninguna (comprobando el mensaje final, el botón de grabar y que «Cancelar» cierra).
+  ninguna (comprobando el mensaje final, el botón de grabar y que «Cancelar» cierra);
+  y que «Cancelar» cierra también mientras está bajando de calidad.
 
 **Lo que NO se arregla con esto.** Un iPhone puede seguir sin poder con un 4K/HDR muy
 grande: decodificarlo es caro y eso no se puede evitar desde la web. La salida fiable es

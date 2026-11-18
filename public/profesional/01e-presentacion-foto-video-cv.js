@@ -345,7 +345,7 @@ function gvPreparar(){
   var w = pv.videoWidth || 720, h = pv.videoHeight || 1280;
   // con un vídeo de origen enorme no se empieza por arriba: se sabe que no podrá
   var nivel = (w * h >= 1920 * 1080 * 1.2) ? 1 : 0;
-  var terminado = false, intento = null;
+  var terminado = false, intento = null, reintento = null;
 
   // Mientras prepara, «Cancelar» corta la preparación. Cuando ya ha terminado
   // (bien o mal) tiene que cerrar, como siempre: antes se quedaba muerto.
@@ -353,7 +353,20 @@ function gvPreparar(){
   if(cancel) cancel.onclick = function(){ if(terminado) cerrarGrabadora(); else cortar('cancel'); };
   function alVolver(){ if(document.visibilityState === 'hidden') cortar('fuera'); }
   document.addEventListener('visibilitychange', alVolver);
-  function cortar(motivo){ if(intento) intento(motivo); }
+  /* «Cancelar» (y salirse de la página) tienen que funcionar en los tres
+     momentos: mientras prepara, en el momentito entre un intento y el
+     siguiente, y cuando ya ha terminado. Ese momentito de en medio se quedaba
+     sordo. */
+  function cortar(motivo){
+    if(reintento){
+      clearTimeout(reintento); reintento = null; terminado = true; soltarEscucha();
+      if(motivo === 'cancel'){ cerrarGrabadora(); return; }
+      reiniciarBoton('Probar otra vez'); salidaTrasFallo();
+      error('gv-err', 'Lo hemos dejado a medias. Pulsa «Probar otra vez» o graba aquí mismo.');
+      return;
+    }
+    if(intento) intento(motivo);
+  }
   function soltarEscucha(){ document.removeEventListener('visibilitychange', alVolver); }
 
   function reiniciarBoton(txt){ b.disabled = false; b.textContent = txt || 'Preparar mi vídeo'; $('gv-prog').hidden = true; var pb = $('gv-prog-b'); if(pb) pb.style.width = '0'; pv.controls = true; }
@@ -402,7 +415,7 @@ function gvPreparar(){
         if(i + 1 < GV_NIVELES.length){
           b.textContent = 'Probando con menos calidad…';
           error('gv-err', 'Tu móvil no ha podido con la calidad ' + GV_NIVELES[i].nombre + '. Lo estamos intentando con la ' + GV_NIVELES[i + 1].nombre + ' (intento ' + (i + 2) + ' de ' + GV_NIVELES.length + '). No salgas de esta pantalla.');
-          setTimeout(function(){ if(!terminado) probar(i + 1); }, 900);
+          reintento = setTimeout(function(){ reintento = null; if(!terminado) probar(i + 1); }, 900);
           return;
         }
         terminado = true; soltarEscucha(); reiniciarBoton('Probar otra vez'); salidaTrasFallo();

@@ -117,6 +117,24 @@ test('Si el móvil no puede, baja la calidad solo hasta que entra', async ({ bro
   await v.context.close();
 });
 
+test('«Cancelar» cierra también mientras va bajando la calidad', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  await vaciarEmulador();
+  const v = await nuevaVentana(browser, testInfo);
+  const p = v.page;
+  await hastaElVideo(p, 'video-cancelar@prueba.es');
+
+  await conFallos(p, 99);
+  await p.click('#gv-prep');
+  // en cuanto dice que lo está intentando con menos calidad, se cancela
+  await expect(p.locator('#gv-err')).toContainText('Lo estamos intentando con la', { timeout: 20_000 });
+  await p.locator('.gv-tr-a').getByRole('button', { name: 'Cancelar' }).click();
+  await expect(p.locator('#modal')).toHaveCount(0);
+
+  expect(p.erroresPagina).toEqual([]);
+  await v.context.close();
+});
+
 test('Si no puede ni con la mínima: lo dice y ofrece grabar al momento', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
   await vaciarEmulador();

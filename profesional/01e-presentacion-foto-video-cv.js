@@ -315,6 +315,17 @@ function armarVideo(url){
   return listo;
 }
 // se vuelve a grabar el trozo elegido, a menos calidad, mientras se reproduce sin sonido por los altavoces
+/* Escalera de calidades. Se empieza por la de arriba que encaje con el vídeo
+   y, si el móvil no puede, se baja sola un peldaño y se vuelve a intentar. Un
+   iPhone grabando en 4K/HDR no siempre puede con el primero; con el tercero o
+   el cuarto sí. Para alguien hablando a cámara la diferencia apenas se ve, y
+   más vale un vídeo algo menos fino que ningún vídeo. */
+var GV_NIVELES = [
+  { lado: 720, ms: 39,  cap: 30, bits: 1100000, nombre: 'buena' },
+  { lado: 540, ms: 66,  cap: 20, bits: 900000,  nombre: 'media' },
+  { lado: 360, ms: 83,  cap: 15, bits: 600000,  nombre: 'baja' },
+  { lado: 240, ms: 111, cap: 12, bits: 350000,  nombre: 'mínima' }
+];
 function gvPreparar(){
   var b = $('gv-prep'); if(!b || b.disabled) return;
   var tipo = tipoGrabacion();
@@ -323,50 +334,31 @@ function gvPreparar(){
   if(!hayAudioWeb()) return error('gv-err', msgSinAudio());
   var pv = $('gv-v'); if(!pv) return;
   var ini = GV.ini || 0, dur = Math.max(1, Math.min(VIDEO_MAX_S, GV.dur - ini));
-  // Todo nace de este toque (el iPhone lo exige): audio, salto al trozo y reproducción.
-  // Se prepara el vídeo que tienes delante: lo ves y lo oyes mientras tanto.
+  // Todo nace de este toque (el iPhone lo exige): audio, salto al trozo y
+  // reproducción. Se arma una sola vez, aunque después haya varios intentos.
   var ac = GV.ac2; if(!ac || ac.state === 'closed'){ try{ ac = GV.ac2 = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return error('gv-err', msgSinAudio()); } }
   try{ if(ac.resume) ac.resume(); }catch(e){}
   var so = pv.__so; if(!so){ try{ so = pv.__so = ac.createMediaElementSource(pv); so.connect(ac.destination); }catch(e){ return error('gv-err', msgSinAudio()); } }
-  var de = ac.createMediaStreamDestination(); so.connect(de);
   pv.ontimeupdate = null; pv.controls = false; pv.muted = false; pv.loop = false;
-  try{ pv.currentTime = ini; }catch(e){}
-  var arranque = pv.play();
-  b.disabled = true; b.textContent = 'Preparando…'; $('gv-prog').hidden = false; error('gv-err', '');
+  b.disabled = true; $('gv-prog').hidden = false; error('gv-err', '');
+
+  var w = pv.videoWidth || 720, h = pv.videoHeight || 1280;
+  // con un vídeo de origen enorme no se empieza por arriba: se sabe que no podrá
+  var nivel = (w * h >= 1920 * 1080 * 1.2) ? 1 : 0;
+  var terminado = false, intento = null;
+
   // Mientras prepara, «Cancelar» corta la preparación. Cuando ya ha terminado
   // (bien o mal) tiene que cerrar, como siempre: antes se quedaba muerto.
   var cancel = document.querySelector('.gv-tr-a .btn-s');
-  if(cancel) cancel.onclick = function(){ if(hecho) cerrarGrabadora(); else fin('cancel'); };
-  // Cuanto más grande es el lienzo, más trabajo por fotograma. Con vídeos muy
-  // grandes (los 4K/HDR que graba el iPhone de serie) el móvil se queda sin
-  // memoria, pausa el vídeo y nos quedamos a medias. Con estos se baja a 540:
-  // en el móvil de una clínica se ve igual de bien.
-  var w = pv.videoWidth || 720, h = pv.videoHeight || 1280;
-  var lado = (w * h >= 1920 * 1080 * 1.2) ? 540 : 720;
-  var k = Math.min(1, lado / Math.min(w, h));
-  var cv = document.createElement('canvas'); cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
-  cv.style.cssText = 'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
-  document.body.appendChild(cv);
-  // Con un vídeo de origen enorme se baja también el ritmo: 15 fotogramas por
-  // segundo en vez de 25. Para alguien hablando a cámara no se nota, y es casi
-  // la mitad de trabajo. «alpha:false» ahorra el canal de transparencia, que
-  // aquí no sirve para nada.
-  var pesadote = (lado === 540);
-  var msPorFotograma = pesadote ? 66 : 39;
-  var cx = cv.getContext('2d', { alpha: false }) || cv.getContext('2d');
-  var st = cv.captureStream(pesadote ? 20 : 30);
-  de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); });
-  var rec, trozos = [], hecho = false, ultimo = -1, quieto = 0, vigia = null;
-  try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:1100000, audioBitsPerSecond:96000}); }catch(e){ rec = new MediaRecorder(st); }
-  rec.ondataavailable = function(e){ if(e.data && e.data.size) trozos.push(e.data); };
-  function limpiar(){
-    clearInterval(vigia); document.removeEventListener('visibilitychange', alVolver);
-    try{ so.disconnect(de); }catch(e){} try{ cv.remove(); }catch(e){}
-    try{ pv.pause(); }catch(e){}
-  }
+  if(cancel) cancel.onclick = function(){ if(terminado) cerrarGrabadora(); else cortar('cancel'); };
+  function alVolver(){ if(document.visibilityState === 'hidden') cortar('fuera'); }
+  document.addEventListener('visibilitychange', alVolver);
+  function cortar(motivo){ if(intento) intento(motivo); }
+  function soltarEscucha(){ document.removeEventListener('visibilitychange', alVolver); }
+
   function reiniciarBoton(txt){ b.disabled = false; b.textContent = txt || 'Preparar mi vídeo'; $('gv-prog').hidden = true; var pb = $('gv-prog-b'); if(pb) pb.style.width = '0'; pv.controls = true; }
-  /* Si no ha salido, el camino que siempre funciona está a un toque: grabar
-     aquí mismo. Antes había que cerrar, volver a abrir y buscar el botón. */
+  /* Si ni con la calidad mínima ha podido, el camino que siempre funciona está
+     a un toque: grabar aquí mismo. */
   function salidaTrasFallo(){
     var a = document.querySelector('.gv-tr-a'); if(!a) return;
     a.innerHTML = '<button class="btn btn-s" onclick="cerrarGrabadora()">Cancelar</button>'
@@ -374,70 +366,101 @@ function gvPreparar(){
       + '<button class="btn btn-p" onclick="gvGrabarEnVezDeSubir()">' + svg('video','#fff',16) + 'Grabar aquí mismo</button>';
     $('gv-prog').hidden = true; pv.controls = true;
   }
-  function fin(motivo){
-    if(hecho) return; hecho = true;
-    if(motivo !== 'ok'){
-      trozos = []; try{ if(rec.state !== 'inactive') rec.stop(); }catch(e){} limpiar();
-      if(motivo === 'cancel'){ cerrarGrabadora(); return; }
-      reiniciarBoton('Probar otra vez');
-      salidaTrasFallo();
-      return error('gv-err', motivo === 'fuera' ? 'Has salido de la página y el móvil ha parado el vídeo. Pulsa «Probar otra vez» y quédate en esta pantalla hasta que acabe (dura lo mismo que tu vídeo).'
-        : (esIOS()
-            ? 'Tu iPhone se ha quedado sin memoria a medio preparar el vídeo: es de mucha calidad y pesa ' + mb((GV.archivo || {}).size || 0) + '. Pulsa «Probar otra vez» cerrando antes las demás apps. Si vuelve a pasar, lo más rápido es grabarlo aquí mismo: cierra esto y pulsa «Encender cámara».'
-            : 'El navegador ha parado el vídeo a medias. Pulsa «Probar otra vez»; si vuelve a pasar, graba el vídeo aquí mismo con «Encender cámara».'));
+
+  function probar(i){
+    var N = GV_NIVELES[i];
+    var k = Math.min(1, N.lado / Math.min(w, h));
+    var cv = document.createElement('canvas');
+    cv.width = Math.round(w * k / 2) * 2; cv.height = Math.round(h * k / 2) * 2;
+    cv.style.cssText = 'position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
+    document.body.appendChild(cv);
+    // «alpha:false» ahorra el canal de transparencia, que aquí no sirve de nada
+    var cx = cv.getContext('2d', { alpha: false }) || cv.getContext('2d');
+    var st = cv.captureStream(N.cap);
+    var de = ac.createMediaStreamDestination(); so.connect(de);
+    de.stream.getAudioTracks().forEach(function(t){ st.addTrack(t); });
+    var rec, trozos = [], hecho = false, ultimo = -1, quieto = 0, vigia = null, ultimoDibujo = 0;
+    try{ rec = new MediaRecorder(st, {mimeType:tipo, videoBitsPerSecond:N.bits, audioBitsPerSecond:96000}); }catch(e){ rec = new MediaRecorder(st); }
+    rec.ondataavailable = function(e){ if(e.data && e.data.size) trozos.push(e.data); };
+
+    function limpiar(){
+      clearInterval(vigia); pv.onpause = null;
+      try{ so.disconnect(de); }catch(e){} try{ cv.remove(); }catch(e){}
+      try{ pv.pause(); }catch(e){}
     }
-    rec.onstop = function(){
-      limpiar();
-      var blob = new Blob(trozos, {type: (tipo || 'video/webm').split(';')[0]});
-      if(!blob.size){ reiniciarBoton('Probar otra vez'); return error('gv-err', 'No ha salido bien. Pulsa «Probar otra vez».'); }
-      GV.blob = blob; GV.dur = dur; GV.ini = 0; GV.fin = 0; GV.w = cv.width; GV.h = cv.height;
-      // vídeo nuevo en un reproductor nuevo (el anterior quedó unido al audio de la preparación)
-      var nv = document.createElement('video'); nv.id = 'gv-v'; nv.setAttribute('playsinline', ''); nv.playsInline = true; nv.controls = true; nv.preload = 'auto';
-      nv.src = URL.createObjectURL(blob) + '#t=0.001';
-      pv.parentNode.replaceChild(nv, pv);
-      $('gv-acts').innerHTML = ''; gvBotones('hecho');
-      if(blob.size > VIDEO_MAX_MB * 1048576) error('gv-err', 'Sigue pesando ' + mb(blob.size) + '. Elige un trozo más corto o graba con menos calidad (Ajustes → Cámara → Grabar vídeo → 720p HD).');
-      else toast('Listo: ' + mb(blob.size) + '. Míralo y pulsa «Usar este vídeo».');
-    };
-    try{ rec.stop(); }catch(e){ rec.onstop(); }
-  }
-  function alVolver(){ if(document.visibilityState === 'hidden') fin('fuera'); }
-  document.addEventListener('visibilitychange', alVolver);
-  var ultimoDibujo = 0;
-  function dibuja(){
-    if(hecho) return;
-    // la pantalla repinta 60 veces por segundo; dibujar cada vez sería trabajo
-    // tirado. Se dibuja al ritmo que graba (25, o 15 si el vídeo es enorme).
-    var ahora = (window.performance && performance.now) ? performance.now() : Date.now();
-    if(ahora - ultimoDibujo >= msPorFotograma){
-      ultimoDibujo = ahora;
-      try{ cx.drawImage(pv, 0, 0, cv.width, cv.height); }catch(e){}
-    }
-    var t = pv.currentTime - ini, pb = $('gv-prog-b'); if(pb) pb.style.width = Math.max(0, Math.min(100, t / dur * 100)) + '%';
-    b.textContent = 'Preparando… ' + Math.max(0, Math.round(dur - t)) + ' s';
-    if(t >= dur - 0.05 || pv.ended){ fin('ok'); return; }
-    requestAnimationFrame(dibuja);
-  }
-  function empezar(){
-    if(hecho || rec.state !== 'inactive') return;
-    try{ rec.start(500); }catch(e){ return fin('error'); }
-    dibuja();
-    // Si el vídeo se queda parado (una llamada, el móvil lo pausa porque va
-    // justo de memoria) se intenta reanudar una y otra vez antes de rendirse.
-    // Un iPhone con un vídeo 4K puede tardar varios segundos en recuperarse,
-    // así que se espera 15 en vez de 6.
-    pv.onpause = function(){ if(!hecho) try{ var q = pv.play(); if(q && q.catch) q.catch(function(){}); }catch(e){} };
-    vigia = setInterval(function(){
-      if(hecho) return;
-      if(Math.abs(pv.currentTime - ultimo) < 0.01){
-        quieto++;
-        if(quieto >= 2){ try{ var p = pv.play(); if(p && p.catch) p.catch(function(){}); }catch(e){} }
-        if(quieto >= 15) fin('parado');
+    intento = function fin(motivo){
+      if(hecho) return; hecho = true;
+      if(motivo !== 'ok'){
+        trozos = []; try{ if(rec.state !== 'inactive') rec.stop(); }catch(e){} limpiar();
+        if(motivo === 'cancel'){ terminado = true; soltarEscucha(); cerrarGrabadora(); return; }
+        if(motivo === 'fuera'){
+          terminado = true; soltarEscucha(); reiniciarBoton('Probar otra vez'); salidaTrasFallo();
+          return error('gv-err', 'Has salido de la página y el móvil ha parado el vídeo. Pulsa «Probar otra vez» y quédate en esta pantalla hasta que acabe (dura lo mismo que tu vídeo).');
+        }
+        // No ha podido con esta calidad: se baja un peldaño y se vuelve a
+        // intentar solo. Se deja un momento para que el móvil suelte memoria.
+        if(i + 1 < GV_NIVELES.length){
+          b.textContent = 'Probando con menos calidad…';
+          error('gv-err', 'Tu móvil no ha podido con la calidad ' + GV_NIVELES[i].nombre + '. Lo estamos intentando con la ' + GV_NIVELES[i + 1].nombre + ' (intento ' + (i + 2) + ' de ' + GV_NIVELES.length + '). No salgas de esta pantalla.');
+          setTimeout(function(){ if(!terminado) probar(i + 1); }, 900);
+          return;
+        }
+        terminado = true; soltarEscucha(); reiniciarBoton('Probar otra vez'); salidaTrasFallo();
+        return error('gv-err', 'Hemos probado con cuatro calidades, de la buena a la mínima, y tu móvil no ha podido con ninguna: el vídeo es de mucha calidad y pesa ' + mb((GV.archivo || {}).size || 0) + '. Lo más rápido ahora es grabarlo aquí mismo, con el botón de abajo: eso no gasta memoria y siempre funciona.');
       }
-      else { quieto = 0; ultimo = pv.currentTime; }
-    }, 1000);
+      rec.onstop = function(){
+        limpiar(); terminado = true; soltarEscucha();
+        var blob = new Blob(trozos, {type: (tipo || 'video/webm').split(';')[0]});
+        if(!blob.size){ reiniciarBoton('Probar otra vez'); salidaTrasFallo(); return error('gv-err', 'No ha salido bien. Pulsa «Probar otra vez».'); }
+        GV.blob = blob; GV.dur = dur; GV.ini = 0; GV.fin = 0; GV.w = cv.width; GV.h = cv.height;
+        // vídeo nuevo en un reproductor nuevo (el anterior quedó unido al audio de la preparación)
+        var nv = document.createElement('video'); nv.id = 'gv-v'; nv.setAttribute('playsinline', ''); nv.playsInline = true; nv.controls = true; nv.preload = 'auto';
+        nv.src = URL.createObjectURL(blob) + '#t=0.001';
+        pv.parentNode.replaceChild(nv, pv);
+        $('gv-acts').innerHTML = ''; gvBotones('hecho');
+        if(blob.size > VIDEO_MAX_MB * 1048576) error('gv-err', 'Sigue pesando ' + mb(blob.size) + '. Elige un trozo más corto.');
+        else toast('Listo: ' + mb(blob.size) + (i > 0 ? ' (calidad ' + N.nombre + ')' : '') + '. Míralo y pulsa «Usar este vídeo».');
+      };
+      try{ rec.stop(); }catch(e){ rec.onstop(); }
+    };
+
+    function dibuja(){
+      if(hecho) return;
+      // la pantalla repinta 60 veces por segundo; dibujar cada vez sería trabajo
+      // tirado. Se dibuja al ritmo al que se graba.
+      var ahora = (window.performance && performance.now) ? performance.now() : Date.now();
+      if(ahora - ultimoDibujo >= N.ms){
+        ultimoDibujo = ahora;
+        try{ cx.drawImage(pv, 0, 0, cv.width, cv.height); }catch(e){}
+      }
+      var t = pv.currentTime - ini, pb = $('gv-prog-b'); if(pb) pb.style.width = Math.max(0, Math.min(100, t / dur * 100)) + '%';
+      b.textContent = 'Preparando… ' + Math.max(0, Math.round(dur - t)) + ' s';
+      if(t >= dur - 0.05 || pv.ended){ intento('ok'); return; }
+      requestAnimationFrame(dibuja);
+    }
+    function empezar(){
+      if(hecho || rec.state !== 'inactive') return;
+      try{ rec.start(500); }catch(e){ return intento('error'); }
+      if(i > 0) error('gv-err', '');
+      dibuja();
+      // Si el vídeo se queda parado (una llamada, o el móvil lo pausa porque va
+      // justo de memoria) se intenta reanudar cada segundo antes de rendirse.
+      pv.onpause = function(){ if(!hecho) try{ var q = pv.play(); if(q && q.catch) q.catch(function(){}); }catch(e){} };
+      vigia = setInterval(function(){
+        if(hecho) return;
+        if(Math.abs(pv.currentTime - ultimo) < 0.01){
+          quieto++;
+          if(quieto >= 2){ try{ var p = pv.play(); if(p && p.catch) p.catch(function(){}); }catch(e){} }
+          if(quieto >= 12) intento('parado');
+        }
+        else { quieto = 0; ultimo = pv.currentTime; }
+      }, 1000);
+    }
+    try{ pv.currentTime = ini; }catch(e){}
+    var arranque = pv.play();
+    (arranque && arranque.then ? arranque : Promise.resolve()).then(empezar).catch(function(){ intento('parado'); });
   }
-  (arranque && arranque.then ? arranque : Promise.resolve()).then(empezar).catch(function(){ fin('parado'); });
+  probar(nivel);
 }
 /* Usar el vídeo grabado o subido y, después, avisar de que se puede editar (Fase 1: una sola versión) */
 function usarVideo(){

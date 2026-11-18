@@ -59,13 +59,20 @@ test('Vídeo pesado: se prepara más pequeño y se sube', async ({ browser }, te
   await v.context.close();
 });
 
-test('Si preparar el vídeo falla: «Cancelar» cierra y se puede grabar al momento', async ({ browser }, testInfo) => {
-  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
-  await vaciarEmulador();
-
-  const v = await nuevaVentana(browser, testInfo);
-  const p = v.page;
-  await A.registrarProfesional(p, 'video-falla@prueba.es');
+// Preparar el vídeo con las cuatro calidades hasta donde haga falta.
+// «fallos» dice cuántos intentos se van al traste antes de que uno salga bien.
+async function conFallos(p, fallos) {
+  await p.evaluate((n) => {
+    const orig = MediaRecorder.prototype.start;
+    let v = 0;
+    MediaRecorder.prototype.start = function (...a) {
+      if (v++ < n) throw new Error('sin memoria');
+      return orig.apply(this, a);
+    };
+  }, fallos);
+}
+async function hastaElVideo(p, correo) {
+  await A.registrarProfesional(p, correo);
   await A.altaProfesional(p);
   await p.check('#t-consent');
   await p.getByRole('button', { name: 'Empezar el test' }).click();
@@ -74,19 +81,54 @@ test('Si preparar el vídeo falla: «Cancelar» cierra y se puede grabar al mome
   await A.elegirComoTeVen(p, 'visible');
   await p.locator('#gu-next').waitFor();
   await p.evaluate(() => guiaCerrar());
-
   await p.evaluate(() => ir('perfil'));
   await p.getByRole('button', { name: 'Grabar' }).first().click();
   await p.evaluate(() => { window.VIDEO_MAX_MB = 0.1; });
   await p.locator('input[onchange^="subirVideoArchivo"]').setInputFiles(A.archivo('video-vertical.webm'));
   await expect(p.locator('#gv-prep')).toHaveText('Preparar mi vídeo');
+}
 
-  // Se fuerza el fallo, como cuando el iPhone se queda sin memoria
-  await p.evaluate(() => { MediaRecorder.prototype.start = function(){ throw new Error('sin memoria'); }; });
+test('Si el móvil no puede, baja la calidad solo hasta que entra', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  test.setTimeout(180_000);
+  await vaciarEmulador();
+  const v = await nuevaVentana(browser, testInfo);
+  const p = v.page;
+  await hastaElVideo(p, 'video-escalera@prueba.es');
+
+  // Los dos primeros intentos se van al traste, como en un iPhone con un 4K
+  await conFallos(p, 2);
   await p.click('#gv-prep');
-  await expect(p.locator('#gv-err')).toContainText('ha parado el vídeo a medias');
 
-  // Quedan las tres salidas, y la de grabar aquí mismo bien visible
+  // Lo dice y sigue solo, sin que la persona tenga que tocar nada
+  await expect(p.locator('#gv-err')).toContainText('Lo estamos intentando con la', { timeout: 20_000 });
+  await expect(p.locator('#gv-usar')).toBeVisible({ timeout: 120_000 });
+
+  // Ha salido con la tercera calidad: 360 por el lado corto
+  const r = await p.evaluate(() => ({ w: GV.w, h: GV.h, tam: GV.blob.size }));
+  expect(Math.min(r.w, r.h)).toBe(360);
+  expect(r.tam).toBeLessThan(15 * 1048576);
+
+  // Y se sube igual
+  await p.click('#gv-usar');
+  await expect(p.getByText(/Ver mi vídeo/)).toBeVisible({ timeout: 90_000 });
+
+  expect(p.erroresPagina).toEqual([]);
+  await v.context.close();
+});
+
+test('Si no puede ni con la mínima: lo dice y ofrece grabar al momento', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  await vaciarEmulador();
+  const v = await nuevaVentana(browser, testInfo);
+  const p = v.page;
+  await hastaElVideo(p, 'video-falla@prueba.es');
+
+  await conFallos(p, 99);   // no puede con ninguna
+  await p.click('#gv-prep');
+  await expect(p.locator('#gv-err')).toContainText('Hemos probado con cuatro calidades', { timeout: 30_000 });
+
+  // Quedan las tres salidas, con la que siempre funciona bien visible
   await expect(p.locator('#gv-prep')).toHaveText('Probar otra vez');
   await expect(p.getByRole('button', { name: 'Grabar aquí mismo' })).toBeVisible();
 

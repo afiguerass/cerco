@@ -490,10 +490,23 @@ vídeo**; el vigilante lo veía parado 6 segundos y se rendía.
 - Prueba nueva del fallo del «Cancelar», forzando el error como cuando el iPhone se
   queda sin memoria.
 
+**Tercera vuelta — escalera de calidades (lo que pidió Asish):**
+Hasta aquí se probaba con UNA calidad y, si el móvil no podía, se rendía. Ahora hay
+cuatro peldaños (720 / 540 / 360 / 240 por el lado corto, con menos fotogramas y menos
+bits en cada uno). Se empieza por el que encaja con el vídeo y, **si falla, baja solo un
+peldaño y lo vuelve a intentar**, diciéndolo por pantalla. Solo se rinde si no puede ni
+con la mínima, y entonces ofrece «Grabar aquí mismo».
+- Tres pruebas en `pruebas/e2e/72-video-pesado.spec.js`: sale a la primera; falla dos
+  veces y entra a la tercera (comprobando que el resultado es de 360); y no puede con
+  ninguna (comprobando el mensaje final, el botón de grabar y que «Cancelar» cierra).
+
 **Lo que NO se arregla con esto.** Un iPhone puede seguir sin poder con un 4K/HDR muy
 grande: decodificarlo es caro y eso no se puede evitar desde la web. La salida fiable es
 **grabar desde CERCO** («Encender cámara»), que no recodifica nada. Arreglarlo del todo
 pide subir el vídeo a Firebase Storage y recodificar fuera del móvil: eso es Fase 2.
+La escalera ayuda si lo que ahoga al móvil es dibujar y comprimir; si lo que no puede es
+**descodificar** el 4K de origen, bajar la calidad de salida no cambia nada, porque el
+vídeo de entrada sigue siendo el mismo. Eso no se puede evitar desde una web.
 
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):

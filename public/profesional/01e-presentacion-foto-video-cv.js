@@ -165,6 +165,7 @@ function abrirGrabadora(){
     + '<p>Entre 15 segundos y 1 minuto. Preséntate: quién eres, tu experiencia y qué tipo de clínica buscas. Mejor con el móvil en vertical, buena luz y sin ruido de fondo.</p>'
     + '<div class="gv-pant"><video id="gv-v" playsinline muted autoplay></video><div class="gv-reloj" id="gv-reloj" hidden>0:00 / 0:30</div>'
     + '<div class="gv-vacio" id="gv-vacio">'+svg('video','#fff',30)+'<span>Pulsa "Encender cámara"</span></div></div>'
+    + '<div class="gv-nota" id="gv-nota" hidden>Mientras grabas te ves como en un espejo, igual que al hacerte un selfi. El vídeo guardado sale al derecho, que es como te ve la gente.</div>'
     + '<div class="err" id="gv-err" style="margin-top:10px;"></div>'
     + '<div class="gv-acts" id="gv-acts"></div>'
     + '<div class="gv-sub" id="gv-sub"><span>o</span><label class="btn btn-s gv-subir">'+svg('upload','currentColor',16)+'Subir un vídeo de mis archivos<input type="file" accept="video/*" class="sr" onchange="subirVideoArchivo(this)"></label><small>Del móvil o del ordenador. Si dura más de 30 segundos, eliges el trozo.'
@@ -190,8 +191,16 @@ function encenderCamara(){
       : 'Este navegador no deja grabar aquí. Graba el vídeo con la cámara del móvil y súbelo con el botón de abajo.');
   navigator.mediaDevices.getUserMedia({ video:{ width:{ideal:640}, height:{ideal:480}, facingMode:'user' }, audio:true }).then(function(st){
     GV.stream = st;
-    var v = $('gv-v'); v.srcObject = st; v.muted = true; v.controls = false;
+    var v = $('gv-v');
+    // Después de grabar, el reproductor se queda con el vídeo puesto, parado y
+    // con los controles. Si no se suelta y se vuelve a arrancar, al darle a
+    // «Repetir» la pantalla se queda en negro y no te ves.
+    v.removeAttribute('src'); try{ v.load(); }catch(e){}
+    v.srcObject = st; v.muted = true; v.controls = false;
+    v.autoplay = true; v.playsInline = true; v.setAttribute('playsinline', '');
+    var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
     $('gv-vacio').hidden = true;
+    var nota = $('gv-nota'); if(nota) nota.hidden = false;
     gvBotones('lista');
   }).catch(function(){
     error('gv-err', 'No tenemos permiso para usar la cámara. Actívalo en tu navegador o sube un vídeo grabado con el móvil.');
@@ -209,6 +218,7 @@ function empezarGrabar(){
     var v = $('gv-v'); if(!v) return;
     v.srcObject = null; v.src = URL.createObjectURL(GV.blob); v.muted = false; v.controls = true; v.autoplay = false;
     $('gv-reloj').hidden = true;
+    var nota = $('gv-nota'); if(nota) nota.hidden = true;   // esto ya es el vídeo de verdad, no el espejo
     GV.ini = 0; GV.fin = 0;
     if(GV.dur < VIDEO_MIN_S){ gvBotones('corto'); return error('gv-err', 'Ha durado ' + Math.round(GV.dur) + ' segundos. Graba entre ' + VIDEO_MIN_S + ' y ' + VIDEO_MAX_S + ': las clínicas necesitan un poco más para conocerte.'); }
     gvBotones('hecho');
@@ -249,6 +259,7 @@ function subirVideoArchivo(inp){
     var pv = $('gv-v'); if(pv){ pv.srcObject = null; pv.src = url + '#t=0.001'; pv.muted = false; pv.controls = true; pv.autoplay = false; pv.preload = 'auto'; }
     var vac = $('gv-vacio'); if(vac) vac.hidden = true;
     var sub = $('gv-sub'); if(sub) sub.hidden = true;
+    var nota = $('gv-nota'); if(nota) nota.hidden = true;
     if(!largo && !pesado){ GV.blob = f; gvBotones('hecho'); return; }
     gvTramo(largo);
   };

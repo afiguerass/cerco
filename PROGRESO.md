@@ -511,6 +511,20 @@ La escalera ayuda si lo que ahoga al móvil es dibujar y comprimir; si lo que no
 **descodificar** el 4K de origen, bajar la calidad de salida no cambia nada, porque el
 vídeo de entrada sigue siendo el mismo. Eso no se puede evitar desde una web.
 
+## Grabar con la cámara: dos fallos (19 de noviembre)
+Asish probó «Encender cámara» en su iPhone y encontró dos cosas.
+
+- **Pantalla en negro al volver a grabar.** Al terminar una grabación, el reproductor se
+  queda con el vídeo puesto, parado, con los controles y con `autoplay` apagado. Al darle
+  a «Repetir» se le ponía la cámara encima pero **nadie lo volvía a arrancar**: la persona
+  no se veía. Ahora, al encender la cámara, se suelta el vídeo anterior (`load()`) y se
+  vuelve a poner en marcha. Prueba nueva `pruebas/e2e/73-grabar-camara.spec.js`, con una
+  cámara de mentira; **comprobado que falla sin el arreglo**, en ese mismo paso.
+- **«Sale al revés».** La vista en directo está reflejada como un espejo (`scaleX(-1)`,
+  natural para un selfi) y el vídeo guardado no. Nadie lo explicaba. Ahora, mientras
+  grabas, debajo pone: «Mientras grabas te ves como en un espejo… El vídeo guardado sale
+  al derecho, que es como te ve la gente». Al ver lo grabado, el aviso desaparece.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

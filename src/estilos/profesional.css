@@ -1066,3 +1066,7 @@ body.en-dx .tab.active .ico{background:rgba(255,255,255,.16);}
 /* Ofertas: lo que queda fuera de la lista (por los km o la profesión) y cómo verlo */
 .of-mas{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);margin:4px 2px 10px;}
 .of-mas .link{font-weight:700;}
+
+/* Aviso de que la vista en directo de la cámara es un espejo. Solo sale
+   mientras grabas: al ver el vídeo ya no hay espejo. */
+.gv-nota{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px;}

@@ -198,6 +198,7 @@ function encenderCamara(){
     v.removeAttribute('src'); try{ v.load(); }catch(e){}
     v.srcObject = st; v.muted = true; v.controls = false;
     v.autoplay = true; v.playsInline = true; v.setAttribute('playsinline', '');
+    v.classList.add('gv-espejo');   // en directo te ves como en un espejo
     var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
     $('gv-vacio').hidden = true;
     var nota = $('gv-nota'); if(nota) nota.hidden = false;
@@ -217,6 +218,7 @@ function empezarGrabar(){
     apagarCamara();
     var v = $('gv-v'); if(!v) return;
     v.srcObject = null; v.src = URL.createObjectURL(GV.blob); v.muted = false; v.controls = true; v.autoplay = false;
+    v.classList.remove('gv-espejo');   // esto ya es el vídeo de verdad
     $('gv-reloj').hidden = true;
     var nota = $('gv-nota'); if(nota) nota.hidden = true;   // esto ya es el vídeo de verdad, no el espejo
     GV.ini = 0; GV.fin = 0;
@@ -256,7 +258,7 @@ function subirVideoArchivo(inp){
     if(isFinite(d) && d > 180) return error('gv-err', 'El vídeo dura ' + mmss(d) + '. Sube uno de menos de 3 minutos.');
     GV.archivo = f; GV.url = url; GV.dur = isFinite(d) ? d : 0; GV.ini = 0; GV.fin = 0; GV.blob = null;
     var largo = GV.dur > VIDEO_MAX_S + 0.5, pesado = f.size > VIDEO_MAX_MB * 1048576;
-    var pv = $('gv-v'); if(pv){ pv.srcObject = null; pv.src = url + '#t=0.001'; pv.muted = false; pv.controls = true; pv.autoplay = false; pv.preload = 'auto'; }
+    var pv = $('gv-v'); if(pv){ pv.srcObject = null; pv.src = url + '#t=0.001'; pv.muted = false; pv.controls = true; pv.autoplay = false; pv.preload = 'auto'; pv.classList.remove('gv-espejo'); }
     var vac = $('gv-vacio'); if(vac) vac.hidden = true;
     var sub = $('gv-sub'); if(sub) sub.hidden = true;
     var nota = $('gv-nota'); if(nota) nota.hidden = true;
@@ -351,6 +353,7 @@ function gvPreparar(){
   try{ if(ac.resume) ac.resume(); }catch(e){}
   var so = pv.__so; if(!so){ try{ so = pv.__so = ac.createMediaElementSource(pv); so.connect(ac.destination); }catch(e){ return error('gv-err', msgSinAudio()); } }
   pv.ontimeupdate = null; pv.controls = false; pv.muted = false; pv.loop = false;
+  pv.classList.remove('gv-espejo');   // es un vídeo suyo, no la cámara: sin espejo
   b.disabled = true; $('gv-prog').hidden = false; error('gv-err', '');
 
   var w = pv.videoWidth || 720, h = pv.videoHeight || 1280;

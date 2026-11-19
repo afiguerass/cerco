@@ -366,8 +366,12 @@ select.inp{appearance:none;-webkit-appearance:none;background-image:url("data:im
 /* gravadora */
 .gv{max-width:520px;}
 .gv-pant{position:relative;aspect-ratio:4/3;background:#0B1220;border-radius:14px;overflow:hidden;}
-.gv-pant video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1);}
-.gv-pant video[controls]{transform:none;object-fit:contain;}
+.gv-pant video{width:100%;height:100%;object-fit:cover;display:block;}
+/* El espejo es SOLO para verte en directo en la cámara, como un selfi. Antes
+   se decidía por si el reproductor llevaba controles, que no es lo mismo: un
+   vídeo subido de la galería salía reflejado mientras se preparaba. */
+.gv-pant video.gv-espejo{transform:scaleX(-1);}
+.gv-pant video[controls]{object-fit:contain;}
 .gv-vacio{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:rgba(255,255,255,.75);font-size:13px;}
 .gv-reloj{position:absolute;top:10px;left:10px;background:rgba(220,38,38,.92);color:#fff;border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;}
 .gv-acts{display:flex;gap:10px;margin-top:12px;}

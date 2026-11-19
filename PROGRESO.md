@@ -525,6 +525,17 @@ Asish probó «Encender cámara» en su iPhone y encontró dos cosas.
   grabas, debajo pone: «Mientras grabas te ves como en un espejo… El vídeo guardado sale
   al derecho, que es como te ve la gente». Al ver lo grabado, el aviso desaparece.
 
+### El espejo estaba mal atado (19 de noviembre)
+Asish: «si subo un vídeo de mi galería sale del mismo lado que lo grabé». Mirándolo salió
+un fallo de verdad: el espejo se decidía con `video[controls]`, o sea **por si el
+reproductor llevaba controles**, que es una coincidencia, no la condición. Como al
+preparar un vídeo subido se le quitan los controles, **ese vídeo se veía reflejado los 30
+segundos que duraba la preparación**, y el resultado salía sin reflejar. De ahí la
+sensación de que «cambia de lado».
+Ahora el espejo es una clase (`gv-espejo`) que se pone **solo con la cámara en directo**.
+Prueba nueva: con la cámara sí hay espejo; con un vídeo de la galería no lo hay en ningún
+momento, tampoco mientras se prepara.
+
 ## Pendiente para más adelante
 - **Reglas de seguridad: puntos mejorables** (previsto en la Fase 3):
   - Cualquier cuenta puede crearse un documento en `clinicas/{su uid}` y así leer `talento`, que de todas formas es anónimo.

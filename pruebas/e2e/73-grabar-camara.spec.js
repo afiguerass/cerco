@@ -56,6 +56,8 @@ test('Grabar, no gustarme y volver a grabar: la cámara se vuelve a ver', async 
 
   // Se avisa de que es un espejo, que si no la gente cree que sale al revés
   await expect(p.locator('#gv-nota')).toContainText('como en un espejo');
+  const reflejado = () => p.evaluate(() => getComputedStyle(document.getElementById('gv-v')).transform);
+  expect(await reflejado()).toContain('-1');   // en directo sí hay espejo
 
   // 2. Graba un trozo corto y lo para
   await p.locator('.gv-rec').click();
@@ -65,6 +67,7 @@ test('Grabar, no gustarme y volver a grabar: la cámara se vuelve a ver', async 
   // Es muy corto, así que ofrece grabar otra vez. Y aquí ya no hay espejo.
   await expect(p.locator('#gv-err')).toContainText('Graba entre 15 y 60', { timeout: 20_000 });
   await expect(p.locator('#gv-nota')).toBeHidden();
+  expect(await reflejado()).not.toContain('-1');   // el vídeo grabado, sin espejo
 
   // 3. «Grabar otra vez»: ANTES la pantalla se quedaba en negro
   await p.getByRole('button', { name: 'Grabar otra vez' }).click();
@@ -74,6 +77,52 @@ test('Grabar, no gustarme y volver a grabar: la cámara se vuelve a ver', async 
   const t1 = (await enMarcha()).t;
   await p.waitForTimeout(1200);
   expect((await enMarcha()).t).toBeGreaterThan(t1);
+
+  expect(p.erroresPagina).toEqual([]);
+  await v.context.close();
+});
+
+test('Un vídeo de la galería nunca sale reflejado, ni mientras se prepara', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'ordenador', 'basta con un tamaño de pantalla');
+  test.setTimeout(120_000);
+  await vaciarEmulador();
+
+  const v = await nuevaVentana(browser, testInfo);
+  const p = v.page;
+  await p.addInitScript(CAMARA_FALSA);
+  await A.registrarProfesional(p, 'galeria@prueba.es');
+  await A.altaProfesional(p);
+  await p.check('#t-consent');
+  await p.getByRole('button', { name: 'Empezar el test' }).click();
+  await A.contestarTestProfesional(p, { pesos: { D: 1, I: 3, S: 2, C: 4 } });
+  await p.click('#tr-btn');
+  await A.elegirComoTeVen(p, 'visible');
+  await p.locator('#gu-next').waitFor();
+  await p.evaluate(() => guiaCerrar());
+  await p.evaluate(() => ir('perfil'));
+  await p.getByRole('button', { name: 'Grabar' }).first().click();
+
+  const reflejado = () => p.evaluate(() => getComputedStyle(document.getElementById('gv-v')).transform);
+
+  // Se enciende la cámara: ahí sí hay espejo
+  await p.getByRole('button', { name: 'Encender cámara' }).click();
+  await expect(p.locator('#gv-nota')).toBeVisible({ timeout: 20_000 });
+  expect(await reflejado()).toContain('-1');
+
+  // Y ahora se sube un vídeo de la galería: aquí no hay espejo en ningún momento
+  await p.evaluate(() => { window.VIDEO_MAX_MB = 0.1; });
+  await p.locator('input[onchange^="subirVideoArchivo"]').setInputFiles(A.archivo('video-vertical.webm'));
+  await expect(p.locator('#gv-prep')).toHaveText('Preparar mi vídeo');
+  await expect(p.locator('#gv-nota')).toBeHidden();
+  expect(await reflejado()).not.toContain('-1');
+
+  // mientras se prepara tampoco (antes se reflejaba, porque se le quitan los controles)
+  await p.click('#gv-prep');
+  await expect(p.locator('#gv-prep')).toContainText('Preparando', { timeout: 20_000 });
+  expect(await reflejado()).not.toContain('-1');
+
+  await expect(p.locator('#gv-usar')).toBeVisible({ timeout: 120_000 });
+  expect(await reflejado()).not.toContain('-1');
 
   expect(p.erroresPagina).toEqual([]);
   await v.context.close();
